@@ -1,97 +1,791 @@
-<!DOCTYPE html>
+
+html_code = '''<!DOCTYPE html>
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>P2P Obmennik | USDT, BTC, TON</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Valyuta & Kripto Obmennik - Zamonaviy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 40px 0 20px;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            margin-bottom: 20px;
+        }
+
+        /* Market Overview */
+        .market-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .overview-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .overview-card .icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .overview-card .label {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+
+        .overview-card .value {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        /* Main Exchange Card */
+        .exchange-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            margin: 20px auto;
+            max-width: 650px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        }
+
+        .exchange-title {
+            text-align: center;
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(46, 204, 113, 0.15);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #2ecc71;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.2); }
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 4px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: rgba(102, 126, 234, 0.6);
+            background: rgba(255, 255, 255, 0.18);
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .input-wrapper input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 1.4rem;
+            padding: 15px;
+            outline: none;
+            font-weight: 600;
+        }
+
+        .input-wrapper input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .input-wrapper select {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: #fff;
+            font-size: 0.95rem;
+            padding: 14px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            outline: none;
+            min-width: 140px;
+            font-weight: 500;
+        }
+
+        .input-wrapper select option {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 10px;
+        }
+
+        /* Swap Button */
+        .swap-btn {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .swap-btn button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: #fff;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.6rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .swap-btn button:hover {
+            transform: rotate(180deg) scale(1.1);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+        }
+
+        /* Result */
+        .result-box {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            margin-top: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .result-box .label {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-box .value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #00d4ff, #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .rate-info {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        /* Live Rates Section */
+        .rates-section {
+            margin-top: 50px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .rates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .rate-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rate-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .rate-card:hover::before {
+            opacity: 1;
+        }
+
+        .rate-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .rate-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .currency-pair {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .currency-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .crypto-badge {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+            background: rgba(255, 165, 0, 0.3);
+            color: #ffa500;
+            font-weight: 600;
+        }
+
+        .fiat-badge {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+            background: rgba(46, 204, 113, 0.3);
+            color: #2ecc71;
+            font-weight: 600;
+        }
+
+        .rate-change {
+            font-size: 0.85rem;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .rate-change.up {
+            background: rgba(46, 204, 113, 0.25);
+            color: #2ecc71;
+        }
+
+        .rate-change.down {
+            background: rgba(231, 76, 60, 0.25);
+            color: #e74c3c;
+        }
+
+        .rate-value {
+            font-size: 1.7rem;
+            font-weight: 700;
+            margin: 12px 0;
+        }
+
+        .rate-detail {
+            font-size: 0.85rem;
+            opacity: 0.6;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            margin-top: 50px;
+            opacity: 0.6;
+            font-size: 0.85rem;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 4px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            .exchange-card {
+                padding: 25px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>💰 P2P Obmennik</h1>
-        
-        <!-- Balanslar paneli -->
-        <div class="balance-panel">
-            <h2>Mening aktivlarim</h2>
-            <div class="balance-list">
-                <div class="balance-item">
-                    <span class="icon">🇺🇸</span> USDT: <span id="usdt-balance">1250.50</span>
-                </div>
-                <div class="balance-item">
-                    <span class="icon">₿</span> Bitcoin: <span id="btc-balance">0.047</span>
-                </div>
-                <div class="balance-item">
-                    <span class="icon">Ⓣ</span> Toncoin: <span id="ton-balance">89.20</span>
-                </div>
-                <div class="balance-item">
-                    <span class="icon">🇺🇿</span> UZS: <span id="uzs-balance">5,200,000</span> so'm
-                </div>
+        <!-- Header -->
+        <div class="header">
+            <h1>Valyuta & Kripto Obmennik</h1>
+            <p>Real vaqtda fiat valyutalar va kriptovalyutalar ayirboshlash</p>
+        </div>
+
+        <!-- Market Overview -->
+        <div class="market-overview">
+            <div class="overview-card">
+                <div class="icon">&#8383;</div>
+                <div class="label">Bitcoin (BTC)</div>
+                <div class="value" id="btcPrice">$73,008</div>
+            </div>
+            <div class="overview-card">
+                <div class="icon">&#9670;</div>
+                <div class="label">Ethereum (ETH)</div>
+                <div class="value" id="ethPrice">$1,994</div>
+            </div>
+            <div class="overview-card">
+                <div class="icon">&#9733;</div>
+                <div class="label">Solana (SOL)</div>
+                <div class="value" id="solPrice">$81.18</div>
+            </div>
+            <div class="overview-card">
+                <div class="icon">&#9670;</div>
+                <div class="label">XRP</div>
+                <div class="value" id="xrpPrice">$1.30</div>
             </div>
         </div>
 
-        <!-- 2 ustunli obmen qilish formasi -->
-        <div class="exchange-wrapper">
-            <!-- Chap tomon: Men beraman -->
-            <div class="exchange-card give-card">
-                <div class="card-header">
-                    <span class="arrow-icon">📤</span>
-                    <h3>Men beraman</h3>
+        <!-- Exchange Card -->
+        <div class="exchange-card">
+            <div style="text-align: center;">
+                <div class="live-indicator">
+                    <span class="live-dot"></span>
+                    <span>Live kurslar</span>
                 </div>
-                
-                <!-- Slider 1: Berish valyutasi -->
-                <div class="slider-container">
-                    <input type="range" id="give-slider" min="0" max="3" step="1" value="0">
-                    <div class="slider-labels">
-                        <span>🇺🇸 USDT</span>
-                        <span>₿ BTC</span>
-                        <span>Ⓣ TON</span>
-                        <span>🇺🇿 UZS</span>
-                    </div>
-                </div>
-                
-                <div class="selected-info">
-                    Tanlangan: <span id="selected-give">USDT</span>
-                </div>
-                
-                <div class="amount-input">
-                    <label>Summa:</label>
-                    <input type="number" id="give-amount" placeholder="0">
+            </div>
+            
+            <div class="exchange-title">&#128260; Ayirboshlash</div>
+            
+            <!-- From -->
+            <div class="input-group">
+                <label>&#128228; Siz berasiz:</label>
+                <div class="input-wrapper">
+                    <input type="number" id="fromAmount" value="1" placeholder="0.00" oninput="calculate()">
+                    <select id="fromCurrency" onchange="calculate()">
+                        <optgroup label="Fiat Valyutalar">
+                            <option value="USD" selected>&#127482;&#127480; USD</option>
+                            <option value="EUR">&#127466;&#127482; EUR</option>
+                            <option value="GBP">&#127468;&#127463; GBP</option>
+                            <option value="RUB">&#127479;&#127482; RUB</option>
+                            <option value="CNY">&#127464;&#127475; CNY</option>
+                            <option value="JPY">&#127471;&#127477; JPY</option>
+                            <option value="TRY">&#127481;&#127479; TRY</option>
+                            <option value="KZT">&#127472;&#127487; KZT</option>
+                            <option value="UZS">&#127482;&#127487; UZS</option>
+                        </optgroup>
+                        <optgroup label="Kriptovalyutalar">
+                            <option value="BTC">&#8383; Bitcoin</option>
+                            <option value="ETH">&#9670; Ethereum</option>
+                            <option value="SOL">&#9733; Solana</option>
+                            <option value="XRP">&#9670; XRP</option>
+                            <option value="BNB">&#9670; BNB</option>
+                            <option value="ADA">&#9670; Cardano</option>
+                            <option value="LINK">&#9670; Chainlink</option>
+                            <option value="TON">&#9992; Toncoin</option>
+                            <option value="AVAX">&#9650; Avalanche</option>
+                            <option value="SUI">&#9670; Sui</option>
+                            <option value="TRX">&#9670; TRON</option>
+                            <option value="DOGE">&#9670; Dogecoin</option>
+                            <option value="SHIB">&#9670; Shiba Inu</option>
+                            <option value="LTC">&#9670; Litecoin</option>
+                        </optgroup>
+                    </select>
                 </div>
             </div>
 
-            <!-- Ong tomon: Men olaman -->
-            <div class="exchange-card get-card">
-                <div class="card-header">
-                    <span class="arrow-icon">📥</span>
-                    <h3>Men olaman</h3>
-                </div>
-                
-                <!-- Slider 2: Olish valyutasi -->
-                <div class="slider-container">
-                    <input type="range" id="get-slider" min="0" max="3" step="1" value="2">
-                    <div class="slider-labels">
-                        <span>🇺🇸 USDT</span>
-                        <span>₿ BTC</span>
-                        <span>Ⓣ TON</span>
-                        <span>🇺🇿 UZS</span>
-                    </div>
-                </div>
-                
-                <div class="selected-info">
-                    Tanlangan: <span id="selected-get">Toncoin</span>
-                </div>
-                
-                <div class="amount-input">
-                    <label>Siz olasiz:</label>
-                    <input type="text" id="get-amount" readonly placeholder="0">
+            <!-- Swap -->
+            <div class="swap-btn">
+                <button onclick="swapCurrencies()">&#8645;</button>
+            </div>
+
+            <!-- To -->
+            <div class="input-group">
+                <label>&#128229; Siz olasiz:</label>
+                <div class="input-wrapper">
+                    <input type="text" id="toAmount" placeholder="0.00" readonly>
+                    <select id="toCurrency" onchange="calculate()">
+                        <optgroup label="Fiat Valyutalar">
+                            <option value="USD">&#127482;&#127480; USD</option>
+                            <option value="EUR">&#127466;&#127482; EUR</option>
+                            <option value="GBP">&#127468;&#127463; GBP</option>
+                            <option value="RUB">&#127479;&#127482; RUB</option>
+                            <option value="CNY">&#127464;&#127475; CNY</option>
+                            <option value="JPY">&#127471;&#127477; JPY</option>
+                            <option value="TRY">&#127481;&#127479; TRY</option>
+                            <option value="KZT">&#127472;&#127487; KZT</option>
+                            <option value="UZS" selected>&#127482;&#127487; UZS</option>
+                        </optgroup>
+                        <optgroup label="Kriptovalyutalar">
+                            <option value="BTC">&#8383; Bitcoin</option>
+                            <option value="ETH">&#9670; Ethereum</option>
+                            <option value="SOL">&#9733; Solana</option>
+                            <option value="XRP">&#9670; XRP</option>
+                            <option value="BNB">&#9670; BNB</option>
+                            <option value="ADA">&#9670; Cardano</option>
+                            <option value="LINK">&#9670; Chainlink</option>
+                            <option value="TON">&#9992; Toncoin</option>
+                            <option value="AVAX">&#9650; Avalanche</option>
+                            <option value="SUI">&#9670; Sui</option>
+                            <option value="TRX">&#9670; TRON</option>
+                            <option value="DOGE">&#9670; Dogecoin</option>
+                            <option value="SHIB">&#9670; Shiba Inu</option>
+                            <option value="LTC">&#9670; Litecoin</option>
+                        </optgroup>
+                    </select>
                 </div>
             </div>
+
+            <!-- Result -->
+            <div class="result-box">
+                <div class="label">NATIJA</div>
+                <div class="value" id="resultText">12,650,000 UZS</div>
+            </div>
+            <div class="rate-info" id="rateInfo">1 USD = 12,650 UZS</div>
         </div>
 
-        <button id="submit-btn">📤 Obmen qilish</button>
-        <div id="message"></div>
+        <!-- Live Rates -->
+        <div class="rates-section">
+            <div class="section-title">&#128202; Mashhur Ayirboshlash Juftliklari</div>
+            <div class="rates-grid" id="ratesGrid"></div>
+        </div>
+
+        <!-- Crypto Rates -->
+        <div class="rates-section">
+            <div class="section-title">&#128640; Kriptovalyuta Kurslari</div>
+            <div class="rates-grid" id="cryptoGrid"></div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>&#169; 2026 Valyuta & Kripto Obmennik. Barcha kurslar real vaqtda yangilanadi.</p>
+            <p style="margin-top: 8px; font-size: 0.75rem;">Kurslar demo maqsadida. Haqiqiy savdo uchun professional API ulang.</p>
+        </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        // ===== FIAT RATES (USD asosida) =====
+        const fiatRates = {
+            USD: 1, EUR: 0.92, GBP: 0.79, RUB: 92.50,
+            CNY: 7.24, JPY: 151.80, TRY: 32.15, KZT: 495.20, UZS: 12650
+        };
+
+        // ===== CRYPTO RATES (USD asosida, 2026 may) =====
+        const cryptoRates = {
+            BTC: 73008, ETH: 1994, SOL: 81.18, XRP: 1.30,
+            BNB: 634.34, ADA: 0.25, LINK: 15.80, TON: 5.40,
+            AVAX: 28.50, SUI: 3.20, TRX: 0.34, DOGE: 0.18,
+            SHIB: 0.000025, LTC: 85.50
+        };
+
+        const allRates = {};
+        for (let k in fiatRates) allRates[k] = fiatRates[k];
+        for (let k in cryptoRates) allRates[k] = cryptoRates[k];
+
+        const names = {
+            USD: 'AQSh dollari', EUR: 'Yevro', GBP: 'Funt sterling',
+            RUB: 'Rus rubli', CNY: 'Xitoy yuani', JPY: 'Yapon yenasi',
+            TRY: 'Turk lirasi', KZT: 'Qozog tenge', UZS: 'Ozbek somi',
+            BTC: 'Bitcoin', ETH: 'Ethereum', SOL: 'Solana',
+            XRP: 'XRP', BNB: 'BNB', ADA: 'Cardano',
+            LINK: 'Chainlink', TON: 'Toncoin', AVAX: 'Avalanche',
+            SUI: 'Sui', TRX: 'TRON', DOGE: 'Dogecoin',
+            SHIB: 'Shiba Inu', LTC: 'Litecoin'
+        };
+
+        const icons = {
+            USD: '&#127482;&#127480;', EUR: '&#127466;&#127482;', GBP: '&#127468;&#127463;',
+            RUB: '&#127479;&#127482;', CNY: '&#127464;&#127475;', JPY: '&#127471;&#127477;',
+            TRY: '&#127481;&#127479;', KZT: '&#127472;&#127487;', UZS: '&#127482;&#127487;',
+            BTC: '&#8383;', ETH: '&#9670;', SOL: '&#9733;', XRP: '&#9670;',
+            BNB: '&#9670;', ADA: '&#9670;', LINK: '&#9670;', TON: '&#9992;',
+            AVAX: '&#9650;', SUI: '&#9670;', TRX: '&#9670;', DOGE: '&#9670;',
+            SHIB: '&#9670;', LTC: '&#9670;'
+        };
+
+        function calculate() {
+            var from = document.getElementById('fromCurrency').value;
+            var to = document.getElementById('toCurrency').value;
+            var amount = parseFloat(document.getElementById('fromAmount').value) || 0;
+            
+            var inUSD = amount / allRates[from];
+            var result = inUSD * allRates[to];
+            
+            document.getElementById('toAmount').value = formatNumber(result);
+            document.getElementById('resultText').textContent = formatNumber(result) + ' ' + to;
+            
+            var rate = allRates[to] / allRates[from];
+            document.getElementById('rateInfo').textContent = 
+                '1 ' + from + ' = ' + formatRate(rate) + ' ' + to;
+        }
+
+        function formatNumber(num) {
+            if (num === 0) return '0';
+            if (num >= 1000000) {
+                return num.toLocaleString('en-US', {maximumFractionDigits: 0});
+            } else if (num >= 1) {
+                return num.toLocaleString('en-US', {maximumFractionDigits: 2});
+            } else if (num >= 0.0001) {
+                return num.toLocaleString('en-US', {maximumFractionDigits: 6});
+            } else {
+                return num.toExponential(4);
+            }
+        }
+
+        function formatRate(num) {
+            if (num >= 1) {
+                return num.toLocaleString('en-US', {maximumFractionDigits: 4});
+            } else if (num >= 0.0001) {
+                return num.toLocaleString('en-US', {maximumFractionDigits: 6});
+            } else {
+                return num.toExponential(4);
+            }
+        }
+
+        function swapCurrencies() {
+            var from = document.getElementById('fromCurrency');
+            var to = document.getElementById('toCurrency');
+            var temp = from.value;
+            from.value = to.value;
+            to.value = temp;
+            calculate();
+        }
+
+        function generateFiatCards() {
+            var grid = document.getElementById('ratesGrid');
+            var pairs = [
+                ['USD', 'UZS'], ['EUR', 'UZS'], ['RUB', 'UZS'],
+                ['USD', 'EUR'], ['USD', 'GBP'], ['CNY', 'UZS'],
+                ['TRY', 'UZS'], ['KZT', 'UZS'], ['JPY', 'UZS']
+            ];
+
+            for (var i = 0; i < pairs.length; i++) {
+                var base = pairs[i][0];
+                var quote = pairs[i][1];
+                var rate = allRates[quote] / allRates[base];
+                var change = (Math.random() * 2 - 1).toFixed(2);
+                var isUp = change >= 0;
+
+                var card = document.createElement('div');
+                card.className = 'rate-card';
+                card.innerHTML = 
+                    '<div class="rate-card-header">' +
+                        '<div class="currency-pair">' +
+                            '<div class="currency-icon">' + icons[base] + '</div>' +
+                            '<div>' +
+                                '<div>' + base + '/' + quote + '</div>' +
+                                '<span class="fiat-badge">FIAT</span>' +
+                            '</div>' +
+                        '</div>' +
+                        '<span class="rate-change ' + (isUp ? 'up' : 'down') + '">' +
+                            (isUp ? '&#9650;' : '&#9660;') + ' ' + Math.abs(change) + '%' +
+                        '</span>' +
+                    '</div>' +
+                    '<div class="rate-value">' + formatRate(rate) + '</div>' +
+                    '<div class="rate-detail">1 ' + base + ' = ' + formatRate(rate) + ' ' + quote + '</div>';
+                
+                card.onclick = (function(b, q) {
+                    return function() {
+                        document.getElementById('fromCurrency').value = b;
+                        document.getElementById('toCurrency').value = q;
+                        document.getElementById('fromAmount').value = '1';
+                        calculate();
+                        window.scrollTo({top: 0, behavior: 'smooth'});
+                    };
+                })(base, quote);
+                
+                grid.appendChild(card);
+            }
+        }
+
+        function generateCryptoCards() {
+            var grid = document.getElementById('cryptoGrid');
+            var cryptos = ['BTC', 'ETH', 'SOL', 'XRP', 'BNB', 'ADA', 'LINK', 'TON', 'AVAX', 'SUI', 'TRX', 'DOGE'];
+            
+            for (var i = 0; i < cryptos.length; i++) {
+                var crypto = cryptos[i];
+                var priceUSD = allRates[crypto];
+                var priceUZS = priceUSD * allRates['UZS'];
+                var change = (Math.random() * 10 - 5).toFixed(2);
+                var isUp = change >= 0;
+
+                var card = document.createElement('div');
+                card.className = 'rate-card';
+                card.innerHTML = 
+                    '<div class="rate-card-header">' +
+                        '<div class="currency-pair">' +
+                            '<div class="currency-icon">' + icons[crypto] + '</div>' +
+                            '<div>' +
+                                '<div>' + crypto + '</div>' +
+                                '<span class="crypto-badge">CRYPTO</span>' +
+                            '</div>' +
+                        '</div>' +
+                        '<span class="rate-change ' + (isUp ? 'up' : 'down') + '">' +
+                            (isUp ? '&#9650;' : '&#9660;') + ' ' + Math.abs(change) + '%' +
+                        '</span>' +
+                    '</div>' +
+                    '<div class="rate-value">$' + formatNumber(priceUSD) + '</div>' +
+                    '<div class="rate-detail">&#8776; ' + formatNumber(priceUZS) + ' UZS</div>';
+                
+                card.onclick = (function(c) {
+                    return function() {
+                        document.getElementById('fromCurrency').value = c;
+                        document.getElementById('toCurrency').value = 'UZS';
+                        document.getElementById('fromAmount').value = '1';
+                        calculate();
+                        window.scrollTo({top: 0, behavior: 'smooth'});
+                    };
+                })(crypto);
+                
+                grid.appendChild(card);
+            }
+        }
+
+        function animateRates() {
+            var cards = document.querySelectorAll('.rate-card');
+            for (var i = 0; i < cards.length; i++) {
+                var changeEl = cards[i].querySelector('.rate-change');
+                if (changeEl) {
+                    var newChange = (Math.random() * 3 - 1.5).toFixed(2);
+                    var isUp = newChange >= 0;
+                    changeEl.className = 'rate-change ' + (isUp ? 'up' : 'down');
+                    changeEl.innerHTML = (isUp ? '&#9650;' : '&#9660;') + ' ' + Math.abs(newChange) + '%';
+                }
+            }
+        }
+
+        function updateMarketOverview() {
+            var cryptos = ['BTC', 'ETH', 'SOL', 'XRP'];
+            var ids = ['btcPrice', 'ethPrice', 'solPrice', 'xrpPrice'];
+            
+            for (var i = 0; i < cryptos.length; i++) {
+                var basePrice = allRates[cryptos[i]];
+                var variation = 1 + (Math.random() * 0.02 - 0.01);
+                var newPrice = basePrice * variation;
+                document.getElementById(ids[i]).textContent = '$' + formatNumber(newPrice);
+            }
+        }
+
+        // Init
+        calculate();
+        generateFiatCards();
+        generateCryptoCards();
+        
+        setInterval(function() {
+            animateRates();
+            updateMarketOverview();
+        }, 5000);
+    </script>
 </body>
-</html>
+</html>'''
+
+with open('/mnt/agents/output/index.html', 'w', encoding='utf-8') as f:
+    f.write(html_code)
+
+print("✅ Fayl muvaffaqiyatli saqlandi!")
+print(f"📁 Fayl nomi: index.html")
+print(f"📊 Hajmi: {len(html_code):,} belgi")
