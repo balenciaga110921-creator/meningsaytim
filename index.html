@@ -32,30 +32,31 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .input-group{margin-bottom:20px}
 .input-group label{display:block;margin-bottom:10px;font-size:1rem;font-weight:600;opacity:.9}
 
-/* FIXED: Input wrapper with currency inside */
-.input-wrapper{display:flex;align-items:stretch;background:rgba(255,255,255,.1);border-radius:20px;border:2px solid rgba(255,255,255,.1);transition:all .3s;overflow:hidden;min-height:70px}
+/* Input wrapper */
+.input-wrapper{display:flex;align-items:stretch;background:rgba(255,255,255,.1);border-radius:20px;border:2px solid rgba(255,255,255,.1);transition:all .3s;overflow:hidden;min-height:70px;position:relative}
 .input-wrapper:focus-within{border-color:#667eea;background:rgba(255,255,255,.15);box-shadow:0 0 30px rgba(102,126,234,.3)}
 .input-wrapper input{flex:1;background:transparent;border:none;color:#fff;font-size:1.6rem;padding:18px 22px;outline:none;font-weight:700;min-width:0}
 .input-wrapper input::placeholder{color:rgba(255,255,255,.3)}
 
-/* FIXED: Currency select - no border-radius issues */
-.currency-select{display:flex;align-items:center;gap:10px;padding:0 20px;background:rgba(255,255,255,.15);border-left:1px solid rgba(255,255,255,.1);cursor:pointer;transition:.3s;min-width:160px;position:relative;flex-shrink:0}
+/* Currency select */
+.currency-select{display:flex;align-items:center;gap:10px;padding:0 18px;background:rgba(255,255,255,.15);border-left:1px solid rgba(255,255,255,.1);cursor:pointer;transition:.3s;min-width:150px;position:relative;flex-shrink:0;height:100%}
 .currency-select:hover{background:rgba(255,255,255,.25)}
 .currency-select .flag{font-size:1.6rem}
 .currency-select .code{font-size:1.1rem;font-weight:700;white-space:nowrap}
-.currency-select .arrow{font-size:.8rem;opacity:.6;margin-left:auto}
+.currency-select .arrow{font-size:.8rem;opacity:.6;margin-left:4px}
 
-/* FIXED: Dropdown - proper positioning and z-index */
-.currency-dropdown{position:absolute;top:calc(100% + 8px);right:0;width:320px;max-height:400px;overflow-y:auto;background:#1a1a2e;border-radius:16px;border:1px solid rgba(255,255,255,.2);box-shadow:0 20px 60px rgba(0,0,0,.7);z-index:9999;display:none}
+/* Dropdown - FIXED */
+.currency-dropdown{position:absolute;top:calc(100% + 10px);right:0;width:340px;max-height:450px;overflow-y:auto;background:#1e1e3f;border-radius:16px;border:2px solid rgba(102,126,234,.4);box-shadow:0 25px 80px rgba(0,0,0,.8);z-index:100000;display:none;padding:8px 0}
 .currency-dropdown.active{display:block}
-.dropdown-search{padding:12px;border-bottom:1px solid rgba(255,255,255,.1);position:sticky;top:0;background:#1a1a2e;z-index:10}
-.dropdown-search input{width:100%;background:rgba(255,255,255,.1);border:none;border-radius:10px;padding:10px 14px;color:#fff;font-size:.9rem;outline:none}
-.dropdown-section{padding:8px 14px;font-size:.7rem;text-transform:uppercase;letter-spacing:1px;opacity:.5;font-weight:600;background:rgba(0,0,0,.2)}
-.dropdown-item{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;transition:.2s;border-bottom:1px solid rgba(255,255,255,.03)}
-.dropdown-item:hover{background:rgba(102,126,234,.2)}
-.dropdown-item .flag{font-size:1.4rem;width:35px;text-align:center;flex-shrink:0}
-.dropdown-item .name{font-weight:600;font-size:.9rem;flex:1}
-.dropdown-item .code{font-size:.75rem;opacity:.6;flex-shrink:0}
+.dropdown-search{padding:10px 15px 15px;border-bottom:1px solid rgba(255,255,255,.1);position:sticky;top:0;background:#1e1e3f;z-index:10}
+.dropdown-search input{width:100%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:12px 15px;color:#fff;font-size:.95rem;outline:none}
+.dropdown-search input:focus{border-color:#667eea}
+.dropdown-section{padding:10px 15px 6px;font-size:.75rem;text-transform:uppercase;letter-spacing:1.5px;opacity:.6;font-weight:700;color:#00d4ff}
+.dropdown-item{display:flex;align-items:center;gap:12px;padding:12px 18px;cursor:pointer;transition:.2s;border-bottom:1px solid rgba(255,255,255,.04)}
+.dropdown-item:hover{background:rgba(102,126,234,.25)}
+.dropdown-item .flag{font-size:1.5rem;width:40px;text-align:center;flex-shrink:0}
+.dropdown-item .name{font-weight:600;font-size:.95rem;flex:1;color:#fff}
+.dropdown-item .code{font-size:.8rem;opacity:.5;flex-shrink:0;color:#aaa}
 
 .swap-btn{display:flex;justify-content:center;margin:10px 0}
 .swap-btn button{background:linear-gradient(135deg,#667eea,#764ba2);border:none;color:#fff;width:55px;height:55px;border-radius:50%;cursor:pointer;font-size:1.6rem;transition:all .4s;box-shadow:0 8px 30px rgba(102,126,234,.5)}
@@ -69,11 +70,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 /* Rates Section */
 .rates-section{margin-top:40px;padding:0 20px}
 .section-title{text-align:center;font-size:1.8rem;margin-bottom:25px;font-weight:700}
-
-/* FIXED: TradingView widget container */
 .tv-container{width:100%;height:500px;border-radius:24px;overflow:hidden;border:1px solid rgba(255,255,255,.15);background:#131722;margin-bottom:30px;position:relative}
 .tv-container iframe{width:100%;height:100%;border:none;display:block}
-
 .widget-rates{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px}
 .widget-card{background:rgba(255,255,255,.06);border-radius:20px;padding:20px;border:1px solid rgba(255,255,255,.1);transition:.3s;cursor:pointer}
 .widget-card:hover{transform:translateY(-5px);border-color:rgba(102,126,234,.4);box-shadow:0 15px 40px rgba(0,0,0,.3)}
@@ -87,7 +85,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .widget-detail{font-size:.85rem;opacity:.6;margin-top:5px}
 
 .footer{text-align:center;padding:30px 0;margin-top:auto;opacity:.6;font-size:.85rem}
-
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-track{background:rgba(255,255,255,.05)}
 ::-webkit-scrollbar-thumb{background:rgba(102,126,234,.5);border-radius:3px}
@@ -96,9 +93,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .header h1{font-size:2rem}
 .exchange-card{padding:25px;border-radius:20px}
 .input-wrapper input{font-size:1.2rem;padding:14px 18px}
-.currency-select{min-width:130px;padding:0 14px}
+.currency-select{min-width:120px;padding:0 12px}
 .result-box .value{font-size:1.8rem}
-.currency-dropdown{width:280px;right:-20px}
+.currency-dropdown{width:280px;right:-30px}
 .tv-container{height:400px}
 }
 </style>
@@ -125,7 +122,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <label>📤 Siz berasiz:</label>
 <div class="input-wrapper">
 <input type="number" id="fromAmount" value="1000" placeholder="0.00" oninput="calc()">
-<div class="currency-select" onclick="toggle(event,'from')">
+<div class="currency-select" id="fromSelectBtn">
 <span class="flag" id="fromFlag">🇺🇸</span>
 <span class="code" id="fromCode">USD</span>
 <span class="arrow">▼</span>
@@ -140,7 +137,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <label>📥 Siz olasiz:</label>
 <div class="input-wrapper">
 <input type="text" id="toAmount" placeholder="0.00" readonly>
-<div class="currency-select" onclick="toggle(event,'to')">
+<div class="currency-select" id="toSelectBtn">
 <span class="flag" id="toFlag">🇺🇿</span>
 <span class="code" id="toCode">UZS</span>
 <span class="arrow">▼</span>
@@ -161,9 +158,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <div class="section-title">📊 Onlayn Kripto Narxlar (Real Vaqt)</div>
 <div class="tv-container">
 <iframe src="https://s.tradingview.com/embed-widget/market-quotes/?locale=ru&colorTheme=dark&showGrid=true&isTransparent=false&width=100%&height=100%&symbols=%5B%7B%22name%22%3A%22BINANCE%3ABTCUSDT%22%2C%22displayName%22%3A%22Bitcoin%22%7D%2C%7B%22name%22%3A%22BINANCE%3AETHUSDT%22%2C%22displayName%22%3A%22Ethereum%22%7D%2C%7B%22name%22%3A%22BINANCE%3ASOLUSDT%22%2C%22displayName%22%3A%22Solana%22%7D%2C%7B%22name%22%3A%22BINANCE%3ABNBUSDT%22%2C%22displayName%22%3A%22BNB%22%7D%2C%7B%22name%22%3A%22BINANCE%3AXRPUSDT%22%2C%22displayName%22%3A%22XRP%22%7D%2C%7B%22name%22%3A%22BINANCE%3AADAUSDT%22%2C%22displayName%22%3A%22Cardano%22%7D%2C%7B%22name%22%3A%22BINANCE%3ADOGEUSDT%22%2C%22displayName%22%3A%22Dogecoin%22%7D%2C%7B%22name%22%3A%22BINANCE%3ASHIBUSDT%22%2C%22displayName%22%3A%22Shiba%22%7D%2C%7B%22name%22%3A%22BINANCE%3AAVAXUSDT%22%2C%22displayName%22%3A%22Avalanche%22%7D%2C%7B%22name%22%3A%22BINANCE%3ALINKUSDT%22%2C%22displayName%22%3A%22Chainlink%22%7D%2C%7B%22name%22%3A%22BINANCE%3ADOTUSDT%22%2C%22displayName%22%3A%22Polkadot%22%7D%2C%7B%22name%22%3A%22BINANCE%3AMATICUSDT%22%2C%22displayName%22%3A%22Polygon%22%7D%5D" 
-title="TradingView Live Prices" allow="fullscreen"></iframe>
+title="TradingView" allow="fullscreen"></iframe>
 </div>
-
 <div class="section-title">🔥 Mashhur Juftliklar</div>
 <div class="widget-rates" id="widgets"></div>
 </div>
@@ -175,7 +171,7 @@ title="TradingView Live Prices" allow="fullscreen"></iframe>
 </div>
 
 <script>
-// ==== 150+ CURRENCIES ====
+// ===== CURRENCY DATA =====
 const C={
 USD:{n:"AQSh dollari",f:"🇺🇸",t:"fiat",r:1},EUR:{n:"Yevro",f:"🇪🇺",t:"fiat",r:.92},GBP:{n:"Funt",f:"🇬🇧",t:"fiat",r:.79},JPY:{n:"Yen",f:"🇯🇵",t:"fiat",r:151.8},CNY:{n:"Yuan",f:"🇨🇳",t:"fiat",r:7.24},RUB:{n:"Rubl",f:"🇷🇺",t:"fiat",r:92.5},UZS:{n:"So'm",f:"🇺🇿",t:"fiat",r:12650},KZT:{n:"Tenge",f:"🇰🇿",t:"fiat",r:495.2},TRY:{n:"Lira",f:"🇹🇷",t:"fiat",r:32.15},KRW:{n:"Von",f:"🇰🇷",t:"fiat",r:1350},INR:{n:"Rupiya",f:"🇮🇳",t:"fiat",r:83.5},BRL:{n:"Real",f:"🇧🇷",t:"fiat",r:5.05},CAD:{n:"Kanada",f:"🇨🇦",t:"fiat",r:1.36},AUD:{n:"Avstraliya",f:"🇦🇺",t:"fiat",r:1.52},CHF:{n:"Frank",f:"🇨🇭",t:"fiat",r:.9},SEK:{n:"Krona",f:"🇸🇪",t:"fiat",r:10.8},NOK:{n:"Krona",f:"🇳🇴",t:"fiat",r:10.6},DKK:{n:"Krona",f:"🇩🇰",t:"fiat",r:6.9},PLN:{n:"Zlotiy",f:"🇵🇱",t:"fiat",r:4},MXN:{n:"Peso",f:"🇲🇽",t:"fiat",r:17},SGD:{n:"Singapur",f:"🇸🇬",t:"fiat",r:1.35},HKD:{n:"Gongkong",f:"🇭🇰",t:"fiat",r:7.82},THB:{n:"Bath",f:"🇹🇭",t:"fiat",r:36.5},IDR:{n:"Rupiya",f:"🇮🇩",t:"fiat",r:15800},MYR:{n:"Ringgit",f:"🇲🇾",t:"fiat",r:4.75},PHP:{n:"Peso",f:"🇵🇭",t:"fiat",r:56.5},VND:{n:"Dong",f:"🇻🇳",t:"fiat",r:25400},AED:{n:"Dirham",f:"🇦🇪",t:"fiat",r:3.67},SAR:{n:"Riyol",f:"🇸🇦",t:"fiat",r:3.75},QAR:{n:"Riyol",f:"🇶🇦",t:"fiat",r:3.64},EGP:{n:"Funt",f:"🇪🇬",t:"fiat",r:47.5},ZAR:{n:"Rand",f:"🇿🇦",t:"fiat",r:18.6},NGN:{n:"Nayra",f:"🇳🇬",t:"fiat",r:1550},PKR:{n:"Rupiya",f:"🇵🇰",t:"fiat",r:278},BDT:{n:"Taka",f:"🇧🇩",t:"fiat",r:109.5},TJS:{n:"Somon",f:"🇹🇯",t:"fiat",r:10.9},TMT:{n:"Manat",f:"🇹🇲",t:"fiat",r:3.5},KGS:{n:"Som",f:"🇰🇬",t:"fiat",r:89},AZN:{n:"Manat",f:"🇦🇿",t:"fiat",r:1.7},GEL:{n:"Lari",f:"🇬🇪",t:"fiat",r:2.7},AMD:{n:"Dram",f:"🇦🇲",t:"fiat",r:395},BYN:{n:"Rubl",f:"🇧🇾",t:"fiat",r:3.2},MDL:{n:"Ley",f:"🇲🇩",t:"fiat",r:17.8},UAH:{n:"Grivna",f:"🇺🇦",t:"fiat",r:41},BTC:{n:"Bitcoin",f:"₿",t:"crypto",r:73008},ETH:{n:"Ethereum",f:"◆",t:"crypto",r:1994},BNB:{n:"BNB",f:"🔶",t:"crypto",r:634.34},SOL:{n:"Solana",f:"◎",t:"crypto",r:81.18},XRP:{n:"XRP",f:"✕",t:"crypto",r:1.3},ADA:{n:"Cardano",f:"₳",t:"crypto",r:.25},AVAX:{n:"Avalanche",f:"▲",t:"crypto",r:28.5},DOT:{n:"Polkadot",f:"●",t:"crypto",r:6.8},MATIC:{n:"Polygon",f:"⬡",t:"crypto",r:.58},LINK:{n:"Chainlink",f:"🔗",t:"crypto",r:15.8},UNI:{n:"Uniswap",f:"🦄",t:"crypto",r:9.5},LTC:{n:"Litecoin",f:"Ł",t:"crypto",r:85.5},BCH:{n:"Bitcoin Cash",f:"₿",t:"crypto",r:380},XLM:{n:"Stellar",f:"✴",t:"crypto",r:.11},TRX:{n:"TRON",f:"⬢",t:"crypto",r:.34},DOGE:{n:"Dogecoin",f:"Ð",t:"crypto",r:.18},SHIB:{n:"Shiba",f:"🦊",t:"crypto",r:.000025},TON:{n:"Toncoin",f:"✈",t:"crypto",r:5.4},SUI:{n:"Sui",f:"≡",t:"crypto",r:3.2},APT:{n:"Aptos",f:"◉",t:"crypto",r:6.2},ARB:{n:"Arbitrum",f:"◇",t:"crypto",r:.95},OP:{n:"Optimism",f:"◐",t:"crypto",r:1.8},NEAR:{n:"NEAR",f:"◉",t:"crypto",r:5.4},FTM:{n:"Fantom",f:"◆",t:"crypto",r:.65},ALGO:{n:"Algorand",f:"▲",t:"crypto",r:.14},VET:{n:"VeChain",f:"⬡",t:"crypto",r:.025},ICP:{n:"Internet Comp",f:"∞",t:"crypto",r:8.5},FIL:{n:"Filecoin",f:"◐",t:"crypto",r:3.8},EOS:{n:"EOS",f:"◉",t:"crypto",r:.72},XTZ:{n:"Tezos",f:"◉",t:"crypto",r:.78},AAVE:{n:"Aave",f:"👻",t:"crypto",r:95},MKR:{n:"Maker",f:"◈",t:"crypto",r:1750},COMP:{n:"Compound",f:"◈",t:"crypto",r:52},SNX:{n:"Synthetix",f:"◈",t:"crypto",r:2.4},YFI:{n:"Yearn",f:"◈",t:"crypto",r:7450},CRV:{n:"Curve",f:"◈",t:"crypto",r:.28},SUSHI:{n:"Sushi",f:"🍣",t:"crypto",r:.85},GRT:{n:"The Graph",f:"◈",t:"crypto",r:.22},BAT:{n:"BAT",f:"◈",t:"crypto",r:.18},ENJ:{n:"Enjin",f:"◈",t:"crypto",r:.15},CHZ:{n:"Chiliz",f:"◈",t:"crypto",r:.075},MANA:{n:"Decentraland",f:"◈",t:"crypto",r:.28},SAND:{n:"Sandbox",f:"◈",t:"crypto",r:.25},AXS:{n:"Axie",f:"◈",t:"crypto",r:5.2},APE:{n:"ApeCoin",f:"🦍",t:"crypto",r:.65},BLUR:{n:"Blur",f:"◈",t:"crypto",r:.18},PEPE:{n:"Pepe",f:"🐸",t:"crypto",r:.0000085},FLOKI:{n:"Floki",f:"🐕",t:"crypto",r:.000085},BONK:{n:"Bonk",f:"🐕",t:"crypto",r:.000018},WIF:{n:"Dogwifhat",f:"🐕",t:"crypto",r:1.2},BOME:{n:"BOME",f:"📖",t:"crypto",r:.0045},POPCAT:{n:"Popcat",f:"🐱",t:"crypto",r:.28},TURBO:{n:"Turbo",f:"🐸",t:"crypto",r:.0028},W:{n:"Wormhole",f:"◈",t:"crypto",r:.28},PYTH:{n:"Pyth",f:"◈",t:"crypto",r:.28},JTO:{n:"Jito",f:"◈",t:"crypto",r:2.5},JUP:{n:"Jupiter",f:"◈",t:"crypto",r:.65},RNDR:{n:"Render",f:"◈",t:"crypto",r:7.2},GNO:{n:"Gnosis",f:"◈",t:"crypto",r:185},CELO:{n:"Celo",f:"◈",t:"crypto",r:.55},INJ:{n:"Injective",f:"◈",t:"crypto",r:15.5},SEI:{n:"Sei",f:"◈",t:"crypto",r:.28},TIA:{n:"Celestia",f:"◈",t:"crypto",r:4.5},STRK:{n:"Starknet",f:"◈",t:"crypto",r:1.1},MANTA:{n:"Manta",f:"◈",t:"crypto",r:.55},METIS:{n:"Metis",f:"◈",t:"crypto",r:28},PENDLE:{n:"Pendle",f:"◈",t:"crypto",r:3.2},ENA:{n:"Ethena",f:"◈",t:"crypto",r:.45},FRAX:{n:"Frax",f:"◈",t:"crypto",r:1},FXS:{n:"Frax Share",f:"◈",t:"crypto",r:2.8},GALA:{n:"Gala",f:"◈",t:"crypto",r:.022},ILV:{n:"Illuvium",f:"◈",t:"crypto",r:42},GMT:{n:"STEPN",f:"◈",t:"crypto",r:.18},RUNE:{n:"THORChain",f:"◈",t:"crypto",r:4.5},KAVA:{n:"Kava",f:"◈",t:"crypto",r:.65},OSMO:{n:"Osmosis",f:"◈",t:"crypto",r:.85},ATOM:{n:"Cosmos",f:"◈",t:"crypto",r:6.8},CRO:{n:"Cronos",f:"◈",t:"crypto",r:.095},HT:{n:"Huobi",f:"◈",t:"crypto",r:.75},OKB:{n:"OKB",f:"◈",t:"crypto",r:42},LEO:{n:"LEO",f:"◈",t:"crypto",r:5.8},FTT:{n:"FTT",f:"◈",t:"crypto",r:1.2},CSPR:{n:"Casper",f:"◈",t:"crypto",r:.025},MINA:{n:"Mina",f:"◈",t:"crypto",r:.55},FLOW:{n:"Flow",f:"◈",t:"crypto",r:.65},ROSE:{n:"Oasis",f:"◈",t:"crypto",r:.065},ONE:{n:"Harmony",f:"◈",t:"crypto",r:.012},ZIL:{n:"Zilliqa",f:"◈",t:"crypto",r:.018},KDA:{n:"Kadena",f:"◈",t:"crypto",r:.55},DGB:{n:"DigiByte",f:"◈",t:"crypto",r:.0085},RVN:{n:"Ravencoin",f:"◈",t:"crypto",r:.018},XEC:{n:"eCash",f:"◈",t:"crypto",r:.000035},BSV:{n:"Bitcoin SV",f:"◈",t:"crypto",r:38},BTG:{n:"Bitcoin Gold",f:"◈",t:"crypto",r:24},ETC:{n:"ETH Classic",f:"◈",t:"crypto",r:18.5},DASH:{n:"Dash",f:"◈",t:"crypto",r:28},ZEC:{n:"Zcash",f:"◈",t:"crypto",r:22},XMR:{n:"Monero",f:"◈",t:"crypto",r:175},NEM:{n:"NEM",f:"◈",t:"crypto",r:.018},WAVES:{n:"Waves",f:"◈",t:"crypto",r:1.2},QTUM:{n:"Qtum",f:"◈",t:"crypto",r:2.8},IOST:{n:"IOST",f:"◈",t:"crypto",r:.0065},ONT:{n:"Ontology",f:"◈",t:"crypto",r:.18},NEO:{n:"Neo",f:"◈",t:"crypto",r:11.5},GAS:{n:"Gas",f:"◈",t:"crypto",r:3.8},ONG:{n:"Ontology Gas",f:"◈",t:"crypto",r:.25},CKB:{n:"Nervos",f:"◈",t:"crypto",r:.0085},SC:{n:"Siacoin",f:"◈",t:"crypto",r:.0045},STORJ:{n:"Storj",f:"◈",t:"crypto",r:.38},HOT:{n:"Holo",f:"◈",t:"crypto",r:.0012},IOTA:{n:"IOTA",f:"◈",t:"crypto",r:.18},NANO:{n:"Nano",f:"◈",t:"crypto",r:.85},BAN:{n:"Banano",f:"◈",t:"crypto",r:.0045},MOON:{n:"Moon",f:"🌙",t:"crypto",r:.000018},BRICK:{n:"Brick",f:"◈",t:"crypto",r:.045},DONUT:{n:"Donut",f:"🍩",t:"crypto",r:.0045},RDD:{n:"Reddcoin",f:"◈",t:"crypto",r:.000085},VTC:{n:"Vertcoin",f:"◈",t:"crypto",r:.065},GRS:{n:"Groestl",f:"◈",t:"crypto",r:.45},PPC:{n:"Peercoin",f:"◈",t:"crypto",r:.35},NXT:{n:"NXT",f:"◈",t:"crypto",r:.0018},ARDR:{n:"Ardor",f:"◈",t:"crypto",r:.065},IGNIS:{n:"Ignis",f:"◈",t:"crypto",r:.0085},BCN:{n:"Bytecoin",f:"◈",t:"crypto",r:.000018},XVG:{n:"Verge",f:"◈",t:"crypto",r:.0032},PIVX:{n:"PIVX",f:"◈",t:"crypto",r:.25},NAV:{n:"Navcoin",f:"◈",t:"crypto",r:.045},VIA:{n:"Viacoin",f:"◈",t:"crypto",r:.35},FJC:{n:"Fujicoin",f:"◈",t:"crypto",r:.00045},CURE:{n:"Curecoin",f:"◈",t:"crypto",r:.0085},EMC2:{n:"Einsteinium",f:"◈",t:"crypto",r:.0085},GRC:{n:"Gridcoin",f:"◈",t:"crypto",r:.0028},XMY:{n:"Myriad",f:"◈",t:"crypto",r:.00018},GCR:{n:"Global Currency",f:"◈",t:"crypto",r:.000018},UNO:{n:"Unobtanium",f:"◈",t:"crypto",r:8.5},ZET:{n:"Zetacoin",f:"◈",t:"crypto",r:.000085},SLR:{n:"Solarcoin",f:"◈",t:"crypto",r:.0018},POT:{n:"Potcoin",f:"◈",t:"crypto",r:.0045},CANN:{n:"Cannabiscoin",f:"◈",t:"crypto",r:.00085},DOPE:{n:"Dopecoin",f:"◈",t:"crypto",r:.000018},HEMP:{n:"Hempcoin",f:"◈",t:"crypto",r:.0000045},TGC:{n:"Tigercoin",f:"◈",t:"crypto",r:.000018},USNBT:{n:"NuBits",f:"◈",t:"crypto",r:.018},NSR:{n:"NuShares",f:"◈",t:"crypto",r:.000018},BAY:{n:"BitBay",f:"◈",t:"crypto",r:.00045},XCP:{n:"Counterparty",f:"◈",t:"crypto",r:.85},MSC:{n:"Mastercoin",f:"◈",t:"crypto",r:1.8},OMNI:{n:"Omni",f:"◈",t:"crypto",r:2.5},AMP:{n:"Synereo",f:"◈",t:"crypto",r:.0018},SJCX:{n:"Storjcoin",f:"◈",t:"crypto",r:.018},GEMZ:{n:"GetGems",f:"◈",t:"crypto",r:.000018},SWARM:{n:"Swarm",f:"◈",t:"crypto",r:.0045},MAID:{n:"MaidSafe",f:"◈",t:"crypto",r:.18},SAFE:{n:"Safe",f:"◈",t:"crypto",r:.65},FCT:{n:"Factom",f:"◈",t:"crypto",r:.085},ECOB:{n:"Ecobit",f:"◈",t:"crypto",r:.000018},BITB:{n:"Bean Cash",f:"◈",t:"crypto",r:.0000045},RBY:{n:"Rubycoin",f:"◈",t:"crypto",r:.018},GRW:{n:"Growthcoin",f:"◈",t:"crypto",r:.000018},YBC:{n:"Ybcoin",f:"◈",t:"crypto",r:.045},ZCC:{n:"ZcCoin",f:"◈",t:"crypto",r:.000018},MEC:{n:"Megacoin",f:"◈",t:"crypto",r:.0045},IFC:{n:"Infinitecoin",f:"◈",t:"crypto",r:.000000018},ANC:{n:"Anoncoin",f:"◈",t:"crypto",r:.018},CAP:{n:"Bottlecaps",f:"◈",t:"crypto",r:.000018},HBN:{n:"HoboNickels",f:"◈",t:"crypto",r:.000018},GLD:{n:"Goldcoin",f:"◈",t:"crypto",r:.018},DGC:{n:"Digitalcoin",f:"◈",t:"crypto",r:.0018},TRC:{n:"Terracoin",f:"◈",t:"crypto",r:.018},FRC:{n:"Freicoin",f:"◈",t:"crypto",r:.00045},CNC:{n:"Chinacoin",f:"◈",t:"crypto",r:.000018},BST:{n:"Bitstake",f:"◈",t:"crypto",r:.000018},WDC:{n:"Worldcoin",f:"◈",t:"crypto",r:.00045},DVC:{n:"Devcoin",f:"◈",t:"crypto",r:.00000045},GLC:{n:"Globalcoin",f:"◈",t:"crypto",r:.000018},SXC:{n:"Sexcoin",f:"◈",t:"crypto",r:.000018},LEAF:{n:"Leafcoin",f:"◈",t:"crypto",r:.000000018},MEM:{n:"Memecoin",f:"◈",t:"crypto",r:.000018},DOG:{n:"Dogecoin Dark",f:"◈",t:"crypto",r:.000018},PIGGY:{n:"Piggycoin",f:"◈",t:"crypto",r:.00000045},KARM:{n:"Karmacoin",f:"◈",t:"crypto",r:.000000018},MOON:{n:"Mooncoin",f:"◈",t:"crypto",r:.000000018},TIP:{n:"Fedora",f:"◈",t:"crypto",r:.000000018},RIC:{n:"Riecoin",f:"◈",t:"crypto",r:.0045},GAP:{n:"Gapcoin",f:"◈",t:"crypto",r:.000018},ZED:{n:"Zedcoin",f:"◈",t:"crypto",r:.000000018},APC:{n:"Applecoin",f:"◈",t:"crypto",r:.000018},CORG:{n:"Corgicoin",f:"◈",t:"crypto",r:.000000018},DGB:{n:"DigiByte",f:"◈",t:"crypto",r:.0085},NOTE:{n:"DNotes",f:"◈",t:"crypto",r:.000018},GEO:{n:"Geocoin",f:"◈",t:"crypto",r:.018},QTL:{n:"Quatloo",f:"◈",t:"crypto",r:.000018}};
 
@@ -184,6 +180,7 @@ let fromC="USD",toC="UZS",liveRates={},fiatRates={};
 function fmt(n){if(n>=1e6)return n.toLocaleString('en',{maximumFractionDigits:0});if(n>=1)return n.toLocaleString('en',{maximumFractionDigits:2});if(n>=1e-4)return n.toLocaleString('en',{maximumFractionDigits:6});return n.toExponential(4)}
 function fmtR(n){if(n>=1)return n.toLocaleString('en',{maximumFractionDigits:4});if(n>=1e-4)return n.toLocaleString('en',{maximumFractionDigits:6});return n.toExponential(4)}
 
+// ===== CALCULATE =====
 function calc(){
 var a=parseFloat(document.getElementById('fromAmount').value)||0;
 var rate=getRate(toC)/getRate(fromC);
@@ -196,7 +193,8 @@ document.getElementById('rateInfo').textContent='1 '+fromC+' = '+fmtR(rate)+' '+
 function getRate(code){
 if(liveRates[code])return liveRates[code];
 if(fiatRates[code])return fiatRates[code];
-return C[code]?C[code].r:1;
+if(C[code])return C[code].r;
+return 1;
 }
 
 function swap(){
@@ -206,80 +204,121 @@ calc();
 }
 
 function updateSelect(side,code){
-document.getElementById(side+'Flag').textContent=C[code]?C[code].f:'◈';
+var el=C[code];
+document.getElementById(side+'Flag').textContent=el?el.f:'◈';
 document.getElementById(side+'Code').textContent=code;
 }
 
-function toggle(e,side){
-e.stopPropagation();
+// ===== DROPDOWN - FIXED =====
+var activeDropdown=null;
+
+function openDropdown(side){
+// Close any open dropdown
+if(activeDropdown&&activeDropdown!==side){
+document.getElementById(activeDropdown+'Drop').classList.remove('active');
+}
 var d=document.getElementById(side+'Drop');
-var other=side==='from'?'toDrop':'fromDrop';
-document.getElementById(other).classList.remove('active');
-d.classList.toggle('active');
+var isActive=d.classList.contains('active');
+if(isActive){
+d.classList.remove('active');
+activeDropdown=null;
+}else{
+d.classList.add('active');
+activeDropdown=side;
+// Focus search input
+setTimeout(function(){
+var inp=d.querySelector('input');
+if(inp)inp.focus();
+},50);
+}
 }
 
 function buildDropdown(side){
 var d=document.getElementById(side+'Drop');
-var html='<div class="dropdown-search"><input type="text" placeholder="Qidirish..." oninput="filter(this,\''+side+'\')"></div>';
-html+='<div class="dropdown-section">Fiat Valyutalar</div>';
-for(var k in C){if(C[k].t==='fiat')html+=item(k);}
-html+='<div class="dropdown-section">Kriptovalyutalar</div>';
-for(var k in C){if(C[k].t==='crypto')html+=item(k);}
+var html='<div class="dropdown-search"><input type="text" placeholder="Qidirish..." oninput="filterDrop(this,\''+side+'\')"></div>';
+html+='<div class="dropdown-section">💵 Fiat Valyutalar</div>';
+for(var k in C){if(C[k].t==='fiat')html+=itemHtml(k);}
+html+='<div class="dropdown-section">₿ Kriptovalyutalar</div>';
+for(var k in C){if(C[k].t==='crypto')html+=itemHtml(k);}
 d.innerHTML=html;
 }
 
-function item(k){
-return '<div class="dropdown-item" onclick="select(\''+k+'\')">'+
+function itemHtml(k){
+return '<div class="dropdown-item" onclick="selectCurr(\''+k+'\')">'+
 '<span class="flag">'+C[k].f+'</span>'+
 '<span class="name">'+C[k].n+'</span>'+
 '<span class="code">'+k+'</span></div>';
 }
 
-function select(code){
-// Determine which dropdown is active
-var fromActive=document.getElementById('fromDrop').classList.contains('active');
-var toActive=document.getElementById('toDrop').classList.contains('active');
-if(fromActive){fromC=code;updateSelect('from',code);document.getElementById('fromDrop').classList.remove('active');}
-else if(toActive){toC=code;updateSelect('to',code);document.getElementById('toDrop').classList.remove('active');}
+function selectCurr(code){
+if(activeDropdown){
+if(activeDropdown==='from')fromC=code;
+else if(activeDropdown==='to')toC=code;
+updateSelect(activeDropdown,code);
+document.getElementById(activeDropdown+'Drop').classList.remove('active');
+activeDropdown=null;
 calc();
 }
+}
 
-function filter(inp,side){
+function filterDrop(inp,side){
 var q=inp.value.toLowerCase();
-var items=document.getElementById(side+'Drop').querySelectorAll('.dropdown-item');
+var d=document.getElementById(side+'Drop');
+var items=d.querySelectorAll('.dropdown-item');
 items.forEach(function(el){
 var txt=el.textContent.toLowerCase();
 el.style.display=txt.includes(q)?'flex':'none';
 });
 }
 
-// ==== REAL TIME API FETCH ====
+// ===== EVENT LISTENERS =====
+document.getElementById('fromSelectBtn').addEventListener('click',function(e){
+e.stopPropagation();
+openDropdown('from');
+});
+
+document.getElementById('toSelectBtn').addEventListener('click',function(e){
+e.stopPropagation();
+openDropdown('to');
+});
+
+// Close dropdowns when clicking outside
+document.addEventListener('click',function(e){
+if(!e.target.closest('.currency-dropdown')&&!e.target.closest('.currency-select')){
+document.querySelectorAll('.currency-dropdown').forEach(function(d){d.classList.remove('active');});
+activeDropdown=null;
+}
+});
+
+// Prevent dropdown click from closing
+document.querySelectorAll('.currency-dropdown').forEach(function(d){
+d.addEventListener('click',function(e){e.stopPropagation();});
+});
+
+// ===== LIVE RATES API =====
 async function fetchLiveRates(){
 try{
-// Fetch crypto rates from CoinGecko (free, no key needed for simple price)
-var cgResponse=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin,solana,ripple,cardano,avalanche-2,polkadot,matic-network,chainlink,uniswap,litecoin,bitcoin-cash,stellar,tron,dogecoin,shiba-inu,the-open-network,sui,aptos,arbitrum,optimism,near,fantom,algorand,vechain,internet-computer,filecoin,eos,tezos,aave,maker,compound,uniswap-sushi,graph,basic-attention-token,enjincoin,chiliz,decentraland,sandbox,axie-infinity,apecoin,blur,pepe,floki,bonk,dogwifhat,bome,popcat,turbo,wormhole,pyth-network,jito,jupiter,render,gnosis,celo,injective-protocol,sei,celestia,starknet,manta-pacific,metis-token,pendle,ethena,frax,frax-share,gala,illuvium,stepn,thorchain,kava,osmosis,cosmos,cronos,huobi-token,okb,leo-token,ftx-token,casper,mina-protocol,flow,oasis-network,harmony,zilliqa,kadena,digibyte,ravencoin,ecash,bitcoin-sv,bitcoin-gold,ethereum-classic,dash,zcash,monero,nem,waves,qtum,iost,ontology,neo,gas,ontology-gas,nervos-network,siacoin,storj,holo,iota,nano,banano,moon,brick,donut,reddcoin,vertcoin,groestlcoin,peercoin,nxt,ardor,ignis,bytecoin,verge,pivx,navcoin,viacoin,fujicoin,curecoin,einsteinium,gridcoin,myriad,global-currency-reserve,unobtanium,zetacoin,solarcoin,potcoin,cannabiscoin,dopecoin,hempcoin,tigercoin,nubits,nushares,bitbay,counterparty,mastercoin,omni,synereo,storjcoin,getgems,swarm-network,maidsafecoin,safe,factom,ecobit,bean-cash,rubycoin,growthcoin,ybcoin,zccoin,megacoin,infinitecoin,anoncoin,bottlecaps,hobonickels,goldcoin,digitalcoin,terracoin,freicoin,chinacoin,bitstake,worldcoin,devcoin,globalcoin,sexcoin,leafcoin,memecoin,dogecoindark,piggycoin,karmacoin,mooncoin,fedora,riecoin,gapcoin,zedcoin,applecoin,corgicoin,dnotes,geocoin,quatloo&vs_currencies=usd');
-if(cgResponse.ok){
-var cgData=await cgResponse.json();
-// Map CoinGecko IDs to our codes
-var map={bitcoin:'BTC',ethereum:'ETH',binancecoin:'BNB',solana:'SOL',ripple:'XRP',cardano:'ADA','avalanche-2':'AVAX',polkadot:'DOT','matic-network':'MATIC',chainlink:'LINK',uniswap:'UNI',litecoin:'LTC','bitcoin-cash':'BCH',stellar:'XLM',tron:'TRX',dogecoin:'DOGE','shiba-inu':'SHIB','the-open-network':'TON',sui:'SUI',aptos:'APT',arbitrum:'ARB',optimism:'OP',near:'NEAR',fantom:'FTM',algorand:'ALGO',vechain:'VET','internet-computer':'ICP',filecoin:'FIL',eos:'EOS',tezos:'XTZ',aave:'AAVE',maker:'MKR',compound:'COMP','uniswap-sushi':'SUSHI',graph:'GRT','basic-attention-token':'BAT',enjincoin:'ENJ',chiliz:'CHZ',decentraland:'MANA',sandbox:'SAND','axie-infinity':'AXS',apecoin:'APE',blur:'BLUR',pepe:'PEPE',floki:'FLOKI',bonk:'BONK',dogwifhat:'WIF',bome:'BOME',popcat:'POPCAT',turbo:'TURBO',wormhole:'W',pyth:'PYTH',jito:'JTO',jupiter:'JUP',render:'RNDR',gnosis:'GNO',celo:'CELO','injective-protocol':'INJ',sei:'SEI',celestia:'TIA',starknet:'STRK','manta-pacific':'MANTA','metis-token':'METIS',pendle:'PENDLE',ethena:'ENA',frax:'FRAX','frax-share':'FXS',gala:'GALA',illuvium:'ILV',stepn:'GMT',thorchain:'RUNE',kava:'KAVA',osmosis:'OSMO',cosmos:'ATOM',cronos:'CRO','huobi-token':'HT',okb:'OKB','leo-token':'LEO','ftx-token':'FTT',casper:'CSPR','mina-protocol':'MINA',flow:'FLOW','oasis-network':'ROSE',harmony:'ONE',zilliqa:'ZIL',kadena:'KDA',digibyte:'DGB',ravencoin:'RVN',ecash:'XEC','bitcoin-sv':'BSV','bitcoin-gold':'BTG','ethereum-classic':'ETC',dash:'DASH',zcash:'ZEC',monero:'XMR',nem:'NEM',waves:'WAVES',qtum:'QTUM',iost:'IOST',ontology:'ONT',neo:'NEO',gas:'GAS','ontology-gas':'ONG','nervos-network':'CKB',siacoin:'SC',storj:'STORJ',holo:'HOT',iota:'IOTA',nano:'NANO',banano:'BAN',moon:'MOON',brick:'BRICK',donut:'DONUT',reddcoin:'RDD',vertcoin:'VTC',groestlcoin:'GRS',peercoin:'PPC',nxt:'NXT',ardor:'ARDR',ignis:'IGNIS',bytecoin:'BCN',verge:'XVG',pivx:'PIVX',navcoin:'NAV',viacoin:'VIA',fujicoin:'FJC',curecoin:'CURE',einsteinium:'EMC2',gridcoin:'GRC',myriad:'XMY','global-currency-reserve':'GCR',unobtanium:'UNO',zetacoin:'ZET',solarcoin:'SLR',potcoin:'POT',cannabiscoin:'CANN',dopecoin:'DOPE',hempcoin:'HEMP',tigercoin:'TGC',nubits:'USNBT',nushares:'NSR',bitbay:'BAY',counterparty:'XCP',mastercoin:'MSC',omni:'OMNI',synereo:'AMP',storjcoin:'SJCX',getgems:'GEMZ','swarm-network':'SWARM',maidsafecoin:'MAID',safe:'SAFE',factom:'FCT',ecobit:'ECOB','bean-cash':'BITB',rubycoin:'RBY',growthcoin:'GRW',ybcoin:'YBC',zccoin:'ZCC',megacoin:'MEC',infinitecoin:'IFC',anoncoin:'ANC',bottlecaps:'CAP',hobonickels:'HBN',goldcoin:'GLD',digitalcoin:'DGC',terracoin:'TRC',freicoin:'FRC',chinacoin:'CNC',bitstake:'BST',worldcoin:'WDC',devcoin:'DVC',globalcoin:'GLC',sexcoin:'SXC',leafcoin:'LEAF',memecoin:'MEM',dogecoindark:'DOG',piggycoin:'PIGGY',karmacoin:'KARM',mooncoin:'MOON',fedora:'TIP',riecoin:'RIC',gapcoin:'GAP',zedcoin:'ZED',applecoin:'APC',corgicoin:'CORG',dnotes:'NOTE',geocoin:'GEO',quatloo:'QTL'};
+// Crypto from CoinGecko
+var cg=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin,solana,ripple,cardano,avalanche-2,polkadot,matic-network,chainlink,uniswap,litecoin,bitcoin-cash,stellar,tron,dogecoin,shiba-inu,the-open-network,sui,aptos,arbitrum,optimism,near,fantom,algorand,vechain,internet-computer,filecoin,eos,tezos,aave,maker,compound,sushi,the-graph,basic-attention-token,enjincoin,chiliz,decentraland,sandbox,axie-infinity,apecoin,blur,pepe,floki,bonk,dogwifhat,bome,popcat,turbo,wormhole,pyth-network,jito,jupiter,render,gnosis,celo,injective-protocol,sei,celestia,starknet,manta-pacific,metis-token,pendle,ethena,frax,frax-share,gala,illuvium,stepn,thorchain,kava,osmosis,cosmos,cronos,huobi-token,okb,leo-token,ftx-token,casper,mina-protocol,flow,oasis-network,harmony,zilliqa,kadena,digibyte,ravencoin,ecash,bitcoin-sv,bitcoin-gold,ethereum-classic,dash,zcash,monero,nem,waves,qtum,iost,ontology,neo,gas,ontology-gas,nervos-network,siacoin,storj,holo,iota,nano,banano,moon,brick,donut,reddcoin,vertcoin,groestlcoin,peercoin,nxt,ardor,ignis,bytecoin,verge,pivx,navcoin,viacoin,fujicoin,curecoin,einsteinium,gridcoin,myriad,global-currency-reserve,unobtanium,zetacoin,solarcoin,potcoin,cannabiscoin,dopecoin,hempcoin,tigercoin,nubits,nushares,bitbay,counterparty,mastercoin,omni,synereo,storjcoin,getgems,swarm-network,maidsafecoin,safe,factom,ecobit,bean-cash,rubycoin,growthcoin,ybcoin,zccoin,megacoin,infinitecoin,anoncoin,bottlecaps,hobonickels,goldcoin,digitalcoin,terracoin,freicoin,chinacoin,bitstake,worldcoin,devcoin,globalcoin,sexcoin,leafcoin,memecoin,dogecoindark,piggycoin,karmacoin,mooncoin,fedora,riecoin,gapcoin,zedcoin,applecoin,corgicoin,dnotes,geocoin,quatloo&vs_currencies=usd');
+if(cg.ok){
+var cgData=await cg.json();
+var map={bitcoin:'BTC',ethereum:'ETH',binancecoin:'BNB',solana:'SOL',ripple:'XRP',cardano:'ADA','avalanche-2':'AVAX',polkadot:'DOT','matic-network':'MATIC',chainlink:'LINK',uniswap:'UNI',litecoin:'LTC','bitcoin-cash':'BCH',stellar:'XLM',tron:'TRX',dogecoin:'DOGE','shiba-inu':'SHIB','the-open-network':'TON',sui:'SUI',aptos:'APT',arbitrum:'ARB',optimism:'OP',near:'NEAR',fantom:'FTM',algorand:'ALGO',vechain:'VET','internet-computer':'ICP',filecoin:'FIL',eos:'EOS',tezos:'XTZ',aave:'AAVE',maker:'MKR',compound:'COMP',sushi:'SUSHI','the-graph':'GRT','basic-attention-token':'BAT',enjincoin:'ENJ',chiliz:'CHZ',decentraland:'MANA',sandbox:'SAND','axie-infinity':'AXS',apecoin:'APE',blur:'BLUR',pepe:'PEPE',floki:'FLOKI',bonk:'BONK',dogwifhat:'WIF',bome:'BOME',popcat:'POPCAT',turbo:'TURBO',wormhole:'W',pyth:'PYTH',jito:'JTO',jupiter:'JUP',render:'RNDR',gnosis:'GNO',celo:'CELO','injective-protocol':'INJ',sei:'SEI',celestia:'TIA',starknet:'STRK','manta-pacific':'MANTA','metis-token':'METIS',pendle:'PENDLE',ethena:'ENA',frax:'FRAX','frax-share':'FXS',gala:'GALA',illuvium:'ILV',stepn:'GMT',thorchain:'RUNE',kava:'KAVA',osmosis:'OSMO',cosmos:'ATOM',cronos:'CRO','huobi-token':'HT',okb:'OKB','leo-token':'LEO','ftx-token':'FTT',casper:'CSPR','mina-protocol':'MINA',flow:'FLOW','oasis-network':'ROSE',harmony:'ONE',zilliqa:'ZIL',kadena:'KDA',digibyte:'DGB',ravencoin:'RVN',ecash:'XEC','bitcoin-sv':'BSV','bitcoin-gold':'BTG','ethereum-classic':'ETC',dash:'DASH',zcash:'ZEC',monero:'XMR',nem:'NEM',waves:'WAVES',qtum:'QTUM',iost:'IOST',ontology:'ONT',neo:'NEO',gas:'GAS','ontology-gas':'ONG','nervos-network':'CKB',siacoin:'SC',storj:'STORJ',holo:'HOT',iota:'IOTA',nano:'NANO',banano:'BAN',moon:'MOON',brick:'BRICK',donut:'DONUT',reddcoin:'RDD',vertcoin:'VTC',groestlcoin:'GRS',peercoin:'PPC',nxt:'NXT',ardor:'ARDR',ignis:'IGNIS',bytecoin:'BCN',verge:'XVG',pivx:'PIVX',navcoin:'NAV',viacoin:'VIA',fujicoin:'FJC',curecoin:'CURE',einsteinium:'EMC2',gridcoin:'GRC',myriad:'XMY','global-currency-reserve':'GCR',unobtanium:'UNO',zetacoin:'ZET',solarcoin:'SLR',potcoin:'POT',cannabiscoin:'CANN',dopecoin:'DOPE',hempcoin:'HEMP',tigercoin:'TGC',nubits:'USNBT',nushares:'NSR',bitbay:'BAY',counterparty:'XCP',mastercoin:'MSC',omni:'OMNI',synereo:'AMP',storjcoin:'SJCX',getgems:'GEMZ','swarm-network':'SWARM',maidsafecoin:'MAID',safe:'SAFE',factom:'FCT',ecobit:'ECOB','bean-cash':'BITB',rubycoin:'RBY',growthcoin:'GRW',ybcoin:'YBC',zccoin:'ZCC',megacoin:'MEC',infinitecoin:'IFC',anoncoin:'ANC',bottlecaps:'CAP',hobonickels:'HBN',goldcoin:'GLD',digitalcoin:'DGC',terracoin:'TRC',freicoin:'FRC',chinacoin:'CNC',bitstake:'BST',worldcoin:'WDC',devcoin:'DVC',globalcoin:'GLC',sexcoin:'SXC',leafcoin:'LEAF',memecoin:'MEM',dogecoindark:'DOG',piggycoin:'PIGGY',karmacoin:'KARM',mooncoin:'MOON',fedora:'TIP',riecoin:'RIC',gapcoin:'GAP',zedcoin:'ZED',applecoin:'APC',corgicoin:'CORG',dnotes:'NOTE',geocoin:'GEO',quatloo:'QTL'};
 for(var id in cgData){if(map[id])liveRates[map[id]]=cgData[id].usd;}
 }
 
-// Fetch fiat rates from exchangerate-api (free tier, no key)
-var fiatResponse=await fetch('https://api.exchangerate-api.com/v4/latest/USD');
-if(fiatResponse.ok){
-var fiatData=await fiatResponse.json();
-fiatRates=fiatData.rates;
-// Add UZS if missing
+// Fiat from exchangerate-api
+var fr=await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+if(fr.ok){
+var fd=await fr.json();
+fiatRates=fd.rates;
 if(!fiatRates.UZS)fiatRates.UZS=12650;
 }
 
-// Update UI
 updateTicker();
 updateWidgets();
 calc();
 console.log('✅ Live rates updated');
-}catch(err){console.log('⚠️ API error, using fallback rates:',err);calc();}
+}catch(err){console.log('⚠️ API error:',err);calc();}
 }
 
 function updateTicker(){
@@ -297,7 +336,7 @@ document.getElementById('tickerWrap').innerHTML=html;
 }
 
 function updateWidgets(){
-var pairs=[['USD','UZS'],['EUR','UZS'],['RUB','UZS'],['USD','EUR'],['BTC','USD'],['ETH','USD'],['SOL','USD'],['USDT','UZS']];
+var pairs=[['USD','UZS'],['EUR','UZS'],['RUB','UZS'],['USD','EUR'],['BTC','USD'],['ETH','USD'],['SOL','USD']];
 var g=document.getElementById('widgets');
 g.innerHTML='';
 pairs.forEach(function(p){
@@ -314,18 +353,10 @@ g.appendChild(card);
 });
 }
 
-// Close dropdowns on outside click
-document.addEventListener('click',function(e){
-if(!e.target.closest('.currency-select')){
-document.querySelectorAll('.currency-dropdown').forEach(function(d){d.classList.remove('active');});
-}
-});
-
-// Init
-buildDropdown('from');buildDropdown('to');
+// ===== INIT =====
+buildDropdown('from');
+buildDropdown('to');
 fetchLiveRates();
-
-// Auto refresh every 60 seconds
 setInterval(fetchLiveRates,60000);
 </script>
 </body>
