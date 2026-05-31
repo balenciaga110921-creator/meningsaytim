@@ -14,43 +14,97 @@
         <div class="balance-panel">
             <h2>Mening aktivlarim</h2>
             <div class="balance-list">
-                <div class="balance-item">🇺🇸 USDT: <span id="usdt-balance">1250.50</span></div>
-                <div class="balance-item">₿ Bitcoin: <span id="btc-balance">0.047</span></div>
-                <div class="balance-item">Ⓣ Toncoin: <span id="ton-balance">89.20</span></div>
-                <div class="balance-item">🇺🇿 UZS: <span id="uzs-balance">5,200,000</span> so‘m</div>
+                <div class="balance-item">
+                    <span class="icon">🇺🇸</span> USDT: <span id="usdt-balance">1250.50</span>
+                </div>
+                <div class="balance-item">
+                    <span class="icon">₿</span> Bitcoin: <span id="btc-balance">0.047</span>
+                </div>
+                <div class="balance-item">
+                    <span class="icon">Ⓣ</span> Toncoin: <span id="ton-balance">89.20</span>
+                </div>
+                <div class="balance-item">
+                    <span class="icon">🇺🇿</span> UZS: <span id="uzs-balance">5,200,000</span> so'm
+                </div>
             </div>
         </div>
 
-        <!-- Obmen qilish formasi -->
-        <div class="exchange-form">
-            <h2>📌 Obmen qilish</h2>
-            
-            <div class="row">
-                <label>Men beraman:</label>
-                <select id="give-currency">
-                    <option value="usdt">USDT</option>
-                    <option value="btc">Bitcoin</option>
-                    <option value="ton">Toncoin</option>
-                    <option value="uzs">UZS (so‘m)</option>
-                </select>
-                <input type="number" id="give-amount" placeholder="Summa">
+        <!-- 2 ustunli obmen qilish formasi -->
+        <div class="exchange-wrapper">
+            <!-- Chap tomon: Men beraman -->
+            <div class="exchange-card give-card">
+                <div class="card-header">
+                    <span class="arrow-icon">📤</span>
+                    <h3>Men beraman</h3>
+                </div>
+                <div class="currency-selector">
+                    <div class="currency-option" data-currency="usdt" data-side="give">
+                        <span class="currency-icon">🇺🇸</span>
+                        <span>USDT</span>
+                    </div>
+                    <div class="currency-option" data-currency="btc" data-side="give">
+                        <span class="currency-icon">₿</span>
+                        <span>Bitcoin</span>
+                    </div>
+                    <div class="currency-option" data-currency="ton" data-side="give">
+                        <span class="currency-icon">Ⓣ</span>
+                        <span>Toncoin</span>
+                    </div>
+                    <div class="currency-option" data-currency="uzs" data-side="give">
+                        <span class="currency-icon">🇺🇿</span>
+                        <span>UZS</span>
+                    </div>
+                </div>
+                <div class="amount-input">
+                    <label>Summa:</label>
+                    <input type="number" id="give-amount" placeholder="0">
+                </div>
+                <div class="selected-info">
+                    Tanlangan: <span id="selected-give">USDT</span>
+                </div>
             </div>
 
-            <div class="row">
-                <label>Men olaman:</label>
-                <select id="get-currency">
-                    <option value="ton">Toncoin</option>
-                    <option value="usdt">USDT</option>
-                    <option value="btc">Bitcoin</option>
-                    <option value="uzs">UZS (so‘m)</option>
-                </select>
-                <input type="text" id="get-amount" readonly placeholder="0">
+            <!-- O'rtadagi slider tugmasi -->
+            <div class="slider-button" id="swap-button">
+                <div class="slider-icon">⇅</div>
+                <div class="slider-text">SURISH</div>
             </div>
 
-            <button id="exchange-btn">⚡ Hisoblash</button>
-            <button id="submit-btn">📤 Obmen qilish</button>
+            <!-- Ong tomon: Men olaman -->
+            <div class="exchange-card get-card">
+                <div class="card-header">
+                    <span class="arrow-icon">📥</span>
+                    <h3>Men olaman</h3>
+                </div>
+                <div class="currency-selector">
+                    <div class="currency-option" data-currency="usdt" data-side="get">
+                        <span class="currency-icon">🇺🇸</span>
+                        <span>USDT</span>
+                    </div>
+                    <div class="currency-option" data-currency="btc" data-side="get">
+                        <span class="currency-icon">₿</span>
+                        <span>Bitcoin</span>
+                    </div>
+                    <div class="currency-option" data-currency="ton" data-side="get">
+                        <span class="currency-icon">Ⓣ</span>
+                        <span>Toncoin</span>
+                    </div>
+                    <div class="currency-option" data-currency="uzs" data-side="get">
+                        <span class="currency-icon">🇺🇿</span>
+                        <span>UZS</span>
+                    </div>
+                </div>
+                <div class="amount-input">
+                    <label>Siz olasiz:</label>
+                    <input type="text" id="get-amount" readonly placeholder="0">
+                </div>
+                <div class="selected-info">
+                    Tanlangan: <span id="selected-get">Toncoin</span>
+                </div>
+            </div>
         </div>
 
+        <button id="submit-btn">📤 Obmen qilish</button>
         <div id="message"></div>
     </div>
 
