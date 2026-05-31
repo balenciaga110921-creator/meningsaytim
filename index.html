@@ -37,37 +37,26 @@
                     <span class="arrow-icon">📤</span>
                     <h3>Men beraman</h3>
                 </div>
-                <div class="currency-selector">
-                    <div class="currency-option" data-currency="usdt" data-side="give">
-                        <span class="currency-icon">🇺🇸</span>
-                        <span>USDT</span>
-                    </div>
-                    <div class="currency-option" data-currency="btc" data-side="give">
-                        <span class="currency-icon">₿</span>
-                        <span>Bitcoin</span>
-                    </div>
-                    <div class="currency-option" data-currency="ton" data-side="give">
-                        <span class="currency-icon">Ⓣ</span>
-                        <span>Toncoin</span>
-                    </div>
-                    <div class="currency-option" data-currency="uzs" data-side="give">
-                        <span class="currency-icon">🇺🇿</span>
-                        <span>UZS</span>
+                
+                <!-- Slider 1: Berish valyutasi -->
+                <div class="slider-container">
+                    <input type="range" id="give-slider" min="0" max="3" step="1" value="0">
+                    <div class="slider-labels">
+                        <span>🇺🇸 USDT</span>
+                        <span>₿ BTC</span>
+                        <span>Ⓣ TON</span>
+                        <span>🇺🇿 UZS</span>
                     </div>
                 </div>
+                
+                <div class="selected-info">
+                    Tanlangan: <span id="selected-give">USDT</span>
+                </div>
+                
                 <div class="amount-input">
                     <label>Summa:</label>
                     <input type="number" id="give-amount" placeholder="0">
                 </div>
-                <div class="selected-info">
-                    Tanlangan: <span id="selected-give">USDT</span>
-                </div>
-            </div>
-
-            <!-- O'rtadagi slider tugmasi -->
-            <div class="slider-button" id="swap-button">
-                <div class="slider-icon">⇅</div>
-                <div class="slider-text">SURISH</div>
             </div>
 
             <!-- Ong tomon: Men olaman -->
@@ -76,30 +65,25 @@
                     <span class="arrow-icon">📥</span>
                     <h3>Men olaman</h3>
                 </div>
-                <div class="currency-selector">
-                    <div class="currency-option" data-currency="usdt" data-side="get">
-                        <span class="currency-icon">🇺🇸</span>
-                        <span>USDT</span>
-                    </div>
-                    <div class="currency-option" data-currency="btc" data-side="get">
-                        <span class="currency-icon">₿</span>
-                        <span>Bitcoin</span>
-                    </div>
-                    <div class="currency-option" data-currency="ton" data-side="get">
-                        <span class="currency-icon">Ⓣ</span>
-                        <span>Toncoin</span>
-                    </div>
-                    <div class="currency-option" data-currency="uzs" data-side="get">
-                        <span class="currency-icon">🇺🇿</span>
-                        <span>UZS</span>
+                
+                <!-- Slider 2: Olish valyutasi -->
+                <div class="slider-container">
+                    <input type="range" id="get-slider" min="0" max="3" step="1" value="2">
+                    <div class="slider-labels">
+                        <span>🇺🇸 USDT</span>
+                        <span>₿ BTC</span>
+                        <span>Ⓣ TON</span>
+                        <span>🇺🇿 UZS</span>
                     </div>
                 </div>
+                
+                <div class="selected-info">
+                    Tanlangan: <span id="selected-get">Toncoin</span>
+                </div>
+                
                 <div class="amount-input">
                     <label>Siz olasiz:</label>
                     <input type="text" id="get-amount" readonly placeholder="0">
-                </div>
-                <div class="selected-info">
-                    Tanlangan: <span id="selected-get">Toncoin</span>
                 </div>
             </div>
         </div>
