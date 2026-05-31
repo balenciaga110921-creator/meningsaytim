@@ -1,2 +1,2 @@
-# meningsaytim
-Mening birinchi saytim
+# P2P obmennik
+Peer To Peer
