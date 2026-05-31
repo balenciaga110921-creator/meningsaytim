@@ -1,12 +1,184 @@
 <!DOCTYPE html>
-<html>
+<html lang="uz">
 <head>
-    <title>Mening birinchi saytim</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mahsulotlar - E-Tijorat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: #f3f4f6;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2rem;
+            color: #1f2937;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #4b5563;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+
+        /* Mahsulot kartalari tarmog'i */
+        .products {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        /* Karta dizayni */
+        .card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            background: #e5e7eb;
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+
+        .card-desc {
+            color: #6b7280;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 16px;
+        }
+
+        .price {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #059669;
+            margin-bottom: 20px;
+        }
+
+        .price small {
+            font-size: 0.85rem;
+            font-weight: normal;
+            color: #4b5563;
+        }
+
+        .btn {
+            display: inline-block;
+            width: 100%;
+            background: #3b82f6;
+            color: white;
+            text-align: center;
+            padding: 12px 0;
+            border-radius: 60px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+        }
+
+        /* telefon uchun moslashuv */
+        @media (max-width: 640px) {
+            body {
+                padding: 20px 15px;
+            }
+            .card-img {
+                height: 180px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Salom dunyo!</h1>
-    <p>Bu mening GitHub’dagi birinchi saytim.</p>
-    
-    <img src="B657C7BE-0E02-4C38-9CE0-054F205E915B.jpeg" alt="Mening rasmim" style="width:100%; height:auto;">
+
+<div class="container">
+    <h1>🛍️ Bizning Mahsulotlar</h1>
+    <div class="subtitle">Sifatli va qulay narxlar</div>
+
+    <div class="products">
+        
+        <!-- Mahsulot 1 -->
+        <div class="card">
+            <img class="card-img" src="https://picsum.photos/id/20/400/300" alt="Sumka">
+            <div class="card-content">
+                <div class="card-title">Zamonaviy sumka</div>
+                <div class="card-desc">Yengil, ekologik toza material. Har kungi foydalanish uchun.</div>
+                <div class="price">289 000 so‘m <small>USD $23</small></div>
+                <button class="btn" onclick="alert('✅ Savatga qo‘shildi: Zamonaviy sumka')">Savatga 🛒</button>
+            </div>
+        </div>
+
+        <!-- Mahsulot 2 -->
+        <div class="card">
+            <img class="card-img" src="https://picsum.photos/id/26/400/300" alt="Poyabzal">
+            <div class="card-content">
+                <div class="card-title">Sport poyabzali</div>
+                <div class="card-desc">Nafas oladigan mato, yumshoq taglik. 40-44 o‘lcham.</div>
+                <div class="price">450 000 so‘m <small>USD $36</small></div>
+                <button class="btn" onclick="alert('✅ Savatga qo‘shildi: Sport poyabzali')">Savatga 🛒</button>
+            </div>
+        </div>
+
+        <!-- Mahsulot 3 -->
+        <div class="card">
+            <img class="card-img" src="https://picsum.photos/id/30/400/300" alt="Soat">
+            <div class="card-content">
+                <div class="card-title">Aqlli soat</div>
+                <div class="card-desc">Yurak urishi, qadamlar, suv o‘tkazmaydi. 7 kun batareya.</div>
+                <div class="price">699 000 so‘m <small>USD $55</small></div>
+                <button class="btn" onclick="alert('✅ Savatga qo‘shildi: Aqlli soat')">Savatga 🛒</button>
+            </div>
+        </div>
+
+        <!-- Mahsulot 4 -->
+        <div class="card">
+            <img class="card-img" src="https://picsum.photos/id/12/400/300" alt="Naushnik">
+            <div class="card-content">
+                <div class="card-title">Simsiz naushnik</div>
+                <div class="card-desc">Bluetooth 5.3, ajoyib bass, 30 soat ishlash.</div>
+                <div class="price">320 000 so‘m <small>USD $25</small></div>
+                <button class="btn" onclick="alert('✅ Savatga qo‘shildi: Simsiz naushnik')">Savatga 🛒</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
