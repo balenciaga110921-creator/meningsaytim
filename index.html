@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CryptoExchange Pro - Admin & Client</title>
+    <title>CryptoExchange Pro - Full Version</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         :root {
             --primary: #6366f1;
             --primary-dark: #4f46e5;
@@ -25,15 +24,12 @@
             --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
         }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: var(--bg-dark);
             color: var(--text-primary);
             min-height: 100vh;
         }
-
-        /* Ticker Slider */
         .ticker-container {
             background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(10px);
@@ -44,13 +40,11 @@
             top: 0;
             z-index: 100;
         }
-
         .ticker-wrap {
             display: flex;
             animation: ticker 35s linear infinite;
             white-space: nowrap;
         }
-
         .ticker-item {
             display: inline-flex;
             align-items: center;
@@ -58,27 +52,15 @@
             font-size: 14px;
             font-weight: 600;
         }
-
-        .ticker-item .coin {
-            color: var(--primary);
-            margin-right: 8px;
-        }
-
-        .ticker-item .price {
-            color: var(--success);
-            margin-left: 5px;
-        }
-
+        .ticker-item .coin { color: var(--primary); margin-right: 8px; }
+        .ticker-item .price { color: var(--success); margin-left: 5px; }
         @keyframes ticker {
             0% { transform: translateX(0); }
             100% { transform: translateX(-50%); }
         }
-
-        /* Header */
         .header {
             text-align: center;
             padding: 30px 20px 20px;
-            position: relative;
         }
         .header h1 {
             font-size: 2rem;
@@ -86,8 +68,6 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
-        /* History Button */
         .history-btn {
             position: fixed;
             top: 80px;
@@ -100,13 +80,7 @@
             cursor: pointer;
             z-index: 500;
             font-weight: 600;
-            transition: all 0.3s;
         }
-        .history-btn:hover {
-            background: var(--primary);
-            color: white;
-        }
-
         .admin-toggle {
             position: fixed;
             top: 80px;
@@ -120,8 +94,6 @@
             z-index: 500;
             font-weight: 600;
         }
-
-        /* Container */
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -130,12 +102,9 @@
             grid-template-columns: 1fr 1fr;
             gap: 30px;
         }
-
         @media (max-width: 968px) {
             .container { grid-template-columns: 1fr; }
         }
-
-        /* Exchange Panel */
         .exchange-panel {
             background: var(--bg-card);
             border-radius: 20px;
@@ -143,15 +112,8 @@
             border: 1px solid rgba(99,102,241,0.2);
             box-shadow: var(--shadow);
         }
-
-        .exchange-panel h2, .rates-panel h2 {
-            font-size: 1.3rem;
-            margin-bottom: 20px;
-        }
-
-        .currency-select, .amount-input, .wallet-input {
-            margin-bottom: 20px;
-        }
+        .exchange-panel h2, .rates-panel h2 { font-size: 1.3rem; margin-bottom: 20px; }
+        .currency-select, .amount-input, .wallet-input { margin-bottom: 20px; }
         .currency-select label, .amount-input label, .wallet-input label {
             display: block;
             margin-bottom: 8px;
@@ -164,9 +126,7 @@
             border: 2px solid transparent;
             transition: all 0.3s;
         }
-        .select-wrapper:focus-within, .input-wrapper:focus-within {
-            border-color: var(--primary);
-        }
+        .select-wrapper:focus-within, .input-wrapper:focus-within { border-color: var(--primary); }
         .select-wrapper select {
             width: 100%;
             padding: 15px;
@@ -202,11 +162,12 @@
             width: 100%;
             padding: 15px;
             background: var(--bg-light);
-            border: 2px solid transparent;
             border-radius: 12px;
             color: var(--text-primary);
             outline: none;
+            border: 2px solid transparent;
         }
+        .wallet-input input:focus { border-color: var(--primary); }
         .swap-btn {
             display: flex;
             justify-content: center;
@@ -223,6 +184,11 @@
             cursor: pointer;
             transition: all 0.3s;
         }
+        .swap-btn button:hover {
+            background: var(--primary);
+            color: white;
+            transform: rotate(180deg);
+        }
         .result-display {
             background: var(--gradient-1);
             border-radius: 16px;
@@ -230,10 +196,7 @@
             margin: 20px 0;
             text-align: center;
         }
-        .result-amount {
-            font-size: 2rem;
-            font-weight: 700;
-        }
+        .result-amount { font-size: 2rem; font-weight: 700; }
         .exchange-btn {
             width: 100%;
             padding: 16px;
@@ -246,8 +209,6 @@
             cursor: pointer;
             margin-top: 20px;
         }
-
-        /* Rates Panel - Clickable for admin */
         .rates-panel {
             background: var(--bg-card);
             border-radius: 20px;
@@ -272,11 +233,7 @@
             transform: translateX(5px);
             border-color: var(--primary);
         }
-        .rate-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .rate-info { display: flex; align-items: center; gap: 12px; }
         .rate-icon {
             width: 42px;
             height: 42px;
@@ -297,13 +254,7 @@
         .icon-uzs { background: #1eb53a; }
         .icon-usd { background: #85bb65; }
         .icon-rub { background: #0033a0; }
-        .rate-price {
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: var(--success);
-        }
-
-        /* Modal */
+        .rate-price { font-weight: 700; font-size: 1.1rem; color: var(--success); }
         .modal-overlay {
             display: none;
             position: fixed;
@@ -322,57 +273,117 @@
             background: var(--bg-card);
             border-radius: 24px;
             padding: 30px;
-            max-width: 500px;
+            max-width: 550px;
             width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
         }
-        .price-input-modal input {
-            width: 100%;
-            padding: 15px;
-            margin: 15px 0;
-            background: var(--bg-light);
+        .payment-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .copy-btn {
+            background: rgba(99,102,241,0.2);
             border: none;
+            color: var(--primary);
+            padding: 5px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .upload-area {
+            border: 2px dashed var(--bg-light);
             border-radius: 12px;
-            color: white;
-            font-size: 1.2rem;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            margin: 20px 0;
+        }
+        .timer-display {
+            text-align: center;
+            font-size: 2.5rem;
+            font-family: monospace;
+            color: var(--warning);
+            margin: 20px 0;
         }
         .modal-buttons {
             display: flex;
             gap: 15px;
             margin-top: 20px;
         }
-        .modal-buttons button {
-            flex: 1;
-            padding: 12px;
-            border-radius: 10px;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .save-btn { background: var(--success); color: white; }
-        .cancel-btn { background: var(--danger); color: white; }
-
-        /* History Modal */
-        .history-modal {
-            max-width: 800px;
-            max-height: 80vh;
+        .save-btn { background: var(--success); color: white; padding: 12px; border: none; border-radius: 10px; cursor: pointer; flex: 1; font-weight: bold; }
+        .cancel-btn { background: var(--danger); color: white; padding: 12px; border: none; border-radius: 10px; cursor: pointer; flex: 1; font-weight: bold; }
+        .admin-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-dark);
+            z-index: 2000;
             overflow-y: auto;
         }
-        .history-item {
-            background: rgba(255,255,255,0.05);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 12px;
+        .admin-panel.active { display: block; }
+        .admin-header {
+            background: var(--bg-card);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
-        .history-status {
+        .admin-content { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
+        .admin-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(99,102,241,0.2);
+        }
+        .wallet-admin-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        .wallet-admin-row input {
+            flex: 1;
+            padding: 12px;
+            background: var(--bg-dark);
+            border: 1px solid var(--bg-light);
+            border-radius: 8px;
+            color: white;
+            font-family: monospace;
+        }
+        .wallet-admin-row button {
+            padding: 10px 20px;
+            background: var(--primary);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+        }
+        .order-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .order-status {
             display: inline-block;
             padding: 4px 12px;
             border-radius: 20px;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
         }
         .status-pending { background: rgba(245,158,11,0.2); color: var(--warning); }
         .status-paid { background: rgba(16,185,129,0.2); color: var(--success); }
-        .status-completed { background: rgba(99,102,241,0.2); color: var(--primary); }
-
+        .status-sent { background: rgba(99,102,241,0.2); color: var(--primary); }
         .toast {
             position: fixed;
             bottom: 30px;
@@ -386,6 +397,14 @@
             border-left: 4px solid var(--success);
         }
         .toast.active { transform: translateX(0); }
+        .tx-hash {
+            font-family: monospace;
+            font-size: 0.85rem;
+            background: var(--bg-dark);
+            padding: 8px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -393,12 +412,12 @@
         <div class="ticker-wrap" id="tickerWrap"></div>
     </div>
 
-    <button class="admin-toggle" onclick="toggleAdminMode()">👑 Admin</button>
+    <button class="admin-toggle" onclick="toggleAdminPanel()">👑 Admin</button>
     <button class="history-btn" onclick="openHistoryModal()">📜 Tarix</button>
 
     <div class="header">
         <h1>💱 CryptoExchange Pro</h1>
-        <p>Valyuta almashtirish xizmati</p>
+        <p>Valyuta va kripto almashtirish</p>
     </div>
 
     <div class="container">
@@ -453,58 +472,65 @@
                 <div id="resultRate" style="font-size: 0.85rem;">Kurs: -</div>
             </div>
             <div class="wallet-input">
-                <label>💳 Qabul qiluvchi hamyoni:</label>
-                <input type="text" id="walletAddress" placeholder="Wallet address yoki karta raqami">
+                <label>💰 Sizning hamyoningiz (qabul qilish uchun):</label>
+                <input type="text" id="userWallet" placeholder="Sizning wallet yoki karta raqamingiz">
             </div>
             <button class="exchange-btn" onclick="openExchangeModal()">🚀 Almashtirish</button>
         </div>
 
         <div class="rates-panel">
-            <h2>📊 Valyuta kurslari (admin o'rnatadi)</h2>
+            <h2>📊 Valyuta kurslari</h2>
             <div id="ratesList"></div>
-            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 15px;">* Admin sifatida valyuta ustiga bosing va narx kiriting</p>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 15px;">* Admin rejimida valyutalarga bosib narx o'rnating</p>
         </div>
     </div>
 
-    <!-- Price Edit Modal -->
-    <div class="modal-overlay" id="priceModal">
+    <!-- Payment Modal (for client) -->
+    <div class="modal-overlay" id="paymentModal">
         <div class="modal">
-            <h3>💰 Narxni o'rnatish</h3>
-            <p id="priceCurrencyName"></p>
-            <div class="price-input-modal">
-                <input type="number" id="priceValue" step="any" placeholder="USD ga nisbatan kurs">
+            <h3>💸 To'lov ma'lumotlari</h3>
+            <div id="paymentDetails"></div>
+            <div class="timer-display" id="paymentTimer">15:00</div>
+            <div class="upload-area" onclick="document.getElementById('receiptFileInput').click()">
+                📁 To'lov kvitansiyasini yuklang (PDF/JPG/PNG)
+                <input type="file" id="receiptFileInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleReceiptUpload(this)">
             </div>
+            <div id="receiptStatus" style="margin: 10px 0;"></div>
             <div class="modal-buttons">
-                <button class="save-btn" onclick="savePrice()">💾 Saqlash</button>
-                <button class="cancel-btn" onclick="closePriceModal()">Bekor</button>
+                <button class="save-btn" onclick="confirmPaymentSent()">✅ To'lov qildim</button>
+                <button class="cancel-btn" onclick="closePaymentModal()">❌ Bekor qilish</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-header">
+            <h2>👑 Admin boshqaruvi</h2>
+            <button class="admin-toggle" onclick="toggleAdminPanel()">✕ Yopish</button>
+        </div>
+        <div class="admin-content">
+            <div class="admin-card">
+                <h3>💰 Kurslarni o'rnatish</h3>
+                <div id="adminRatesList"></div>
+            </div>
+            <div class="admin-card">
+                <h3>🏦 Qabul qiluvchi hamyonlar (mijoz pul yuboradigan joy)</h3>
+                <div id="adminWalletsList"></div>
+            </div>
+            <div class="admin-card">
+                <h3>📦 Zakazlar</h3>
+                <div id="adminOrdersList"></div>
             </div>
         </div>
     </div>
 
     <!-- History Modal -->
     <div class="modal-overlay" id="historyModal">
-        <div class="modal history-modal">
+        <div class="modal" style="max-width: 700px;">
             <h3>📜 Tranzaksiya tarixi</h3>
             <div id="historyList"></div>
-            <button class="cancel-btn" onclick="closeHistoryModal()" style="margin-top: 20px; width: 100%;">Yopish</button>
-        </div>
-    </div>
-
-    <!-- Exchange Modal -->
-    <div class="modal-overlay" id="exchangeModal">
-        <div class="modal">
-            <h3>✅ Zakazni tasdiqlash</h3>
-            <div id="exchangeDetails" style="margin: 20px 0;"></div>
-            <div class="timer-display" id="timer" style="text-align: center; font-size: 2rem; font-family: monospace;">10:00</div>
-            <div class="upload-area" style="border: 2px dashed var(--bg-light); border-radius: 12px; padding: 20px; text-align: center; margin: 20px 0; cursor: pointer;" onclick="document.getElementById('receiptFile').click()">
-                📁 Kvitansiya yuklash
-                <input type="file" id="receiptFile" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleFileUpload(this)">
-            </div>
-            <div id="uploadedFileInfo" style="display: none; background: rgba(16,185,129,0.1); padding: 10px; border-radius: 8px;"></div>
-            <div class="modal-buttons">
-                <button class="save-btn" onclick="confirmPayment()">✅ To'ladim</button>
-                <button class="cancel-btn" onclick="cancelOrder()">❌ Bekor</button>
-            </div>
+            <button class="cancel-btn" onclick="closeHistoryModal()" style="margin-top: 20px;">Yopish</button>
         </div>
     </div>
 
@@ -521,16 +547,29 @@
             BTC: '₿', ETH: 'Ξ', USDT: '₮', TON: '🌐', TRX: '📱', DOGE: '🐕', USDC: '💰', UZS: '🇺🇿', USD: '🇺🇸', RUB: '🇷🇺'
         };
 
-        // ============ RATES (Admin can change) ============
+        // ============ RATES (Admin changes) ============
         let rates = JSON.parse(localStorage.getItem('exchangeRates')) || {
             BTC: 0.000015, ETH: 0.00028, USDT: 1, TON: 0.15, TRX: 6.5, DOGE: 7.2, USDC: 1, UZS: 12650, USD: 1, RUB: 92.5
         };
 
-        let currentOrder = null;
+        // ============ RECEIVER WALLETS (Admin sets - where client sends money) ============
+        let receiverWallets = JSON.parse(localStorage.getItem('receiverWallets')) || {
+            BTC: 'bc1qxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+            ETH: '0xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+            USDT: 'TRC20: TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+            TON: 'EQXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+            TRX: 'TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+            DOGE: 'DXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+            USDC: '0xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+            UZS: '8600 1234 5678 9012 (UzCard)',
+            USD: '4242 4242 4242 4242 (Visa)',
+            RUB: '2200 1234 5678 9012 (Mir)'
+        };
+
         let orders = JSON.parse(localStorage.getItem('orders')) || [];
-        let selectedCurrencyForPrice = null;
-        let uploadedReceipt = null;
-        let timerInterval = null;
+        let currentOrder = null;
+        let paymentTimerInterval = null;
+        let isAdminMode = false;
 
         // Save rates
         function saveRates() {
@@ -538,6 +577,11 @@
             updateTicker();
             renderRatesList();
             updateCalculation();
+        }
+
+        // Save wallets
+        function saveWallets() {
+            localStorage.setItem('receiverWallets', JSON.stringify(receiverWallets));
         }
 
         // Ticker
@@ -554,7 +598,7 @@
             wrap.innerHTML = html + html;
         }
 
-        // Render rates list (clickable for admin)
+        // Render rates for client
         function renderRatesList() {
             const container = document.getElementById('ratesList');
             container.innerHTML = allCurrencies.map(curr => {
@@ -576,41 +620,22 @@
             }).join('');
         }
 
-        // Open price modal (admin only)
-        let isAdminMode = false;
-        function toggleAdminMode() {
-            isAdminMode = !isAdminMode;
-            showToast(isAdminMode ? '👑 Admin rejimi yoqildi. Valyutalarga bossangiz narx o\'rnata olasiz' : '👤 Mijoz rejimi');
-        }
-
+        // Price modal (admin only)
         function openPriceModal(currency) {
             if (!isAdminMode) {
                 showToast('⚠️ Admin rejimiga kiring (chapdagi Admin tugmasi)');
                 return;
             }
-            selectedCurrencyForPrice = currency;
-            document.getElementById('priceCurrencyName').innerHTML = `<strong>${currency} (${currencyNames[currency]})</strong><br>USD ga nisbatan kurs:`;
-            document.getElementById('priceValue').value = rates[currency];
-            document.getElementById('priceModal').classList.add('active');
-        }
-
-        function savePrice() {
-            const newPrice = parseFloat(document.getElementById('priceValue').value);
-            if (isNaN(newPrice) || newPrice <= 0) {
-                showToast('❌ Noto\'g\'ri kurs');
-                return;
+            const newRate = prompt(`${currency} (${currencyNames[currency]}) USD ga nisbatan kursini kiriting:`, rates[currency]);
+            if (newRate && !isNaN(parseFloat(newRate)) && parseFloat(newRate) > 0) {
+                rates[currency] = parseFloat(newRate);
+                saveRates();
+                renderAdminRates();
+                showToast(`✅ ${currency} kursi yangilandi: ${rates[currency]}`);
             }
-            rates[selectedCurrencyForPrice] = newPrice;
-            saveRates();
-            closePriceModal();
-            showToast(`✅ ${selectedCurrencyForPrice} kursi yangilandi: ${newPrice}`);
         }
 
-        function closePriceModal() {
-            document.getElementById('priceModal').classList.remove('active');
-        }
-
-        // Calculation
+        // Calculation (supports both USD and RUB based)
         function updateCalculation() {
             const giveCurr = document.getElementById('giveCurrency').value;
             const getCurr = document.getElementById('getCurrency').value;
@@ -634,108 +659,233 @@
             updateCalculation();
         }
 
-        // Exchange Modal
+        // Open payment modal (client sees where to send money)
         function openExchangeModal() {
             const giveAmount = parseFloat(document.getElementById('giveAmount').value);
             if (!giveAmount || giveAmount <= 0) { showToast('❌ Miqdor kiriting'); return; }
-            const wallet = document.getElementById('walletAddress').value;
-            if (!wallet.trim()) { showToast('❌ Hamyon kiriting'); return; }
+            const userWallet = document.getElementById('userWallet').value;
+            if (!userWallet.trim()) { showToast('❌ Sizning hamyoningizni kiriting'); return; }
 
-            const orderId = 'ORD-' + Date.now();
+            const giveCurr = document.getElementById('giveCurrency').value;
+            const getCurr = document.getElementById('getCurrency').value;
+            const getAmount = parseFloat(document.getElementById('resultAmount').innerText.split(' ')[0]);
+            
+            const txId = 'TX' + Date.now() + Math.floor(Math.random() * 1000);
+            
             currentOrder = {
-                id: orderId,
-                giveCurrency: document.getElementById('giveCurrency').value,
-                getCurrency: document.getElementById('getCurrency').value,
+                id: txId,
+                giveCurrency: giveCurr,
+                getCurrency: getCurr,
                 giveAmount: giveAmount,
-                getAmount: parseFloat(document.getElementById('resultAmount').innerText.split(' ')[0]),
-                wallet: wallet,
+                getAmount: getAmount,
+                userWallet: userWallet,
+                receiverWallet: receiverWallets[giveCurr],
                 status: 'pending',
                 createdAt: new Date().toISOString(),
-                receiptData: null
+                receiptData: null,
+                receiptName: null
             };
 
-            document.getElementById('exchangeDetails').innerHTML = `
-                <div><strong>Zakaz ID:</strong> ${orderId}</div>
-                <div><strong>Siz berasiz:</strong> ${giveAmount} ${currentOrder.giveCurrency}</div>
-                <div><strong>Siz olasiz:</strong> ${currentOrder.getAmount} ${currentOrder.getCurrency}</div>
-                <div><strong>Hamyon:</strong> ${wallet}</div>
+            // Show payment details
+            document.getElementById('paymentDetails').innerHTML = `
+                <div class="payment-detail-row"><span>📋 Tranzaksiya ID:</span><span><strong>${txId}</strong> <button class="copy-btn" onclick="copyText('${txId}')">📋 Nusxa</button></span></div>
+                <div class="payment-detail-row"><span>💰 Siz yuborasiz:</span><span>${giveAmount.toLocaleString()} ${giveCurr}</span></div>
+                <div class="payment-detail-row"><span>💎 Siz olasiz:</span><span>${getAmount.toFixed(getCurr === 'UZS' ? 0 : 6)} ${getCurr}</span></div>
+                <div class="payment-detail-row"><span>🏦 Qabul qiluvchi (bizning hamyon):</span><span><strong>${receiverWallets[giveCurr]}</strong> <button class="copy-btn" onclick="copyText('${receiverWallets[giveCurr]}')">📋 Nusxa</button></span></div>
+                <div class="payment-detail-row"><span>⏰ To'lov muddati:</span><span>15 daqiqa</span></div>
+                <div class="tx-hash">⚠️ Iltimos, aynan ${giveCurr} yuboring va kvitansiyani yuklang!</div>
             `;
-            document.getElementById('exchangeModal').classList.add('active');
-            startTimer(600);
+            
+            document.getElementById('paymentModal').classList.add('active');
+            startPaymentTimer(900); // 15 minutes = 900 seconds
         }
 
-        function startTimer(seconds) {
+        function startPaymentTimer(seconds) {
             let remaining = seconds;
-            const timerDisplay = document.getElementById('timer');
-            if (timerInterval) clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
+            const timerDisplay = document.getElementById('paymentTimer');
+            if (paymentTimerInterval) clearInterval(paymentTimerInterval);
+            paymentTimerInterval = setInterval(() => {
                 const mins = Math.floor(remaining / 60);
                 const secs = remaining % 60;
                 timerDisplay.innerText = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
                 if (remaining <= 0) {
-                    clearInterval(timerInterval);
-                    cancelOrder();
+                    clearInterval(paymentTimerInterval);
+                    if (currentOrder && currentOrder.status === 'pending') {
+                        currentOrder.status = 'cancelled';
+                        orders.push(currentOrder);
+                        localStorage.setItem('orders', JSON.stringify(orders));
+                        closePaymentModal();
+                        showToast('⏰ Vaqt tugadi! Zakaz bekor qilindi');
+                    }
                 }
                 remaining--;
             }, 1000);
         }
 
-        function handleFileUpload(input) {
+        function handleReceiptUpload(input) {
             const file = input.files[0];
             if (!file) return;
             if (file.size > 10 * 1024 * 1024) { showToast('❌ Fayl 10MB dan katta'); return; }
             const reader = new FileReader();
             reader.onload = function(e) {
-                uploadedReceipt = e.target.result;
-                if (currentOrder) currentOrder.receiptData = uploadedReceipt;
-                document.getElementById('uploadedFileInfo').innerHTML = `✅ ${file.name} yuklandi`;
-                document.getElementById('uploadedFileInfo').style.display = 'block';
+                if (currentOrder) {
+                    currentOrder.receiptData = e.target.result;
+                    currentOrder.receiptName = file.name;
+                }
+                document.getElementById('receiptStatus').innerHTML = `✅ ${file.name} yuklandi`;
+                document.getElementById('receiptStatus').style.color = 'var(--success)';
             };
             reader.readAsDataURL(file);
         }
 
-        function confirmPayment() {
-            if (!uploadedReceipt && !currentOrder?.receiptData) {
-                showToast('❌ Iltimos, kvitansiyani yuklang');
+        function confirmPaymentSent() {
+            if (!currentOrder || !currentOrder.receiptData) {
+                showToast('❌ Iltimos, to\'lov kvitansiyasini yuklang');
                 return;
             }
+            if (currentOrder.status !== 'pending') {
+                showToast('⚠️ Bu zakaz allaqachon tasdiqlangan');
+                return;
+            }
+            
             currentOrder.status = 'paid';
             currentOrder.paidAt = new Date().toISOString();
             orders.push(currentOrder);
             localStorage.setItem('orders', JSON.stringify(orders));
-            clearInterval(timerInterval);
-            document.getElementById('exchangeModal').classList.remove('active');
-            uploadedReceipt = null;
-            document.getElementById('uploadedFileInfo').style.display = 'none';
-            document.getElementById('receiptFile').value = '';
-            showToast('✅ To\'lov tasdiqlandi. Admin tekshiradi');
+            
+            clearInterval(paymentTimerInterval);
+            closePaymentModal();
+            showToast('✅ To\'lovingiz qabul qilindi! Admin tekshirgandan so\'ng pul yuboriladi');
+            
+            // Reset form
+            document.getElementById('receiptFileInput').value = '';
+            document.getElementById('receiptStatus').innerHTML = '';
+            currentOrder = null;
         }
 
-        function cancelOrder() {
-            if (currentOrder && currentOrder.receiptData) {
-                currentOrder.status = 'cancelled';
-                orders.push(currentOrder);
-                localStorage.setItem('orders', JSON.stringify(orders));
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.remove('active');
+            if (paymentTimerInterval) clearInterval(paymentTimerInterval);
+        }
+
+        // ============ ADMIN PANEL ============
+        function toggleAdminPanel() {
+            const panel = document.getElementById('adminPanel');
+            isAdminMode = !panel.classList.contains('active');
+            panel.classList.toggle('active');
+            if (panel.classList.contains('active')) {
+                renderAdminRates();
+                renderAdminWallets();
+                renderAdminOrders();
             }
-            clearInterval(timerInterval);
-            document.getElementById('exchangeModal').classList.remove('active');
-            showToast('❌ Zakaz bekor qilindi');
         }
 
-        // History Modal
+        function renderAdminRates() {
+            const container = document.getElementById('adminRatesList');
+            container.innerHTML = allCurrencies.map(curr => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255,255,255,0.03); margin: 5px 0; border-radius: 8px;">
+                    <span><strong>${currencyIcons[curr]} ${curr}</strong> (${currencyNames[curr]})</span>
+                    <span>1 USD = ${(1/rates[curr]).toFixed(curr === 'BTC' || curr === 'ETH' ? 8 : 2)} ${curr}</span>
+                    <button onclick="openPriceModal('${curr}')" style="background: var(--primary); border: none; padding: 8px 15px; border-radius: 8px; color: white; cursor: pointer;">✏️ O'zgartirish</button>
+                </div>
+            `).join('');
+        }
+
+        function renderAdminWallets() {
+            const container = document.getElementById('adminWalletsList');
+            container.innerHTML = allCurrencies.map(curr => `
+                <div class="wallet-admin-row">
+                    <span style="min-width: 80px;"><strong>${currencyIcons[curr]} ${curr}</strong></span>
+                    <input type="text" id="wallet_${curr}" value="${receiverWallets[curr]}" placeholder="Hamyon manzili">
+                    <button onclick="updateWallet('${curr}')">💾 Saqlash</button>
+                </div>
+            `).join('');
+        }
+
+        function updateWallet(currency) {
+            const newWallet = document.getElementById(`wallet_${currency}`).value;
+            if (newWallet.trim()) {
+                receiverWallets[currency] = newWallet;
+                saveWallets();
+                showToast(`✅ ${currency} hamyoni yangilandi`);
+            }
+        }
+
+        function renderAdminOrders() {
+            const container = document.getElementById('adminOrdersList');
+            if (orders.length === 0) {
+                container.innerHTML = '<p>Zakazlar yo\'q</p>';
+                return;
+            }
+            container.innerHTML = orders.slice().reverse().map(order => `
+                <div class="order-card">
+                    <div><strong>ID:</strong> ${order.id} <span class="order-status status-${order.status}">${order.status === 'pending' ? 'Kutilmoqda' : (order.status === 'paid' ? 'To\'langan' : (order.status === 'sent' ? 'Yuborilgan' : 'Bekor'))}</span></div>
+                    <div><strong>Berish:</strong> ${order.giveAmount} ${order.giveCurrency}</div>
+                    <div><strong>Olish:</strong> ${order.getAmount} ${order.getCurrency}</div>
+                    <div><strong>Mijoz hamyoni:</strong> ${order.userWallet}</div>
+                    <div><strong>Bizning hamyon:</strong> ${order.receiverWallet}</div>
+                    <div><strong>Sana:</strong> ${new Date(order.createdAt).toLocaleString()}</div>
+                    ${order.receiptData ? `<div><button class="save-btn" style="padding: 5px 10px; font-size: 0.8rem;" onclick="viewReceipt('${order.id}')">📄 Kvitansiyani ko'rish</button></div>` : ''}
+                    ${order.status === 'paid' ? `
+                        <div style="margin-top: 15px;">
+                            <button class="save-btn" onclick="markAsSent('${order.id}')" style="background: var(--primary);">✅ Pul yuborildi</button>
+                            <button class="cancel-btn" onclick="markAsRejected('${order.id}')" style="background: var(--danger);">❌ Rad etish</button>
+                        </div>
+                    ` : ''}
+                    ${order.status === 'sent' ? `<div style="color: var(--success); margin-top: 10px;">✅ Pul mijozga yuborilgan</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function viewReceipt(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (order && order.receiptData) {
+                const win = window.open();
+                if (order.receiptData.startsWith('data:application/pdf')) {
+                    win.document.write(`<iframe src="${order.receiptData}" width="100%" height="100%"></iframe>`);
+                } else {
+                    win.document.write(`<img src="${order.receiptData}" style="max-width:100%;">`);
+                }
+            } else {
+                showToast('❌ Kvitansiya topilmadi');
+            }
+        }
+
+        function markAsSent(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                order.status = 'sent';
+                order.sentAt = new Date().toISOString();
+                localStorage.setItem('orders', JSON.stringify(orders));
+                renderAdminOrders();
+                showToast(`✅ ${orderId} - pul yuborilgan deb belgilandi`);
+            }
+        }
+
+        function markAsRejected(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                order.status = 'rejected';
+                localStorage.setItem('orders', JSON.stringify(orders));
+                renderAdminOrders();
+                showToast(`❌ ${orderId} rad etildi`);
+            }
+        }
+
+        // History
         function openHistoryModal() {
             const container = document.getElementById('historyList');
             if (orders.length === 0) {
                 container.innerHTML = '<p style="text-align:center;">Tarix yo\'q</p>';
             } else {
                 container.innerHTML = orders.slice().reverse().map(order => `
-                    <div class="history-item">
-                        <div><strong>${order.id}</strong> <span class="history-status status-${order.status}">${order.status}</span></div>
+                    <div class="order-card" style="margin-bottom: 15px;">
+                        <div><strong>${order.id}</strong> <span class="order-status status-${order.status}">${order.status === 'pending' ? 'Kutilmoqda' : (order.status === 'paid' ? 'To\'langan' : (order.status === 'sent' ? '✅ Yuborilgan' : 'Bekor'))}</span></div>
                         <div>Berish: ${order.giveAmount} ${order.giveCurrency}</div>
                         <div>Olish: ${order.getAmount} ${order.getCurrency}</div>
                         <div>Sana: ${new Date(order.createdAt).toLocaleString()}</div>
-                        ${order.status === 'paid' ? '<div style="color: var(--warning);">⏳ Admin tasdiqlashini kuting</div>' : ''}
-                        ${order.status === 'completed' ? '<div style="color: var(--success);">✅ Bajarilgan</div>' : ''}
+                        ${order.status === 'sent' ? '<div style="color: var(--success);">💰 Pul sizning hamyoningizga yuborildi!</div>' : ''}
+                        ${order.status === 'paid' ? '<div style="color: var(--warning);">⏳ Admin tekshirmoqda...</div>' : ''}
                     </div>
                 `).join('');
             }
@@ -744,6 +894,11 @@
 
         function closeHistoryModal() {
             document.getElementById('historyModal').classList.remove('active');
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text);
+            showToast('✅ Nusxa olindi');
         }
 
         function showToast(msg) {
