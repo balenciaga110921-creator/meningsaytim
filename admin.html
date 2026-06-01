@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - CryptoExchange Pro</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #6366f1;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-light: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(99,102,241,0.2);
+        }
+        .card h2 { margin-bottom: 20px; color: var(--primary); }
+        .order-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        .order-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        .status-pending { background: rgba(245,158,11,0.2); color: var(--warning); }
+        .status-paid { background: rgba(16,185,129,0.2); color: var(--success); }
+        .json-link {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            margin: 5px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-primary { background: var(--primary); color: white; }
+        .info-text {
+            background: rgba(99,102,241,0.1);
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👑 Admin Boshqaruv Paneli</h1>
+        <p style="color: var(--text-secondary); margin-bottom: 30px;">Kurslar, hamyonlar va zakazlarni boshqaring</p>
+
+        <!-- JSON fayllarni tahrirlash -->
+        <div class="card">
+            <h2>📁 Ma'lumotlarni tahrirlash</h2>
+            <p>Quyidagi fayllarni GitHub'da tahrirlang:</p>
+            <div style="margin-top: 15px;">
+                <a href="#" id="githubRatesLink" class="json-link" target="_blank">💰 rates.json (Kurslar)</a>
+                <a href="#" id="githubWalletsLink" class="json-link" target="_blank">🏦 wallets.json (Hamyonlar)</a>
+                <a href="#" id="githubContactsLink" class="json-link" target="_blank">📞 contacts.json (Kontaktlar)</a>
+            </div>
+            <div class="info-text">
+                ⚠️ <strong>Qanday tahrirlash mumkin:</strong><br>
+                1. Yuqoridagi havolalarni bosing<br>
+                2. GitHub'da "Edit" (qalam) tugmasini bosing<br>
+                3. JSON faylni o'zgartiring<br>
+                4. "Commit changes" tugmasini bosing<br>
+                5. O'zgarishlar avtomatik mijoz panelida ko'rinadi
+            </div>
+        </div>
+
+        <!-- Joriy kurslar -->
+        <div class="card">
+            <h2>💰 Joriy kurslar</h2>
+            <div id="currentRates">Yuklanmoqda...</div>
+        </div>
+
+        <!-- Zakazlar -->
+        <div class="card">
+            <h2>📦 Zakazlar</h2>
+            <div id="ordersList">Yuklanmoqda...</div>
+        </div>
+
+        <div class="info-text">
+            📌 <strong>Eslatma:</strong><br>
+            - Zakazlar faqat shu kompyuteringizda saqlanadi<br>
+            - Boshqa qurilmadan kirsangiz, zakazlar ko'rinmaydi<br>
+            - Kurs va hamyon o'zgarishlari GitHub orqali amalga oshiriladi
+        </div>
+    </div>
+
+    <script>
+        let rates = {};
+        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        let allCurrencies = ['BTC', 'ETH', 'USDT', 'TON', 'TRX', 'DOGE', 'USDC', 'UZS', 'USD', 'RUB'];
+        let currencyNames = { BTC:'Bitcoin', ETH:'Ethereum', USDT:'Tether', TON:'TON', TRX:'Tron', DOGE:'Dogecoin', USDC:'USD Coin', UZS:'So\'m', USD:'Dollar', RUB:'Ruble' };
+        let currencyIcons = { BTC:'₿', ETH:'Ξ', USDT:'₮', TON:'🌐', TRX:'📱', DOGE:'🐕', USDC:'💰', UZS:'🇺🇿', USD:'🇺🇸', RUB:'🇷🇺' };
+
+        // GitHub repo manzilini aniqlash
+        function getGitHubRepoUrl() {
+            // Sizning GitHub repo manzilingizni shu yerga yozing
+            return prompt('GitHub repo manzilingizni kiriting (masalan: username/crypto-exchange):', 'YOUR_USERNAME/crypto-exchange');
+        }
+
+        let repoUrl = localStorage.getItem('githubRepo');
+        if (!repoUrl) {
+            repoUrl = getGitHubRepoUrl();
+            if (repoUrl) localStorage.setItem('githubRepo', repoUrl);
+        }
+
+        function updateGitHubLinks() {
+            if (repoUrl) {
+                const baseUrl = `https://github.com/${repoUrl}/blob/main/`;
+                document.getElementById('githubRatesLink').href = baseUrl + 'rates.json';
+                document.getElementById('githubWalletsLink').href = baseUrl + 'wallets.json';
+                document.getElementById('githubContactsLink').href = baseUrl + 'contacts.json';
+            }
+        }
+
+        // Load rates
+        async function loadRates() {
+            try {
+                const res = await fetch('rates.json?v=' + Date.now());
+                rates = await res.json();
+                displayRates();
+            } catch(e) { console.error('Kurs yuklanmadi'); }
+        }
+
+        function displayRates() {
+            const container = document.getElementById('currentRates');
+            container.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;">`;
+            allCurrencies.forEach(curr => {
+                if (rates[curr]) {
+                    const price = (1 / rates[curr]).toFixed(curr === 'BTC' || curr === 'ETH' ? 8 : 2);
+                    container.innerHTML += `<div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:10px;">
+                        <strong>${currencyIcons[curr]} ${curr}</strong><br>1 USD = ${price} ${curr}
+                    </div>`;
+                }
+            });
+            container.innerHTML += `</div>`;
+        }
+
+        // Zakazlarni ko'rsatish
+        function renderOrders() {
+            const container = document.getElementById('ordersList');
+            if (orders.length === 0) {
+                container.innerHTML = '<p>Zakazlar yo\'q</p>';
+                return;
+            }
+            container.innerHTML = orders.slice().reverse().map(order => `
+                <div class="order-card">
+                    <div><strong>ID:</strong> ${order.id} <span class="order-status status-${order.status}">${order.status === 'pending' ? '⏳ To\'lov kutilmoqda' : (order.status === 'paid' ? '✅ To\'langan' : (order.status === 'sent' ? '💸 Yuborilgan' : '❌ Bekor'))}</span></div>
+                    <div><strong>Berish:</strong> ${order.giveAmount} ${order.giveCurrency}</div>
+                    <div><strong>Olish:</strong> ${order.getAmount} ${order.getCurrency}</div>
+                    <div><strong>Mijoz hamyoni:</strong> ${order.userWallet}</div>
+                    <div><strong>Bizning hamyon:</strong> ${order.receiverWallet}</div>
+                    <div><strong>Sana:</strong> ${new Date(order.createdAt).toLocaleString()}</div>
+                    ${order.receiptData ? `<div><button class="btn btn-primary" onclick="viewReceipt('${order.id}')">📄 Kvitansiyani ko'rish</button></div>` : ''}
+                    ${order.status === 'paid' ? `
+                        <div style="margin-top: 15px;">
+                            <button class="btn btn-success" onclick="markAsSent('${order.id}')">✅ Pul yuborildi</button>
+                            <button class="btn btn-danger" onclick="markAsRejected('${order.id}')">❌ Rad etish</button>
+                        </div>
+                    ` : ''}
+                    ${order.status === 'sent' ? '<div style="color:var(--success);margin-top:10px;">✅ Pul mijozga yuborilgan</div>' : ''}
+                </div>
+            `).join('');
+        }
+
+        function viewReceipt(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (order && order.receiptData) {
+                const win = window.open();
+                if (order.receiptData.startsWith('data:application/pdf')) {
+                    win.document.write(`<iframe src="${order.receiptData}" width="100%" height="100%"></iframe>`);
+                } else {
+                    win.document.write(`<img src="${order.receiptData}" style="max-width:100%;">`);
+                }
+            } else { alert('Kvitansiya topilmadi'); }
+        }
+
+        function markAsSent(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                order.status = 'sent';
+                order.sentAt = new Date().toISOString();
+                localStorage.setItem('orders', JSON.stringify(orders));
+                renderOrders();
+                alert(`✅ ${orderId} - pul yuborilgan deb belgilandi`);
+            }
+        }
+
+        function markAsRejected(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                order.status = 'rejected';
+                localStorage.setItem('orders', JSON.stringify(orders));
+                renderOrders();
+                alert(`❌ ${orderId} rad etildi`);
+            }
+        }
+
+        setInterval(() => { loadRates(); }, 30000);
+        loadRates();
+        renderOrders();
+        updateGitHubLinks();
+    </script>
+</body>
+</html>
