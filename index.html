@@ -2,7 +2,7 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CryptoExchange Pro - Admin & Client</title>
     <style>
         * {
@@ -14,7 +14,6 @@
         :root {
             --primary: #6366f1;
             --primary-dark: #4f46e5;
-            --secondary: #ec4899;
             --bg-dark: #0f172a;
             --bg-card: #1e293b;
             --bg-light: #334155;
@@ -34,21 +33,52 @@
             min-height: 100vh;
         }
 
-        /* Background */
-        .bg-animation {
-            position: fixed;
+        /* Ticker Slider */
+        .ticker-container {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.3);
+            padding: 12px 0;
+            overflow: hidden;
+            position: sticky;
             top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: radial-gradient(circle at 20% 50%, rgba(99,102,241,0.3) 0%, transparent 50%);
+            z-index: 100;
+        }
+
+        .ticker-wrap {
+            display: flex;
+            animation: ticker 35s linear infinite;
+            white-space: nowrap;
+        }
+
+        .ticker-item {
+            display: inline-flex;
+            align-items: center;
+            padding: 0 25px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .ticker-item .coin {
+            color: var(--primary);
+            margin-right: 8px;
+        }
+
+        .ticker-item .price {
+            color: var(--success);
+            margin-left: 5px;
+        }
+
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
         }
 
         /* Header */
         .header {
             text-align: center;
             padding: 30px 20px 20px;
+            position: relative;
         }
         .header h1 {
             font-size: 2rem;
@@ -57,7 +87,41 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* Container - exchange first, then rates */
+        /* History Button */
+        .history-btn {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 10px 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            z-index: 500;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .history-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .admin-toggle {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 10px 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            z-index: 500;
+            font-weight: 600;
+        }
+
+        /* Container */
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -71,7 +135,7 @@
             .container { grid-template-columns: 1fr; }
         }
 
-        /* Exchange Panel (first) */
+        /* Exchange Panel */
         .exchange-panel {
             background: var(--bg-card);
             border-radius: 20px;
@@ -83,12 +147,8 @@
         .exchange-panel h2, .rates-panel h2 {
             font-size: 1.3rem;
             margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
 
-        /* Currency Select */
         .currency-select, .amount-input, .wallet-input {
             margin-bottom: 20px;
         }
@@ -147,11 +207,6 @@
             color: var(--text-primary);
             outline: none;
         }
-        .wallet-input input:focus {
-            border-color: var(--primary);
-        }
-
-        /* Swap Button */
         .swap-btn {
             display: flex;
             justify-content: center;
@@ -168,13 +223,6 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-        .swap-btn button:hover {
-            background: var(--primary);
-            color: white;
-            transform: rotate(180deg);
-        }
-
-        /* Result */
         .result-display {
             background: var(--gradient-1);
             border-radius: 16px;
@@ -198,11 +246,8 @@
             cursor: pointer;
             margin-top: 20px;
         }
-        .exchange-btn:hover {
-            transform: translateY(-2px);
-        }
 
-        /* Rates Panel (second) */
+        /* Rates Panel - Clickable for admin */
         .rates-panel {
             background: var(--bg-card);
             border-radius: 20px;
@@ -220,10 +265,12 @@
             align-items: center;
             cursor: pointer;
             transition: all 0.3s;
+            border: 1px solid transparent;
         }
         .rate-card:hover {
-            background: rgba(99,102,241,0.1);
+            background: rgba(99,102,241,0.2);
             transform: translateX(5px);
+            border-color: var(--primary);
         }
         .rate-info {
             display: flex;
@@ -231,22 +278,28 @@
             gap: 12px;
         }
         .rate-icon {
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
+            font-size: 1.1rem;
         }
         .icon-btc { background: #f7931a; }
         .icon-eth { background: #627eea; }
         .icon-usdt { background: #26a17b; }
+        .icon-ton { background: #0088cc; }
+        .icon-trx { background: #ff060a; }
+        .icon-doge { background: #c2a633; }
+        .icon-usdc { background: #2775ca; }
         .icon-uzs { background: #1eb53a; }
         .icon-usd { background: #85bb65; }
         .icon-rub { background: #0033a0; }
         .rate-price {
             font-weight: 700;
+            font-size: 1.1rem;
             color: var(--success);
         }
 
@@ -263,201 +316,63 @@
             z-index: 1000;
             justify-content: center;
             align-items: center;
-            padding: 20px;
         }
         .modal-overlay.active { display: flex; }
         .modal {
             background: var(--bg-card);
             border-radius: 24px;
             padding: 30px;
-            max-width: 600px;
+            max-width: 500px;
+            width: 90%;
+        }
+        .price-input-modal input {
             width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        .modal-header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .payment-details {
-            background: rgba(255,255,255,0.05);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        .copy-btn {
-            background: rgba(99,102,241,0.2);
+            padding: 15px;
+            margin: 15px 0;
+            background: var(--bg-light);
             border: none;
-            color: var(--primary);
-            padding: 5px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-        .upload-area {
-            border: 2px dashed var(--bg-light);
             border-radius: 12px;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            margin: 20px 0;
+            color: white;
+            font-size: 1.2rem;
         }
-        .uploaded-file {
-            display: none;
-            background: rgba(16,185,129,0.1);
-            padding: 12px;
-            border-radius: 8px;
-            margin-top: 10px;
-            align-items: center;
-            gap: 10px;
-        }
-        .uploaded-file.active { display: flex; }
-        .action-buttons {
+        .modal-buttons {
             display: flex;
             gap: 15px;
             margin-top: 20px;
         }
-        .action-btn {
+        .modal-buttons button {
             flex: 1;
-            padding: 14px;
-            border-radius: 12px;
+            padding: 12px;
+            border-radius: 10px;
             border: none;
-            font-weight: 700;
+            font-weight: bold;
             cursor: pointer;
         }
-        .btn-confirm { background: var(--success); color: white; }
-        .btn-cancel { background: var(--danger); color: white; }
+        .save-btn { background: var(--success); color: white; }
+        .cancel-btn { background: var(--danger); color: white; }
 
-        /* Admin Panel */
-        .admin-panel {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-dark);
-            z-index: 2000;
+        /* History Modal */
+        .history-modal {
+            max-width: 800px;
+            max-height: 80vh;
             overflow-y: auto;
         }
-        .admin-panel.active { display: block; }
-        .admin-header {
-            background: var(--bg-card);
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(99,102,241,0.3);
-            position: sticky;
-            top: 0;
-            z-index: 10;
+        .history-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
         }
-        .admin-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 30px 20px;
-        }
-        .rate-admin-card {
-            background: var(--bg-card);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        .rate-admin-card input {
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid var(--bg-light);
-            background: var(--bg-dark);
-            color: white;
-            font-size: 1rem;
-            width: 150px;
-        }
-        .rate-admin-card button {
-            padding: 10px 20px;
-            background: var(--primary);
-            border: none;
-            border-radius: 8px;
-            color: white;
-            cursor: pointer;
-        }
-        .order-card {
-            background: var(--bg-card);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(99,102,241,0.2);
-        }
-        .order-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
-        .order-status {
+        .history-status {
+            display: inline-block;
             padding: 4px 12px;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
         .status-pending { background: rgba(245,158,11,0.2); color: var(--warning); }
         .status-paid { background: rgba(16,185,129,0.2); color: var(--success); }
-        .order-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px,1fr));
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        .order-btn {
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            margin-right: 10px;
-        }
-        .btn-view-receipt { background: var(--primary); color: white; }
-        .btn-approve { background: var(--success); color: white; }
-        .btn-reject { background: var(--danger); color: white; }
-        .receipt-preview {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%,-50%);
-            background: var(--bg-card);
-            padding: 20px;
-            border-radius: 16px;
-            max-width: 90%;
-            max-height: 90%;
-            overflow: auto;
-            z-index: 3000;
-        }
-        .receipt-preview.active { display: block; }
-        .receipt-preview img, .receipt-preview iframe {
-            max-width: 100%;
-            max-height: 70vh;
-        }
-        .admin-toggle {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: var(--bg-card);
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            padding: 10px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            z-index: 500;
-            font-weight: 600;
-        }
+        .status-completed { background: rgba(99,102,241,0.2); color: var(--primary); }
+
         .toast {
             position: fixed;
             bottom: 30px;
@@ -468,31 +383,27 @@
             transform: translateX(400px);
             transition: all 0.3s;
             z-index: 3000;
+            border-left: 4px solid var(--success);
         }
         .toast.active { transform: translateX(0); }
-        .timer-display {
-            font-size: 2rem;
-            font-family: monospace;
-            color: var(--warning);
-            text-align: center;
-        }
     </style>
 </head>
 <body>
-    <div class="bg-animation"></div>
+    <div class="ticker-container">
+        <div class="ticker-wrap" id="tickerWrap"></div>
+    </div>
 
-    <button class="admin-toggle" onclick="toggleAdmin()">👑 Admin Panel</button>
+    <button class="admin-toggle" onclick="toggleAdminMode()">👑 Admin</button>
+    <button class="history-btn" onclick="openHistoryModal()">📜 Tarix</button>
 
     <div class="header">
         <h1>💱 CryptoExchange Pro</h1>
-        <p>Tez va xavfsiz valyuta almashtirish</p>
+        <p>Valyuta almashtirish xizmati</p>
     </div>
 
     <div class="container">
-        <!-- Exchange Panel (first) -->
         <div class="exchange-panel">
-            <h2>💱 Valyuta almashtirish</h2>
-            
+            <h2>💱 Almashtirish</h2>
             <div class="currency-select">
                 <label>Siz berasiz:</label>
                 <div class="select-wrapper">
@@ -503,10 +414,13 @@
                         <option value="USDT">₮ USDT - Tether</option>
                         <option value="BTC">₿ Bitcoin</option>
                         <option value="ETH">Ξ Ethereum</option>
+                        <option value="TON">🌐 TON</option>
+                        <option value="TRX">📱 TRX</option>
+                        <option value="DOGE">🐕 DOGE</option>
+                        <option value="USDC">💰 USDC</option>
                     </select>
                 </div>
             </div>
-
             <div class="amount-input">
                 <label>Miqdor:</label>
                 <div class="input-wrapper">
@@ -514,132 +428,144 @@
                     <span class="input-currency" id="giveSymbol">UZS</span>
                 </div>
             </div>
-
             <div class="swap-btn">
                 <button onclick="swapCurrencies()">⇅</button>
             </div>
-
             <div class="currency-select">
                 <label>Siz olasiz:</label>
                 <div class="select-wrapper">
                     <select id="getCurrency" onchange="updateCalculation()">
-                        <option value="USDT">₮ USDT - Tether</option>
-                        <option value="BTC">₿ Bitcoin</option>
-                        <option value="ETH">Ξ Ethereum</option>
-                        <option value="UZS">🇺🇿 UZS - So'm</option>
-                        <option value="USD">🇺🇸 USD - Dollar</option>
-                        <option value="RUB">🇷🇺 RUB - Ruble</option>
+                        <option value="USDT">₮ USDT</option>
+                        <option value="BTC">₿ BTC</option>
+                        <option value="ETH">Ξ ETH</option>
+                        <option value="TON">🌐 TON</option>
+                        <option value="TRX">📱 TRX</option>
+                        <option value="DOGE">🐕 DOGE</option>
+                        <option value="USDC">💰 USDC</option>
+                        <option value="UZS">🇺🇿 UZS</option>
+                        <option value="USD">🇺🇸 USD</option>
+                        <option value="RUB">🇷🇺 RUB</option>
                     </select>
                 </div>
             </div>
-
             <div class="result-display">
                 <div class="result-amount" id="resultAmount">0.00</div>
-                <div id="resultRate" style="font-size: 0.85rem; opacity:0.8;">Kurs: -</div>
+                <div id="resultRate" style="font-size: 0.85rem;">Kurs: -</div>
             </div>
-
             <div class="wallet-input">
-                <label>💳 Qabul qiluvchi hamyoni / karta:</label>
+                <label>💳 Qabul qiluvchi hamyoni:</label>
                 <input type="text" id="walletAddress" placeholder="Wallet address yoki karta raqami">
             </div>
-
             <button class="exchange-btn" onclick="openExchangeModal()">🚀 Almashtirish</button>
         </div>
 
-        <!-- Rates Panel (second - shows admin-set rates) -->
         <div class="rates-panel">
-            <h2>📊 Joriy kurslar</h2>
-            <div id="ratesList">Loading...</div>
+            <h2>📊 Valyuta kurslari (admin o'rnatadi)</h2>
+            <div id="ratesList"></div>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 15px;">* Admin sifatida valyuta ustiga bosing va narx kiriting</p>
+        </div>
+    </div>
+
+    <!-- Price Edit Modal -->
+    <div class="modal-overlay" id="priceModal">
+        <div class="modal">
+            <h3>💰 Narxni o'rnatish</h3>
+            <p id="priceCurrencyName"></p>
+            <div class="price-input-modal">
+                <input type="number" id="priceValue" step="any" placeholder="USD ga nisbatan kurs">
+            </div>
+            <div class="modal-buttons">
+                <button class="save-btn" onclick="savePrice()">💾 Saqlash</button>
+                <button class="cancel-btn" onclick="closePriceModal()">Bekor</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal history-modal">
+            <h3>📜 Tranzaksiya tarixi</h3>
+            <div id="historyList"></div>
+            <button class="cancel-btn" onclick="closeHistoryModal()" style="margin-top: 20px; width: 100%;">Yopish</button>
         </div>
     </div>
 
     <!-- Exchange Modal -->
     <div class="modal-overlay" id="exchangeModal">
         <div class="modal">
-            <div class="modal-header">
-                <h2>✅ Zakazni tasdiqlash</h2>
-            </div>
-            <div class="payment-details" id="modalDetails"></div>
-            <div class="timer-container">
-                <div class="timer-display" id="timer">10:00</div>
-            </div>
-            <div class="upload-area" onclick="document.getElementById('receiptFile').click()">
-                📁 Kvitansiya yuklash (PDF/JPG/PNG)
+            <h3>✅ Zakazni tasdiqlash</h3>
+            <div id="exchangeDetails" style="margin: 20px 0;"></div>
+            <div class="timer-display" id="timer" style="text-align: center; font-size: 2rem; font-family: monospace;">10:00</div>
+            <div class="upload-area" style="border: 2px dashed var(--bg-light); border-radius: 12px; padding: 20px; text-align: center; margin: 20px 0; cursor: pointer;" onclick="document.getElementById('receiptFile').click()">
+                📁 Kvitansiya yuklash
                 <input type="file" id="receiptFile" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleFileUpload(this)">
             </div>
-            <div class="uploaded-file" id="uploadedFile">
-                <span>📄</span><span id="fileName"></span>
-                <button onclick="removeFile()" style="background:none; border:none; color:red;">✕</button>
-            </div>
-            <div class="action-buttons">
-                <button class="action-btn btn-confirm" onclick="confirmPayment()">✅ To'ladim</button>
-                <button class="action-btn btn-cancel" onclick="cancelOrder()">❌ Bekor</button>
+            <div id="uploadedFileInfo" style="display: none; background: rgba(16,185,129,0.1); padding: 10px; border-radius: 8px;"></div>
+            <div class="modal-buttons">
+                <button class="save-btn" onclick="confirmPayment()">✅ To'ladim</button>
+                <button class="cancel-btn" onclick="cancelOrder()">❌ Bekor</button>
             </div>
         </div>
-    </div>
-
-    <!-- Admin Panel -->
-    <div class="admin-panel" id="adminPanel">
-        <div class="admin-header">
-            <h2>👑 Admin Panel - Kurslarni boshqarish</h2>
-            <button class="admin-toggle" onclick="toggleAdmin()">✕ Yopish</button>
-        </div>
-        <div class="admin-content">
-            <h3>💱 Valyuta kurslarini o'rnating</h3>
-            <div id="adminRatesList"></div>
-            
-            <h3 style="margin-top: 40px;">📦 Zakazlar</h3>
-            <div id="ordersList"></div>
-        </div>
-    </div>
-
-    <!-- Receipt Preview Modal -->
-    <div class="receipt-preview" id="receiptPreview">
-        <div style="display: flex; justify-content: space-between;">
-            <h3>📄 Kvitansiya</h3>
-            <button onclick="closeReceiptPreview()" style="background:red; border:none; color:white; padding:5px 10px; border-radius:8px;">✕</button>
-        </div>
-        <div id="receiptContent"></div>
     </div>
 
     <div class="toast" id="toast">✅ Muvaffaqiyatli</div>
 
     <script>
-        // ============ DEFAULT RATES (ADMIN CAN CHANGE) ============
-        let adminRates = JSON.parse(localStorage.getItem('adminRates')) || {
-            UZS: 12650, USD: 1, RUB: 92.5, USDT: 1, BTC: 0.000015, ETH: 0.00028
+        // ============ ALL CURRENCIES ============
+        const allCurrencies = ['BTC', 'ETH', 'USDT', 'TON', 'TRX', 'DOGE', 'USDC', 'UZS', 'USD', 'RUB'];
+        const currencyNames = {
+            BTC: 'Bitcoin', ETH: 'Ethereum', USDT: 'Tether', TON: 'TON Coin', 
+            TRX: 'Tron', DOGE: 'Dogecoin', USDC: 'USD Coin', UZS: 'So\'m', USD: 'Dollar', RUB: 'Ruble'
         };
-        
+        const currencyIcons = {
+            BTC: '₿', ETH: 'Ξ', USDT: '₮', TON: '🌐', TRX: '📱', DOGE: '🐕', USDC: '💰', UZS: '🇺🇿', USD: '🇺🇸', RUB: '🇷🇺'
+        };
+
+        // ============ RATES (Admin can change) ============
+        let rates = JSON.parse(localStorage.getItem('exchangeRates')) || {
+            BTC: 0.000015, ETH: 0.00028, USDT: 1, TON: 0.15, TRX: 6.5, DOGE: 7.2, USDC: 1, UZS: 12650, USD: 1, RUB: 92.5
+        };
+
         let currentOrder = null;
         let orders = JSON.parse(localStorage.getItem('orders')) || [];
+        let selectedCurrencyForPrice = null;
+        let uploadedReceipt = null;
         let timerInterval = null;
-        let uploadedReceiptData = null; // store base64 of receipt
 
-        const symbols = { UZS:'UZS', USD:'USD', RUB:'RUB', USDT:'USDT', BTC:'BTC', ETH:'ETH' };
-        const names = { UZS:'So\'m', USD:'Dollar', RUB:'Ruble', USDT:'Tether', BTC:'Bitcoin', ETH:'Ethereum' };
-        const icons = { UZS:'icon-uzs', USD:'icon-usd', RUB:'icon-rub', USDT:'icon-usdt', BTC:'icon-btc', ETH:'icon-eth' };
-
-        // Save rates to localStorage
-        function saveAdminRates() {
-            localStorage.setItem('adminRates', JSON.stringify(adminRates));
-            initRatesDisplay();      // update client view
-            updateCalculation();     // recalc exchange
-            renderAdminRates();      // update admin panel
+        // Save rates
+        function saveRates() {
+            localStorage.setItem('exchangeRates', JSON.stringify(rates));
+            updateTicker();
+            renderRatesList();
+            updateCalculation();
         }
 
-        // Display rates to client (second panel)
-        function initRatesDisplay() {
+        // Ticker
+        function updateTicker() {
+            const wrap = document.getElementById('tickerWrap');
+            let html = '';
+            allCurrencies.forEach(curr => {
+                const price = (1 / rates[curr]).toFixed(curr === 'BTC' || curr === 'ETH' ? 8 : 2);
+                html += `<div class="ticker-item">
+                    <span class="coin">${currencyIcons[curr]} ${curr}</span>
+                    <span class="price">$${price}</span>
+                </div>`;
+            });
+            wrap.innerHTML = html + html;
+        }
+
+        // Render rates list (clickable for admin)
+        function renderRatesList() {
             const container = document.getElementById('ratesList');
-            if(!container) return;
-            container.innerHTML = Object.keys(adminRates).map(currency => {
-                const price = (1 / adminRates[currency]).toFixed(currency === 'BTC' ? 8 : 2);
+            container.innerHTML = allCurrencies.map(curr => {
+                const price = (1 / rates[curr]).toFixed(curr === 'BTC' || curr === 'ETH' ? 8 : 2);
                 return `
-                    <div class="rate-card" onclick="selectCurrency('${currency}')">
+                    <div class="rate-card" onclick="openPriceModal('${curr}')">
                         <div class="rate-info">
-                            <div class="rate-icon ${icons[currency]}">${currency[0]}</div>
+                            <div class="rate-icon icon-${curr.toLowerCase()}">${currencyIcons[curr]}</div>
                             <div>
-                                <div class="rate-name">${currency}</div>
-                                <div class="rate-fullname">${names[currency] || ''}</div>
+                                <div class="rate-name">${curr}</div>
+                                <div class="rate-fullname">${currencyNames[curr]}</div>
                             </div>
                         </div>
                         <div class="rate-value">
@@ -650,28 +576,54 @@
             }).join('');
         }
 
-        function selectCurrency(currency) {
-            document.getElementById('getCurrency').value = currency;
-            updateCalculation();
+        // Open price modal (admin only)
+        let isAdminMode = false;
+        function toggleAdminMode() {
+            isAdminMode = !isAdminMode;
+            showToast(isAdminMode ? '👑 Admin rejimi yoqildi. Valyutalarga bossangiz narx o\'rnata olasiz' : '👤 Mijoz rejimi');
         }
 
-        // Exchange calculation based on adminRates
+        function openPriceModal(currency) {
+            if (!isAdminMode) {
+                showToast('⚠️ Admin rejimiga kiring (chapdagi Admin tugmasi)');
+                return;
+            }
+            selectedCurrencyForPrice = currency;
+            document.getElementById('priceCurrencyName').innerHTML = `<strong>${currency} (${currencyNames[currency]})</strong><br>USD ga nisbatan kurs:`;
+            document.getElementById('priceValue').value = rates[currency];
+            document.getElementById('priceModal').classList.add('active');
+        }
+
+        function savePrice() {
+            const newPrice = parseFloat(document.getElementById('priceValue').value);
+            if (isNaN(newPrice) || newPrice <= 0) {
+                showToast('❌ Noto\'g\'ri kurs');
+                return;
+            }
+            rates[selectedCurrencyForPrice] = newPrice;
+            saveRates();
+            closePriceModal();
+            showToast(`✅ ${selectedCurrencyForPrice} kursi yangilandi: ${newPrice}`);
+        }
+
+        function closePriceModal() {
+            document.getElementById('priceModal').classList.remove('active');
+        }
+
+        // Calculation
         function updateCalculation() {
             const giveCurr = document.getElementById('giveCurrency').value;
             const getCurr = document.getElementById('getCurrency').value;
             let giveAmount = parseFloat(document.getElementById('giveAmount').value) || 0;
             
-            document.getElementById('giveSymbol').innerText = symbols[giveCurr];
+            document.getElementById('giveSymbol').innerText = giveCurr;
             
-            const rate = adminRates[getCurr] / adminRates[giveCurr];
+            const rate = rates[getCurr] / rates[giveCurr];
             const fee = 0.005;
             const getAmount = giveAmount * rate * (1 - fee);
             
-            const resultSpan = document.getElementById('resultAmount');
-            if(resultSpan) resultSpan.innerText = getAmount.toFixed(getCurr === 'UZS' ? 0 : 6) + ' ' + symbols[getCurr];
-            
-            const rateSpan = document.getElementById('resultRate');
-            if(rateSpan) rateSpan.innerText = `1 ${giveCurr} = ${rate.toFixed(6)} ${getCurr} (komissiya 0.5%)`;
+            document.getElementById('resultAmount').innerHTML = getAmount.toFixed(getCurr === 'UZS' ? 0 : 6) + ' ' + getCurr;
+            document.getElementById('resultRate').innerHTML = `1 ${giveCurr} = ${rate.toFixed(6)} ${getCurr} (komissiya 0.5%)`;
         }
 
         function swapCurrencies() {
@@ -682,19 +634,13 @@
             updateCalculation();
         }
 
-        // Open exchange modal
+        // Exchange Modal
         function openExchangeModal() {
             const giveAmount = parseFloat(document.getElementById('giveAmount').value);
-            if(!giveAmount || giveAmount <= 0) {
-                showToast('❌ Miqdor kiriting', 3000);
-                return;
-            }
+            if (!giveAmount || giveAmount <= 0) { showToast('❌ Miqdor kiriting'); return; }
             const wallet = document.getElementById('walletAddress').value;
-            if(!wallet.trim()) {
-                showToast('❌ Hamyon/karta raqamini kiriting', 3000);
-                return;
-            }
-            
+            if (!wallet.trim()) { showToast('❌ Hamyon kiriting'); return; }
+
             const orderId = 'ORD-' + Date.now();
             currentOrder = {
                 id: orderId,
@@ -705,30 +651,28 @@
                 wallet: wallet,
                 status: 'pending',
                 createdAt: new Date().toISOString(),
-                receiptData: null,
-                receiptName: null
+                receiptData: null
             };
-            
-            document.getElementById('modalDetails').innerHTML = `
-                <div class="detail-row"><span>Zakaz ID:</span><span>${orderId}</span></div>
-                <div class="detail-row"><span>Siz berasiz:</span><span>${giveAmount} ${currentOrder.giveCurrency}</span></div>
-                <div class="detail-row"><span>Siz olasiz:</span><span>${currentOrder.getAmount} ${currentOrder.getCurrency}</span></div>
-                <div class="detail-row"><span>Hamyon:</span><span>${wallet}</span></div>
+
+            document.getElementById('exchangeDetails').innerHTML = `
+                <div><strong>Zakaz ID:</strong> ${orderId}</div>
+                <div><strong>Siz berasiz:</strong> ${giveAmount} ${currentOrder.giveCurrency}</div>
+                <div><strong>Siz olasiz:</strong> ${currentOrder.getAmount} ${currentOrder.getCurrency}</div>
+                <div><strong>Hamyon:</strong> ${wallet}</div>
             `;
             document.getElementById('exchangeModal').classList.add('active');
             startTimer(600);
-            showToast('📋 Zakaz yaratildi', 2000);
         }
 
         function startTimer(seconds) {
             let remaining = seconds;
             const timerDisplay = document.getElementById('timer');
-            if(timerInterval) clearInterval(timerInterval);
+            if (timerInterval) clearInterval(timerInterval);
             timerInterval = setInterval(() => {
                 const mins = Math.floor(remaining / 60);
                 const secs = remaining % 60;
                 timerDisplay.innerText = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
-                if(remaining <= 0) {
+                if (remaining <= 0) {
                     clearInterval(timerInterval);
                     cancelOrder();
                 }
@@ -738,31 +682,20 @@
 
         function handleFileUpload(input) {
             const file = input.files[0];
-            if(!file) return;
-            if(file.size > 10*1024*1024) { showToast('❌ Fayl 10MB dan katta'); return; }
+            if (!file) return;
+            if (file.size > 10 * 1024 * 1024) { showToast('❌ Fayl 10MB dan katta'); return; }
             const reader = new FileReader();
             reader.onload = function(e) {
-                uploadedReceiptData = e.target.result;
-                if(currentOrder) {
-                    currentOrder.receiptData = uploadedReceiptData;
-                    currentOrder.receiptName = file.name;
-                }
-                document.getElementById('fileName').innerText = file.name;
-                document.getElementById('uploadedFile').classList.add('active');
-                showToast('✅ Kvitansiya yuklandi');
+                uploadedReceipt = e.target.result;
+                if (currentOrder) currentOrder.receiptData = uploadedReceipt;
+                document.getElementById('uploadedFileInfo').innerHTML = `✅ ${file.name} yuklandi`;
+                document.getElementById('uploadedFileInfo').style.display = 'block';
             };
             reader.readAsDataURL(file);
         }
 
-        function removeFile() {
-            uploadedReceiptData = null;
-            if(currentOrder) { currentOrder.receiptData = null; currentOrder.receiptName = null; }
-            document.getElementById('uploadedFile').classList.remove('active');
-            document.getElementById('receiptFile').value = '';
-        }
-
         function confirmPayment() {
-            if(!currentOrder.receiptData) {
+            if (!uploadedReceipt && !currentOrder?.receiptData) {
                 showToast('❌ Iltimos, kvitansiyani yuklang');
                 return;
             }
@@ -772,134 +705,59 @@
             localStorage.setItem('orders', JSON.stringify(orders));
             clearInterval(timerInterval);
             document.getElementById('exchangeModal').classList.remove('active');
-            removeFile();
-            showToast('✅ To\'lov tasdiqlandi. Admin tekshiradi.');
-            renderAdminOrders();
+            uploadedReceipt = null;
+            document.getElementById('uploadedFileInfo').style.display = 'none';
+            document.getElementById('receiptFile').value = '';
+            showToast('✅ To\'lov tasdiqlandi. Admin tekshiradi');
         }
 
         function cancelOrder() {
-            if(currentOrder && currentOrder.receiptData) {
+            if (currentOrder && currentOrder.receiptData) {
                 currentOrder.status = 'cancelled';
                 orders.push(currentOrder);
                 localStorage.setItem('orders', JSON.stringify(orders));
             }
             clearInterval(timerInterval);
             document.getElementById('exchangeModal').classList.remove('active');
-            removeFile();
             showToast('❌ Zakaz bekor qilindi');
-            renderAdminOrders();
         }
 
-        // Admin Panel Functions
-        function toggleAdmin() {
-            const panel = document.getElementById('adminPanel');
-            panel.classList.toggle('active');
-            if(panel.classList.contains('active')) {
-                renderAdminRates();
-                renderAdminOrders();
-            }
-        }
-
-        function renderAdminRates() {
-            const container = document.getElementById('adminRatesList');
-            container.innerHTML = Object.keys(adminRates).map(curr => `
-                <div class="rate-admin-card">
-                    <strong>${curr} (${names[curr] || ''})</strong>
-                    <input type="number" id="rate_${curr}" value="${adminRates[curr]}" step="any" placeholder="Kurs (USD ga nisbatan)">
-                    <button onclick="updateRate('${curr}')">💾 Saqlash</button>
-                </div>
-            `).join('');
-        }
-
-        function updateRate(currency) {
-            const newRate = parseFloat(document.getElementById(`rate_${currency}`).value);
-            if(!isNaN(newRate) && newRate > 0) {
-                adminRates[currency] = newRate;
-                saveAdminRates();
-                showToast(`✅ ${currency} kursi yangilandi: ${newRate}`);
+        // History Modal
+        function openHistoryModal() {
+            const container = document.getElementById('historyList');
+            if (orders.length === 0) {
+                container.innerHTML = '<p style="text-align:center;">Tarix yo\'q</p>';
             } else {
-                showToast('❌ Noto\'g\'ri qiymat');
-            }
-        }
-
-        function renderAdminOrders() {
-            const container = document.getElementById('ordersList');
-            if(orders.length === 0) {
-                container.innerHTML = '<p>Zakazlar yo\'q</p>';
-                return;
-            }
-            container.innerHTML = orders.slice().reverse().map(order => `
-                <div class="order-card">
-                    <div class="order-header">
-                        <span><strong>${order.id}</strong></span>
-                        <span class="order-status status-${order.status}">${order.status === 'pending' ? 'Kutilmoqda' : (order.status === 'paid' ? 'To\'langan' : 'Bekor')}</span>
-                    </div>
-                    <div class="order-details">
+                container.innerHTML = orders.slice().reverse().map(order => `
+                    <div class="history-item">
+                        <div><strong>${order.id}</strong> <span class="history-status status-${order.status}">${order.status}</span></div>
                         <div>Berish: ${order.giveAmount} ${order.giveCurrency}</div>
                         <div>Olish: ${order.getAmount} ${order.getCurrency}</div>
-                        <div>Hamyon: ${order.wallet.substring(0,20)}...</div>
                         <div>Sana: ${new Date(order.createdAt).toLocaleString()}</div>
+                        ${order.status === 'paid' ? '<div style="color: var(--warning);">⏳ Admin tasdiqlashini kuting</div>' : ''}
+                        ${order.status === 'completed' ? '<div style="color: var(--success);">✅ Bajarilgan</div>' : ''}
                     </div>
-                    ${order.receiptData ? `<button class="order-btn btn-view-receipt" onclick="viewReceipt('${order.id}')">📄 Kvitansiyani ko\'rish</button>` : '<span style="color:gray;">Kvitansiya yo\'q</span>'}
-                    ${order.status === 'paid' ? `
-                        <button class="order-btn btn-approve" onclick="approveOrder('${order.id}')">✅ Tasdiqlash</button>
-                        <button class="order-btn btn-reject" onclick="rejectOrder('${order.id}')">❌ Rad etish</button>
-                    ` : ''}
-                </div>
-            `).join('');
-        }
-
-        function viewReceipt(orderId) {
-            const order = orders.find(o => o.id === orderId);
-            if(order && order.receiptData) {
-                const content = document.getElementById('receiptContent');
-                if(order.receiptData.startsWith('data:application/pdf')) {
-                    content.innerHTML = `<iframe src="${order.receiptData}" width="100%" height="500px"></iframe>`;
-                } else {
-                    content.innerHTML = `<img src="${order.receiptData}" style="max-width:100%;">`;
-                }
-                document.getElementById('receiptPreview').classList.add('active');
-            } else {
-                showToast('❌ Kvitansiya topilmadi');
+                `).join('');
             }
+            document.getElementById('historyModal').classList.add('active');
         }
 
-        function closeReceiptPreview() {
-            document.getElementById('receiptPreview').classList.remove('active');
+        function closeHistoryModal() {
+            document.getElementById('historyModal').classList.remove('active');
         }
 
-        function approveOrder(orderId) {
-            const order = orders.find(o => o.id === orderId);
-            if(order) {
-                order.status = 'completed';
-                localStorage.setItem('orders', JSON.stringify(orders));
-                renderAdminOrders();
-                showToast(`✅ ${orderId} tasdiqlandi`);
-            }
-        }
-
-        function rejectOrder(orderId) {
-            const order = orders.find(o => o.id === orderId);
-            if(order) {
-                order.status = 'rejected';
-                localStorage.setItem('orders', JSON.stringify(orders));
-                renderAdminOrders();
-                showToast(`❌ ${orderId} rad etildi`);
-            }
-        }
-
-        function showToast(msg, duration=2500) {
+        function showToast(msg) {
             const toast = document.getElementById('toast');
             toast.innerText = msg;
             toast.classList.add('active');
-            setTimeout(() => toast.classList.remove('active'), duration);
+            setTimeout(() => toast.classList.remove('active'), 2500);
         }
 
         // Initial load
         document.addEventListener('DOMContentLoaded', () => {
-            initRatesDisplay();
+            updateTicker();
+            renderRatesList();
             updateCalculation();
-            renderAdminOrders();
         });
     </script>
 </body>
