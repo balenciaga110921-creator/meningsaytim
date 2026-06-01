@@ -124,6 +124,8 @@
         .icon-usd { background: #85bb65; }
         .icon-rub { background: #0033a0; }
         .rate-price { font-weight: 700; font-size: 1.1rem; color: var(--success); }
+        
+        /* Modal styles */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 1000;
@@ -137,10 +139,12 @@
         .payment-detail-row {
             display: flex; justify-content: space-between; padding: 12px 0;
             border-bottom: 1px solid rgba(255,255,255,0.1);
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .copy-btn {
             background: rgba(99,102,241,0.2); border: none; color: var(--primary);
-            padding: 5px 12px; border-radius: 6px; cursor: pointer; margin-left: 10px;
+            padding: 5px 12px; border-radius: 6px; cursor: pointer;
         }
         .upload-area {
             border: 2px dashed var(--bg-light); border-radius: 12px; padding: 20px;
@@ -161,7 +165,27 @@
         }
         .toast.active { transform: translateX(0); }
         
-        /* History styles */
+        /* History Tabs */
+        .history-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .history-tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        .history-tab.active {
+            background: var(--primary);
+            color: white;
+        }
         .history-item {
             background: rgba(255,255,255,0.05);
             border-radius: 12px;
@@ -169,9 +193,9 @@
             margin-bottom: 12px;
             border-left: 3px solid transparent;
         }
-        .history-item.status-pending { border-left-color: var(--warning); }
-        .history-item.status-paid { border-left-color: var(--success); }
-        .history-item.status-sent { border-left-color: var(--primary); }
+        .history-item.pending { border-left-color: var(--warning); }
+        .history-item.sent { border-left-color: var(--success); }
+        .history-item.cancelled { border-left-color: var(--danger); }
         .history-status {
             display: inline-block;
             padding: 4px 12px;
@@ -182,6 +206,11 @@
             text-align: center;
             padding: 40px;
             color: var(--text-secondary);
+        }
+        .warning-text {
+            color: var(--warning);
+            font-size: 0.85rem;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -261,20 +290,35 @@
         </div>
     </div>
 
-    <!-- Payment Modal -->
+    <!-- Payment Modal (initial) -->
     <div class="modal-overlay" id="paymentModal">
         <div class="modal">
             <div id="paymentContent"></div>
             <div class="modal-buttons" id="paymentButtons">
-                <button class="cancel-btn" onclick="closePaymentModal()">🔒 Yopish</button>
+                <button class="cancel-btn" onclick="closePaymentModal()">❌ Bekor qilish</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Waiting Modal (after payment) -->
+    <div class="modal-overlay" id="waitingModal">
+        <div class="modal">
+            <div id="waitingContent"></div>
+            <div class="modal-buttons">
+                <button class="cancel-btn" onclick="closeWaitingModal()">🔒 Yopish</button>
             </div>
         </div>
     </div>
 
     <!-- History Modal -->
     <div class="modal-overlay" id="historyModal">
-        <div class="modal" style="max-width: 600px;">
+        <div class="modal" style="max-width: 650px;">
             <h3>📜 Mening zakazlarim</h3>
+            <div class="history-tabs">
+                <div class="history-tab active" data-tab="pending" onclick="switchHistoryTab('pending')">⏳ Jarayondagilar</div>
+                <div class="history-tab" data-tab="completed" onclick="switchHistoryTab('completed')">✅ Tugatilgan</div>
+                <div class="history-tab" data-tab="cancelled" onclick="switchHistoryTab('cancelled')">❌ Bekor qilingan</div>
+            </div>
             <div id="historyList"></div>
             <button class="cancel-btn" onclick="closeHistoryModal()" style="margin-top: 20px;">Yopish</button>
         </div>
@@ -293,9 +337,9 @@
         let allOrders = JSON.parse(localStorage.getItem('orders') || '[]');
         let currentOrder = null;
         let paymentTimerInterval = null;
-        let statusCheckInterval = null;
+        let waitingTimerInterval = null;
         
-        // Mijozning o'ziga xos ID si (brauzerda saqlanadi)
+        // Client ID
         let clientId = localStorage.getItem('clientId');
         if (!clientId) {
             clientId = 'CLIENT_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
@@ -393,52 +437,36 @@
                 receiptName: null
             };
 
-            showPaymentScreen('initial');
+            // Show payment modal with timer
+            showPaymentModal();
         }
 
-        function showPaymentScreen(screen) {
+        function showPaymentModal() {
             const modal = document.getElementById('paymentModal');
             const content = document.getElementById('paymentContent');
-            const buttons = document.getElementById('paymentButtons');
             
-            if (screen === 'initial') {
-                content.innerHTML = `
-                    <h3>💸 To'lov ma'lumotlari</h3>
-                    <div class="payment-detail-row"><span>📋 ID:</span><span><strong>${currentOrder.id}</strong> <button class="copy-btn" onclick="copyText('${currentOrder.id}')">📋</button></span></div>
-                    <div class="payment-detail-row"><span>💰 Siz yuborasiz:</span><span>${currentOrder.giveAmount} ${currentOrder.giveCurrency}</span></div>
-                    <div class="payment-detail-row"><span>💎 Siz olasiz:</span><span>${currentOrder.getAmount.toFixed(6)} ${currentOrder.getCurrency}</span></div>
-                    <div class="payment-detail-row"><span>🏦 Bizning hamyon:</span><span><strong>${currentOrder.receiverWallet}</strong> <button class="copy-btn" onclick="copyText('${currentOrder.receiverWallet}')">📋</button></span></div>
-                    <div class="contact-info"><h4>📞 Murojat:</h4><div>📞 ${contactInfo.phone || '-'}</div><div>📧 ${contactInfo.email || '-'}</div><div>📱 ${contactInfo.telegram || '-'}</div></div>
-                    <div class="timer-display" id="paymentTimer">15:00</div>
-                    <div class="upload-area" onclick="document.getElementById('receiptFileInput').click()">
-                        📁 Kvitansiya yuklang (PDF/JPG/PNG)
-                        <input type="file" id="receiptFileInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleReceiptUpload(this)">
-                    </div>
-                    <div id="receiptStatus" style="margin: 10px 0;"></div>
-                `;
-                buttons.innerHTML = `<button class="save-btn" onclick="confirmPaymentSent()">✅ To'lov qildim</button>
-                                    <button class="cancel-btn" onclick="closePaymentModal()">❌ Bekor</button>`;
-                modal.classList.add('active');
-                startPaymentTimer(900);
-            } else if (screen === 'waiting') {
-                if (paymentTimerInterval) clearInterval(paymentTimerInterval);
-                content.innerHTML = `<h3>⏳ To'lovingiz qabul qilindi!</h3>
-                    <div class="payment-detail-row"><span>📋 ID:</span><span>${currentOrder.id}</span></div>
-                    <div class="contact-info"><h4>⏰ Aktivlaringiz yuborilgunga kuting!</h4>
-                    <p>Agar 15 daqiqada kelmasa, murojat qiling:</p>
-                    <div>📞 ${contactInfo.phone || '-'}</div><div>📧 ${contactInfo.email || '-'}</div>
-                    <div>📱 ${contactInfo.telegram || '-'}</div></div>
-                    <div id="orderStatusMsg" style="text-align:center;padding:15px;background:rgba(99,102,241,0.1);border-radius:12px;">⏳ Admin tekshirmoqda...</div>`;
-                buttons.innerHTML = `<button class="cancel-btn" onclick="closePaymentModal()">🔒 Yopish</button>`;
-                startStatusCheck();
-            } else if (screen === 'sent') {
-                if (statusCheckInterval) clearInterval(statusCheckInterval);
-                content.innerHTML = `<h3>✅ Aktivlaringiz yuborildi!</h3>
-                    <div class="payment-detail-row"><span>📋 ID:</span><span>${currentOrder.id}</span></div>
-                    <div class="contact-info" style="background:rgba(16,185,129,0.1);border-color:var(--success);">
-                    <h4>🎉 Tranzaksiya muvaffaqiyatli!</h4><p>Pul sizning hamyoningizga yuborildi.</p></div>`;
-                buttons.innerHTML = `<button class="cancel-btn" onclick="closePaymentModal()">🔒 Yopish</button>`;
-            }
+            content.innerHTML = `
+                <h3>💸 To'lov ma'lumotlari</h3>
+                <div class="payment-detail-row"><span>📋 ID:</span><span><strong>${currentOrder.id}</strong> <button class="copy-btn" onclick="copyText('${currentOrder.id}')">📋 Nusxa</button></span></div>
+                <div class="payment-detail-row"><span>💰 Siz yuborasiz:</span><span>${currentOrder.giveAmount} ${currentOrder.giveCurrency}</span></div>
+                <div class="payment-detail-row"><span>💎 Siz olasiz:</span><span>${currentOrder.getAmount.toFixed(6)} ${currentOrder.getCurrency}</span></div>
+                <div class="payment-detail-row"><span>🏦 Bizning hamyon:</span><span><strong>${currentOrder.receiverWallet}</strong> <button class="copy-btn" onclick="copyText('${currentOrder.receiverWallet}')">📋 Nusxa</button></span></div>
+                <div class="timer-display" id="paymentTimer">15:00</div>
+                <div class="upload-area" onclick="document.getElementById('receiptFileInput').click()">
+                    📁 Kvitansiya yuklang (PDF/JPG/PNG)
+                    <input type="file" id="receiptFileInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleReceiptUpload(this)">
+                </div>
+                <div id="receiptStatus" style="margin: 10px 0;"></div>
+                <div class="warning-text">⚠️ 15 daqiqa ichida to'lov qilmasangiz, zakaz bekor qilinadi!</div>
+            `;
+            
+            document.getElementById('paymentButtons').innerHTML = `
+                <button class="save-btn" onclick="confirmPayment()">✅ To'lov qildim</button>
+                <button class="cancel-btn" onclick="cancelOrderFromPayment()">❌ Bekor qilish</button>
+            `;
+            
+            modal.classList.add('active');
+            startPaymentTimer(900);
         }
 
         function startPaymentTimer(seconds) {
@@ -455,28 +483,15 @@
                     clearInterval(paymentTimerInterval);
                     if (currentOrder && currentOrder.status === 'pending') {
                         currentOrder.status = 'cancelled';
+                        currentOrder.cancelledAt = new Date().toISOString();
                         allOrders.push(currentOrder);
                         localStorage.setItem('orders', JSON.stringify(allOrders));
-                        showToast('⏰ Vaqt tugadi! Zakaz bekor qilindi');
                         closePaymentModal();
+                        showToast('⏰ Vaqt tugadi! Zakaz bekor qilindi');
                     }
                 }
                 remaining--;
             }, 1000);
-        }
-
-        function startStatusCheck() {
-            if (statusCheckInterval) clearInterval(statusCheckInterval);
-            statusCheckInterval = setInterval(() => {
-                // Refresh orders from localStorage
-                allOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-                const updatedOrder = allOrders.find(o => o.id === currentOrder?.id);
-                if (updatedOrder && updatedOrder.status === 'sent' && currentOrder?.status !== 'sent') {
-                    currentOrder = updatedOrder;
-                    showPaymentScreen('sent');
-                    clearInterval(statusCheckInterval);
-                }
-            }, 3000);
         }
 
         function handleReceiptUpload(input) {
@@ -485,61 +500,179 @@
             if (file.size > 10 * 1024 * 1024) { showToast('❌ Fayl 10MB dan katta'); return; }
             const reader = new FileReader();
             reader.onload = function(e) {
-                if (currentOrder) { currentOrder.receiptData = e.target.result; currentOrder.receiptName = file.name; }
+                if (currentOrder) { 
+                    currentOrder.receiptData = e.target.result; 
+                    currentOrder.receiptName = file.name; 
+                }
                 document.getElementById('receiptStatus').innerHTML = `✅ ${file.name} yuklandi`;
                 document.getElementById('receiptStatus').style.color = 'var(--success)';
             };
             reader.readAsDataURL(file);
         }
 
-        function confirmPaymentSent() {
-            if (!currentOrder || !currentOrder.receiptData) { showToast('❌ Kvitansiyani yuklang'); return; }
-            if (currentOrder.status !== 'pending') { showToast('⚠️ Zakaz allaqachon tasdiqlangan'); return; }
+        function confirmPayment() {
+            if (!currentOrder || !currentOrder.receiptData) { 
+                showToast('❌ Iltimos, kvitansiyani yuklang'); 
+                return; 
+            }
+            if (currentOrder.status !== 'pending') { 
+                showToast('⚠️ Bu zakaz allaqachon tasdiqlangan'); 
+                return; 
+            }
             
             currentOrder.status = 'paid';
             currentOrder.paidAt = new Date().toISOString();
+            
+            closePaymentModal();
+            showWaitingModal();
+        }
+
+        function showWaitingModal() {
+            const modal = document.getElementById('waitingModal');
+            const content = document.getElementById('waitingContent');
+            
+            content.innerHTML = `
+                <h3>⏳ To'lovingiz qabul qilindi!</h3>
+                <div class="payment-detail-row"><span>📋 Zakaz ID:</span><span>${currentOrder.id}</span></div>
+                <div class="payment-detail-row"><span>💰 Siz yubordingiz:</span><span>${currentOrder.giveAmount} ${currentOrder.giveCurrency}</span></div>
+                <div class="payment-detail-row"><span>💎 Siz olasiz:</span><span>${currentOrder.getAmount.toFixed(6)} ${currentOrder.getCurrency}</span></div>
+                <div class="timer-display" id="waitingTimer">15:00</div>
+                <div class="contact-info">
+                    <h4>📞 Agar aktivlaringiz kelmasa, biz bilan bog'laning:</h4>
+                    <div>📞 Tel: ${contactInfo.phone || '-'}</div>
+                    <div>📧 Email: ${contactInfo.email || '-'}</div>
+                    <div>📱 Telegram: ${contactInfo.telegram || '-'}</div>
+                </div>
+                <div class="warning-text">⚠️ Admin tekshiruvidan so'ng aktivlaringiz yuboriladi. Agar 15 daqiqa ichida kelmasa, bog'lanishingiz mumkin!</div>
+            `;
+            
+            modal.classList.add('active');
+            startWaitingTimer(900);
+            saveOrderAndStartCheck();
+        }
+
+        function startWaitingTimer(seconds) {
+            let remaining = seconds;
+            const timerDisplay = document.getElementById('waitingTimer');
+            if (waitingTimerInterval) clearInterval(waitingTimerInterval);
+            waitingTimerInterval = setInterval(() => {
+                if (timerDisplay) {
+                    const mins = Math.floor(remaining / 60);
+                    const secs = remaining % 60;
+                    timerDisplay.innerText = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+                }
+                if (remaining <= 0) {
+                    clearInterval(waitingTimerInterval);
+                }
+                remaining--;
+            }, 1000);
+        }
+
+        function saveOrderAndStartCheck() {
             allOrders.push(currentOrder);
             localStorage.setItem('orders', JSON.stringify(allOrders));
             
-            clearInterval(paymentTimerInterval);
-            showPaymentScreen('waiting');
-            showToast('✅ To\'lovingiz qabul qilindi! Admin tekshirgunga kuting');
-            document.getElementById('receiptFileInput').value = '';
+            // Status check every 5 seconds
+            const statusInterval = setInterval(() => {
+                allOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+                const updatedOrder = allOrders.find(o => o.id === currentOrder.id);
+                if (updatedOrder && updatedOrder.status === 'sent') {
+                    clearInterval(statusInterval);
+                    if (waitingTimerInterval) clearInterval(waitingTimerInterval);
+                    showOrderSent();
+                }
+            }, 5000);
+        }
+
+        function showOrderSent() {
+            const modal = document.getElementById('waitingModal');
+            const content = document.getElementById('waitingContent');
+            
+            content.innerHTML = `
+                <h3>✅ Aktivlaringiz yuborildi!</h3>
+                <div class="payment-detail-row"><span>📋 Zakaz ID:</span><span>${currentOrder.id}</span></div>
+                <div class="payment-detail-row"><span>💰 Siz yuborgan:</span><span>${currentOrder.giveAmount} ${currentOrder.giveCurrency}</span></div>
+                <div class="payment-detail-row"><span>💎 Siz olgan:</span><span>${currentOrder.getAmount.toFixed(6)} ${currentOrder.getCurrency}</span></div>
+                <div class="contact-info" style="background:rgba(16,185,129,0.1);border-color:var(--success);">
+                    <h4>🎉 Tranzaksiya muvaffaqiyatli yakunlandi!</h4>
+                    <p>Aktivlaringiz sizning hamyoningizga yuborildi.</p>
+                </div>
+            `;
+        }
+
+        function cancelOrderFromPayment() {
+            if (currentOrder) {
+                currentOrder.status = 'cancelled';
+                currentOrder.cancelledAt = new Date().toISOString();
+                allOrders.push(currentOrder);
+                localStorage.setItem('orders', JSON.stringify(allOrders));
+                closePaymentModal();
+                showToast('❌ Zakaz bekor qilindi');
+            }
         }
 
         function closePaymentModal() {
             document.getElementById('paymentModal').classList.remove('active');
             if (paymentTimerInterval) clearInterval(paymentTimerInterval);
-            if (statusCheckInterval) clearInterval(statusCheckInterval);
         }
 
-        // History - faqat o'zining zakazlarini ko'rsatadi
-        function openHistoryModal() {
+        function closeWaitingModal() {
+            document.getElementById('waitingModal').classList.remove('active');
+            if (waitingTimerInterval) clearInterval(waitingTimerInterval);
+        }
+
+        // History with 3 tabs
+        let currentHistoryTab = 'pending';
+        
+        function switchHistoryTab(tab) {
+            currentHistoryTab = tab;
+            document.querySelectorAll('.history-tab').forEach(el => {
+                if (el.dataset.tab === tab) el.classList.add('active');
+                else el.classList.remove('active');
+            });
+            renderHistoryList();
+        }
+        
+        function renderHistoryList() {
             const container = document.getElementById('historyList');
             const myOrders = allOrders.filter(order => order.clientId === clientId);
             
-            if (myOrders.length === 0) {
-                container.innerHTML = '<div class="empty-history">📭 Sizning zakazlaringiz yo\'q</div>';
+            let filteredOrders = [];
+            if (currentHistoryTab === 'pending') {
+                filteredOrders = myOrders.filter(o => o.status === 'pending' || o.status === 'paid');
+            } else if (currentHistoryTab === 'completed') {
+                filteredOrders = myOrders.filter(o => o.status === 'sent');
             } else {
-                container.innerHTML = myOrders.slice().reverse().map(order => {
-                    let statusText = '', statusClass = '';
-                    if (order.status === 'pending') { statusText = '⏳ To\'lov kutilmoqda'; statusClass = 'pending'; }
-                    else if (order.status === 'paid') { statusText = '✅ To\'langan, admin tekshirmoqda'; statusClass = 'paid'; }
-                    else if (order.status === 'sent') { statusText = '💸 Aktivlaringiz yuborilgan'; statusClass = 'sent'; }
-                    else { statusText = '❌ Bekor qilingan'; statusClass = 'pending'; }
-                    
-                    return `
-                        <div class="history-item status-${statusClass}">
-                            <div><strong>${order.id}</strong> <span class="history-status status-${statusClass}-badge" style="background:rgba(99,102,241,0.2);padding:2px 10px;border-radius:20px;font-size:12px;">${statusText}</span></div>
-                            <div style="margin-top:8px;">💰 Siz yubordingiz: ${order.giveAmount} ${order.giveCurrency}</div>
-                            <div>💎 Siz olasiz: ${order.getAmount.toFixed(6)} ${order.getCurrency}</div>
-                            <div>📅 Sana: ${new Date(order.createdAt).toLocaleString()}</div>
-                            ${order.status === 'sent' ? '<div style="color:var(--success);margin-top:8px;">✅ Pul sizning hamyoningizga yuborildi!</div>' : ''}
-                            ${order.status === 'paid' ? '<div style="color:var(--warning);margin-top:8px;">⏳ Admin tekshirgunga kuting...</div>' : ''}
-                        </div>
-                    `;
-                }).join('');
+                filteredOrders = myOrders.filter(o => o.status === 'cancelled' || o.status === 'rejected');
             }
+            
+            if (filteredOrders.length === 0) {
+                container.innerHTML = '<div class="empty-history">📭 Bu bo\'limda zakazlar yo\'q</div>';
+                return;
+            }
+            
+            container.innerHTML = filteredOrders.slice().reverse().map(order => {
+                let statusText = '', statusClass = '';
+                if (order.status === 'pending') { statusText = '⏳ To\'lov kutilmoqda'; statusClass = 'pending'; }
+                else if (order.status === 'paid') { statusText = '✅ To\'langan, tekshirilmoqda'; statusClass = 'pending'; }
+                else if (order.status === 'sent') { statusText = '💸 Aktivlaringiz yuborilgan'; statusClass = 'sent'; }
+                else { statusText = '❌ Bekor qilingan'; statusClass = 'cancelled'; }
+                
+                return `
+                    <div class="history-item ${statusClass}">
+                        <div><strong>${order.id}</strong> <span class="history-status">${statusText}</span></div>
+                        <div style="margin-top:8px;">💰 Siz: ${order.giveAmount} ${order.giveCurrency} → ${order.getAmount.toFixed(6)} ${order.getCurrency}</div>
+                        <div>📅 Sana: ${new Date(order.createdAt).toLocaleString()}</div>
+                        ${order.status === 'sent' ? '<div style="color:var(--success);margin-top:8px;">✅ Pul sizning hamyoningizga yuborildi!</div>' : ''}
+                        ${order.status === 'paid' ? '<div style="color:var(--warning);margin-top:8px;">⏳ Admin tekshirgunga kuting...</div>' : ''}
+                        ${order.status === 'cancelled' ? '<div style="color:var(--danger);margin-top:8px;">⏰ Vaqt tugagan yoki bekor qilingan</div>' : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function openHistoryModal() {
+            renderHistoryList();
             document.getElementById('historyModal').classList.add('active');
         }
 
