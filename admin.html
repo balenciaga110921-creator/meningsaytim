@@ -8,6 +8,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --primary: #6366f1;
+            --primary-dark: #4f46e5;
             --bg-dark: #0f172a;
             --bg-card: #1e293b;
             --bg-light: #334155;
@@ -16,137 +17,303 @@
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
         }
         body {
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: var(--bg-dark);
             color: var(--text-primary);
-            padding: 20px;
+            min-height: 100vh;
         }
-        .container { max-width: 1200px; margin: 0 auto; }
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 20% 50%, rgba(99,102,241,0.3) 0%, transparent 50%);
+        }
+        .header {
+            text-align: center;
+            padding: 30px 20px 20px;
+            border-bottom: 1px solid rgba(99,102,241,0.3);
+        }
+        .header h1 {
+            font-size: 2rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header p { color: var(--text-secondary); margin-top: 5px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 30px 20px; }
+        
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid rgba(99,102,241,0.2);
+            transition: all 0.3s;
+        }
+        .stat-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .stat-number { font-size: 2.5rem; font-weight: 700; color: var(--primary); }
+        .stat-label { color: var(--text-secondary); margin-top: 10px; }
+        
+        /* Cards */
         .card {
             background: var(--bg-card);
             border-radius: 20px;
             padding: 25px;
             margin-bottom: 30px;
             border: 1px solid rgba(99,102,241,0.2);
+            box-shadow: var(--shadow);
         }
-        .card h2 { margin-bottom: 20px; color: var(--primary); }
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary);
+        }
+        
+        /* JSON Links */
+        .json-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .json-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(99,102,241,0.15);
+            color: var(--primary);
+            padding: 12px 24px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+        .json-link:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* Rates Grid */
+        .rates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+        }
+        .rate-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        .rate-item:hover { background: rgba(99,102,241,0.1); transform: translateX(5px); }
+        .rate-currency {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .rate-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .icon-btc { background: #f7931a; }
+        .icon-eth { background: #627eea; }
+        .icon-usdt { background: #26a17b; }
+        .icon-ton { background: #0088cc; }
+        .icon-trx { background: #ff060a; }
+        .icon-doge { background: #c2a633; }
+        .icon-usdc { background: #2775ca; }
+        .icon-uzs { background: #1eb53a; }
+        .icon-usd { background: #85bb65; }
+        .icon-rub { background: #0033a0; }
+        .rate-price { font-weight: 600; color: var(--success); }
+        
+        /* Orders */
         .order-card {
             background: rgba(255,255,255,0.05);
             border-radius: 16px;
             padding: 20px;
             margin-bottom: 15px;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
         }
+        .order-card:hover { transform: translateY(-2px); background: rgba(255,255,255,0.08); }
+        .order-card.status-pending { border-left-color: var(--warning); }
+        .order-card.status-paid { border-left-color: var(--success); }
+        .order-card.status-sent { border-left-color: var(--primary); }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .order-id { font-weight: 700; color: var(--primary); font-family: monospace; }
         .order-status {
             display: inline-block;
             padding: 4px 12px;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
+            font-weight: 600;
         }
-        .status-pending { background: rgba(245,158,11,0.2); color: var(--warning); }
-        .status-paid { background: rgba(16,185,129,0.2); color: var(--success); }
-        .json-link {
-            display: inline-block;
-            background: var(--primary);
-            color: white;
-            padding: 10px 20px;
+        .status-pending-badge { background: rgba(245,158,11,0.2); color: var(--warning); }
+        .status-paid-badge { background: rgba(16,185,129,0.2); color: var(--success); }
+        .status-sent-badge { background: rgba(99,102,241,0.2); color: var(--primary); }
+        .order-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .order-detail {
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
             border-radius: 10px;
-            text-decoration: none;
-            margin: 5px;
         }
+        .order-detail-label { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 5px; }
+        .order-detail-value { font-weight: 600; word-break: break-all; }
+        .order-actions { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
         .btn {
-            padding: 8px 16px;
+            padding: 8px 20px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
-            font-weight: bold;
-            margin-right: 10px;
+            font-weight: 600;
+            transition: all 0.3s;
         }
         .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #059669; transform: translateY(-2px); }
         .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #dc2626; transform: translateY(-2px); }
         .btn-primary { background: var(--primary); color: white; }
-        .info-text {
-            background: rgba(99,102,241,0.1);
-            padding: 15px;
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: var(--text-secondary);
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--bg-card);
             border-radius: 12px;
-            margin-top: 15px;
+            padding: 15px 25px;
+            transform: translateX(400px);
+            transition: all 0.3s;
+            z-index: 3000;
+            border-left: 4px solid var(--success);
+            box-shadow: var(--shadow);
+        }
+        .toast.active { transform: translateX(0); }
+        
+        @media (max-width: 768px) {
+            .container { padding: 20px 15px; }
+            .order-details { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
+    <div class="bg-animation"></div>
+    
+    <div class="header">
+        <h1>👑 CryptoExchange Pro</h1>
+        <p>Admin boshqaruv paneli</p>
+    </div>
+    
     <div class="container">
-        <h1>👑 Admin Boshqaruv Paneli</h1>
-        <p style="color: var(--text-secondary); margin-bottom: 30px;">Kurslar, hamyonlar va zakazlarni boshqaring</p>
-
-        <!-- JSON fayllarni tahrirlash -->
-        <div class="card">
-            <h2>📁 Ma'lumotlarni tahrirlash</h2>
-            <p>Quyidagi fayllarni GitHub'da tahrirlang:</p>
-            <div style="margin-top: 15px;">
-                <a href="#" id="githubRatesLink" class="json-link" target="_blank">💰 rates.json (Kurslar)</a>
-                <a href="#" id="githubWalletsLink" class="json-link" target="_blank">🏦 wallets.json (Hamyonlar)</a>
-                <a href="#" id="githubContactsLink" class="json-link" target="_blank">📞 contacts.json (Kontaktlar)</a>
+        <!-- Stats -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalOrders">0</div>
+                <div class="stat-label">Jami zakazlar</div>
             </div>
-            <div class="info-text">
-                ⚠️ <strong>Qanday tahrirlash mumkin:</strong><br>
-                1. Yuqoridagi havolalarni bosing<br>
-                2. GitHub'da "Edit" (qalam) tugmasini bosing<br>
-                3. JSON faylni o'zgartiring<br>
-                4. "Commit changes" tugmasini bosing<br>
-                5. O'zgarishlar avtomatik mijoz panelida ko'rinadi
+            <div class="stat-card">
+                <div class="stat-number" id="pendingOrders">0</div>
+                <div class="stat-label">Kutilayotgan</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="paidOrders">0</div>
+                <div class="stat-label">To'langan</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="sentOrders">0</div>
+                <div class="stat-label">Yuborilgan</div>
             </div>
         </div>
-
-        <!-- Joriy kurslar -->
+        
+        <!-- JSON Files Card -->
         <div class="card">
-            <h2>💰 Joriy kurslar</h2>
-            <div id="currentRates">Yuklanmoqda...</div>
+            <h2>📁 Ma'lumotlarni boshqarish</h2>
+            <div class="json-links">
+                <a href="https://github.com/balenciaga110921-creator/meningsaytim/blob/main/rates.json" class="json-link" target="_blank">💰 rates.json - Kurslar</a>
+                <a href="https://github.com/balenciaga110921-creator/meningsaytim/blob/main/wallets.json" class="json-link" target="_blank">🏦 wallets.json - Hamyonlar</a>
+                <a href="https://github.com/balenciaga110921-creator/meningsaytim/blob/main/contacts.json" class="json-link" target="_blank">📞 contacts.json - Kontaktlar</a>
+            </div>
+            <div class="info-text" style="background: rgba(99,102,241,0.1); padding: 12px; border-radius: 12px; margin-top: 10px;">
+                💡 Fayllarni tahrirlash uchun ustiga bosing → "Edit" (qalam) → o'zgartirish kiriting → "Commit changes"
+            </div>
         </div>
-
-        <!-- Zakazlar -->
+        
+        <!-- Current Rates Card -->
+        <div class="card">
+            <h2>💰 Joriy valyuta kurslari</h2>
+            <div class="rates-grid" id="currentRates">Yuklanmoqda...</div>
+        </div>
+        
+        <!-- Orders Card -->
         <div class="card">
             <h2>📦 Zakazlar</h2>
             <div id="ordersList">Yuklanmoqda...</div>
         </div>
-
-        <div class="info-text">
-            📌 <strong>Eslatma:</strong><br>
-            - Zakazlar faqat shu kompyuteringizda saqlanadi<br>
-            - Boshqa qurilmadan kirsangiz, zakazlar ko'rinmaydi<br>
-            - Kurs va hamyon o'zgarishlari GitHub orqali amalga oshiriladi
-        </div>
     </div>
-
+    
+    <div class="toast" id="toast">✅ Muvaffaqiyatli</div>
+    
     <script>
         let rates = {};
         let orders = JSON.parse(localStorage.getItem('orders') || '[]');
         let allCurrencies = ['BTC', 'ETH', 'USDT', 'TON', 'TRX', 'DOGE', 'USDC', 'UZS', 'USD', 'RUB'];
         let currencyNames = { BTC:'Bitcoin', ETH:'Ethereum', USDT:'Tether', TON:'TON', TRX:'Tron', DOGE:'Dogecoin', USDC:'USD Coin', UZS:'So\'m', USD:'Dollar', RUB:'Ruble' };
         let currencyIcons = { BTC:'₿', ETH:'Ξ', USDT:'₮', TON:'🌐', TRX:'📱', DOGE:'🐕', USDC:'💰', UZS:'🇺🇿', USD:'🇺🇸', RUB:'🇷🇺' };
-
-        // GitHub repo manzilini aniqlash
-        function getGitHubRepoUrl() {
-            // Sizning GitHub repo manzilingizni shu yerga yozing
-            return prompt('GitHub repo manzilingizni kiriting (masalan: username/crypto-exchange):', 'YOUR_USERNAME/crypto-exchange');
+        
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('active');
+            setTimeout(() => toast.classList.remove('active'), 2500);
         }
-
-        let repoUrl = localStorage.getItem('githubRepo');
-        if (!repoUrl) {
-            repoUrl = getGitHubRepoUrl();
-            if (repoUrl) localStorage.setItem('githubRepo', repoUrl);
-        }
-
-        function updateGitHubLinks() {
-            if (repoUrl) {
-                const baseUrl = `https://github.com/${repoUrl}/blob/main/`;
-                document.getElementById('githubRatesLink').href = baseUrl + 'rates.json';
-                document.getElementById('githubWalletsLink').href = baseUrl + 'wallets.json';
-                document.getElementById('githubContactsLink').href = baseUrl + 'contacts.json';
-            }
-        }
-
-        // Load rates
+        
         async function loadRates() {
             try {
                 const res = await fetch('rates.json?v=' + Date.now());
@@ -154,60 +321,49 @@
                 displayRates();
             } catch(e) { console.error('Kurs yuklanmadi'); }
         }
-
+        
         function displayRates() {
             const container = document.getElementById('currentRates');
-            container.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;">`;
+            container.innerHTML = '';
             allCurrencies.forEach(curr => {
                 if (rates[curr]) {
                     const price = (1 / rates[curr]).toFixed(curr === 'BTC' || curr === 'ETH' ? 8 : 2);
-                    container.innerHTML += `<div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:10px;">
-                        <strong>${currencyIcons[curr]} ${curr}</strong><br>1 USD = ${price} ${curr}
-                    </div>`;
+                    container.innerHTML += `
+                        <div class="rate-item">
+                            <div class="rate-currency">
+                                <div class="rate-icon icon-${curr.toLowerCase()}">${currencyIcons[curr]}</div>
+                                <div><strong>${curr}</strong><br><span style="font-size:0.75rem;color:var(--text-secondary)">${currencyNames[curr]}</span></div>
+                            </div>
+                            <div class="rate-price">$${price}</div>
+                        </div>
+                    `;
                 }
             });
-            container.innerHTML += `</div>`;
         }
-
-        // Zakazlarni ko'rsatish
-        function renderOrders() {
-            const container = document.getElementById('ordersList');
-            if (orders.length === 0) {
-                container.innerHTML = '<p>Zakazlar yo\'q</p>';
-                return;
-            }
-            container.innerHTML = orders.slice().reverse().map(order => `
-                <div class="order-card">
-                    <div><strong>ID:</strong> ${order.id} <span class="order-status status-${order.status}">${order.status === 'pending' ? '⏳ To\'lov kutilmoqda' : (order.status === 'paid' ? '✅ To\'langan' : (order.status === 'sent' ? '💸 Yuborilgan' : '❌ Bekor'))}</span></div>
-                    <div><strong>Berish:</strong> ${order.giveAmount} ${order.giveCurrency}</div>
-                    <div><strong>Olish:</strong> ${order.getAmount} ${order.getCurrency}</div>
-                    <div><strong>Mijoz hamyoni:</strong> ${order.userWallet}</div>
-                    <div><strong>Bizning hamyon:</strong> ${order.receiverWallet}</div>
-                    <div><strong>Sana:</strong> ${new Date(order.createdAt).toLocaleString()}</div>
-                    ${order.receiptData ? `<div><button class="btn btn-primary" onclick="viewReceipt('${order.id}')">📄 Kvitansiyani ko'rish</button></div>` : ''}
-                    ${order.status === 'paid' ? `
-                        <div style="margin-top: 15px;">
-                            <button class="btn btn-success" onclick="markAsSent('${order.id}')">✅ Pul yuborildi</button>
-                            <button class="btn btn-danger" onclick="markAsRejected('${order.id}')">❌ Rad etish</button>
-                        </div>
-                    ` : ''}
-                    ${order.status === 'sent' ? '<div style="color:var(--success);margin-top:10px;">✅ Pul mijozga yuborilgan</div>' : ''}
-                </div>
-            `).join('');
+        
+        function updateStats() {
+            document.getElementById('totalOrders').innerText = orders.length;
+            document.getElementById('pendingOrders').innerText = orders.filter(o => o.status === 'pending').length;
+            document.getElementById('paidOrders').innerText = orders.filter(o => o.status === 'paid').length;
+            document.getElementById('sentOrders').innerText = orders.filter(o => o.status === 'sent').length;
         }
-
+        
         function viewReceipt(orderId) {
             const order = orders.find(o => o.id === orderId);
             if (order && order.receiptData) {
                 const win = window.open();
-                if (order.receiptData.startsWith('data:application/pdf')) {
-                    win.document.write(`<iframe src="${order.receiptData}" width="100%" height="100%"></iframe>`);
-                } else {
-                    win.document.write(`<img src="${order.receiptData}" style="max-width:100%;">`);
-                }
-            } else { alert('Kvitansiya topilmadi'); }
+                win.document.write(`
+                    <html><head><title>Kvitansiya - ${order.id}</title>
+                    <style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#0f172a;}</style>
+                    </head><body>
+                    ${order.receiptData.startsWith('data:application/pdf') ? 
+                        `<iframe src="${order.receiptData}" width="100%" height="100%" style="position:fixed;top:0;left:0;width:100%;height:100%;border:none;"></iframe>` : 
+                        `<img src="${order.receiptData}" style="max-width:100%;max-height:100vh;">`}
+                    </body></html>
+                `);
+            } else { showToast('❌ Kvitansiya topilmadi'); }
         }
-
+        
         function markAsSent(orderId) {
             const order = orders.find(o => o.id === orderId);
             if (order) {
@@ -215,24 +371,76 @@
                 order.sentAt = new Date().toISOString();
                 localStorage.setItem('orders', JSON.stringify(orders));
                 renderOrders();
-                alert(`✅ ${orderId} - pul yuborilgan deb belgilandi`);
+                updateStats();
+                showToast(`✅ ${orderId} - pul yuborilgan deb belgilandi`);
             }
         }
-
+        
         function markAsRejected(orderId) {
             const order = orders.find(o => o.id === orderId);
             if (order) {
                 order.status = 'rejected';
                 localStorage.setItem('orders', JSON.stringify(orders));
                 renderOrders();
-                alert(`❌ ${orderId} rad etildi`);
+                updateStats();
+                showToast(`❌ ${orderId} rad etildi`);
             }
         }
-
-        setInterval(() => { loadRates(); }, 30000);
+        
+        function renderOrders() {
+            const container = document.getElementById('ordersList');
+            if (orders.length === 0) {
+                container.innerHTML = '<div class="empty-state">📭 Hozircha zakazlar yo\'q</div>';
+                return;
+            }
+            container.innerHTML = orders.slice().reverse().map(order => {
+                let statusText = '', statusClass = '';
+                if (order.status === 'pending') { statusText = '⏳ To\'lov kutilmoqda'; statusClass = 'status-pending-badge'; }
+                else if (order.status === 'paid') { statusText = '✅ To\'langan'; statusClass = 'status-paid-badge'; }
+                else if (order.status === 'sent') { statusText = '💸 Yuborilgan'; statusClass = 'status-sent-badge'; }
+                else { statusText = '❌ Bekor'; statusClass = 'status-pending-badge'; }
+                
+                return `
+                    <div class="order-card status-${order.status}">
+                        <div class="order-header">
+                            <span class="order-id">📋 ${order.id}</span>
+                            <span class="order-status ${statusClass}">${statusText}</span>
+                        </div>
+                        <div class="order-details">
+                            <div class="order-detail">
+                                <div class="order-detail-label">💰 Berish</div>
+                                <div class="order-detail-value">${order.giveAmount} ${order.giveCurrency}</div>
+                            </div>
+                            <div class="order-detail">
+                                <div class="order-detail-label">💎 Olish</div>
+                                <div class="order-detail-value">${order.getAmount.toFixed(6)} ${order.getCurrency}</div>
+                            </div>
+                            <div class="order-detail">
+                                <div class="order-detail-label">👛 Mijoz hamyoni</div>
+                                <div class="order-detail-value" style="font-size:0.85rem;">${order.userWallet}</div>
+                            </div>
+                            <div class="order-detail">
+                                <div class="order-detail-label">📅 Sana</div>
+                                <div class="order-detail-value">${new Date(order.createdAt).toLocaleString()}</div>
+                            </div>
+                        </div>
+                        ${order.receiptData ? `<div class="order-actions"><button class="btn btn-primary" onclick="viewReceipt('${order.id}')">📄 Kvitansiyani ko'rish</button></div>` : ''}
+                        ${order.status === 'paid' ? `
+                            <div class="order-actions">
+                                <button class="btn btn-success" onclick="markAsSent('${order.id}')">✅ Pul yuborildi</button>
+                                <button class="btn btn-danger" onclick="markAsRejected('${order.id}')">❌ Rad etish</button>
+                            </div>
+                        ` : ''}
+                        ${order.status === 'sent' ? '<div style="margin-top:15px; color:var(--success);">✅ Pul mijozga yuborilgan</div>' : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+        
         loadRates();
         renderOrders();
-        updateGitHubLinks();
+        updateStats();
+        setInterval(() => { loadRates(); }, 30000);
     </script>
 </body>
 </html>
