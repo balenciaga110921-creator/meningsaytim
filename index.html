@@ -160,6 +160,29 @@
             transition: all 0.3s; z-index: 3000; border-left: 4px solid var(--success);
         }
         .toast.active { transform: translateX(0); }
+        
+        /* History styles */
+        .history-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-left: 3px solid transparent;
+        }
+        .history-item.status-pending { border-left-color: var(--warning); }
+        .history-item.status-paid { border-left-color: var(--success); }
+        .history-item.status-sent { border-left-color: var(--primary); }
+        .history-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        .empty-history {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
     </style>
 </head>
 <body>
@@ -167,7 +190,7 @@
         <div class="ticker-wrap" id="tickerWrap"></div>
     </div>
 
-    <button class="history-btn" onclick="openHistoryModal()">📜 Tarix</button>
+    <button class="history-btn" onclick="openHistoryModal()">📜 Mening tarixim</button>
 
     <div class="header">
         <h1>💱 CryptoExchange Pro</h1>
@@ -250,8 +273,8 @@
 
     <!-- History Modal -->
     <div class="modal-overlay" id="historyModal">
-        <div class="modal" style="max-width: 700px;">
-            <h3>📜 Tranzaksiya tarixi</h3>
+        <div class="modal" style="max-width: 600px;">
+            <h3>📜 Mening zakazlarim</h3>
             <div id="historyList"></div>
             <button class="cancel-btn" onclick="closeHistoryModal()" style="margin-top: 20px;">Yopish</button>
         </div>
@@ -267,30 +290,33 @@
         let currencyIcons = { BTC:'₿', ETH:'Ξ', USDT:'₮', TON:'🌐', TRX:'📱', DOGE:'🐕', USDC:'💰', UZS:'🇺🇿', USD:'🇺🇸', RUB:'🇷🇺' };
         let currencyNames = { BTC:'Bitcoin', ETH:'Ethereum', USDT:'Tether', TON:'TON', TRX:'Tron', DOGE:'Dogecoin', USDC:'USD Coin', UZS:'So\'m', USD:'Dollar', RUB:'Ruble' };
         
-        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        let allOrders = JSON.parse(localStorage.getItem('orders') || '[]');
         let currentOrder = null;
         let paymentTimerInterval = null;
         let statusCheckInterval = null;
+        
+        // Mijozning o'ziga xos ID si (brauzerda saqlanadi)
+        let clientId = localStorage.getItem('clientId');
+        if (!clientId) {
+            clientId = 'CLIENT_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
+            localStorage.setItem('clientId', clientId);
+        }
 
-        // Load JSON data
         async function loadData() {
             try {
-                const ratesRes = await fetch('rates.json');
+                const ratesRes = await fetch('rates.json?v=' + Date.now());
                 rates = await ratesRes.json();
                 
-                const walletsRes = await fetch('wallets.json');
+                const walletsRes = await fetch('wallets.json?v=' + Date.now());
                 receiverWallets = await walletsRes.json();
                 
-                const contactsRes = await fetch('contacts.json');
+                const contactsRes = await fetch('contacts.json?v=' + Date.now());
                 contactInfo = await contactsRes.json();
                 
                 updateTicker();
                 renderRatesList();
                 updateCalculation();
-            } catch(e) {
-                console.error('Ma\'lumot yuklanmadi:', e);
-                showToast('⚠️ Kurslar yuklanmadi, internetni tekshiring');
-            }
+            } catch(e) { console.error('Ma\'lumot yuklanmadi:', e); showToast('⚠️ Internetni tekshiring'); }
         }
 
         function updateTicker() {
@@ -350,13 +376,21 @@
             const getCurr = document.getElementById('getCurrency').value;
             const getAmount = parseFloat(document.getElementById('resultAmount').innerText.split(' ')[0]);
             
-            const txId = 'TX' + Date.now() + Math.floor(Math.random() * 1000);
+            const txId = 'TX' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
             
             currentOrder = {
-                id: txId, giveCurrency: giveCurr, getCurrency: getCurr,
-                giveAmount: giveAmount, getAmount: getAmount, userWallet: userWallet,
-                receiverWallet: receiverWallets[giveCurr], status: 'pending',
-                createdAt: new Date().toISOString(), receiptData: null, receiptName: null
+                id: txId,
+                clientId: clientId,
+                giveCurrency: giveCurr,
+                getCurrency: getCurr,
+                giveAmount: giveAmount,
+                getAmount: getAmount,
+                userWallet: userWallet,
+                receiverWallet: receiverWallets[giveCurr],
+                status: 'pending',
+                createdAt: new Date().toISOString(),
+                receiptData: null,
+                receiptName: null
             };
 
             showPaymentScreen('initial');
@@ -421,9 +455,9 @@
                     clearInterval(paymentTimerInterval);
                     if (currentOrder && currentOrder.status === 'pending') {
                         currentOrder.status = 'cancelled';
-                        orders.push(currentOrder);
-                        localStorage.setItem('orders', JSON.stringify(orders));
-                        showToast('⏰ Vaqt tugadi!');
+                        allOrders.push(currentOrder);
+                        localStorage.setItem('orders', JSON.stringify(allOrders));
+                        showToast('⏰ Vaqt tugadi! Zakaz bekor qilindi');
                         closePaymentModal();
                     }
                 }
@@ -434,7 +468,9 @@
         function startStatusCheck() {
             if (statusCheckInterval) clearInterval(statusCheckInterval);
             statusCheckInterval = setInterval(() => {
-                const updatedOrder = orders.find(o => o.id === currentOrder?.id);
+                // Refresh orders from localStorage
+                allOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+                const updatedOrder = allOrders.find(o => o.id === currentOrder?.id);
                 if (updatedOrder && updatedOrder.status === 'sent' && currentOrder?.status !== 'sent') {
                     currentOrder = updatedOrder;
                     showPaymentScreen('sent');
@@ -451,20 +487,23 @@
             reader.onload = function(e) {
                 if (currentOrder) { currentOrder.receiptData = e.target.result; currentOrder.receiptName = file.name; }
                 document.getElementById('receiptStatus').innerHTML = `✅ ${file.name} yuklandi`;
+                document.getElementById('receiptStatus').style.color = 'var(--success)';
             };
             reader.readAsDataURL(file);
         }
 
         function confirmPaymentSent() {
             if (!currentOrder || !currentOrder.receiptData) { showToast('❌ Kvitansiyani yuklang'); return; }
-            if (currentOrder.status !== 'pending') { showToast('⚠️ Zakaz tasdiqlangan'); return; }
+            if (currentOrder.status !== 'pending') { showToast('⚠️ Zakaz allaqachon tasdiqlangan'); return; }
+            
             currentOrder.status = 'paid';
             currentOrder.paidAt = new Date().toISOString();
-            orders.push(currentOrder);
-            localStorage.setItem('orders', JSON.stringify(orders));
+            allOrders.push(currentOrder);
+            localStorage.setItem('orders', JSON.stringify(allOrders));
+            
             clearInterval(paymentTimerInterval);
             showPaymentScreen('waiting');
-            showToast('✅ To\'lovingiz qabul qilindi!');
+            showToast('✅ To\'lovingiz qabul qilindi! Admin tekshirgunga kuting');
             document.getElementById('receiptFileInput').value = '';
         }
 
@@ -474,26 +513,51 @@
             if (statusCheckInterval) clearInterval(statusCheckInterval);
         }
 
+        // History - faqat o'zining zakazlarini ko'rsatadi
         function openHistoryModal() {
             const container = document.getElementById('historyList');
-            if (orders.length === 0) { container.innerHTML = '<p>Tarix yo\'q</p>'; }
-            else {
-                container.innerHTML = orders.slice().reverse().map(order => `
-                    <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:15px;margin-bottom:12px;">
-                        <div><strong>${order.id}</strong> <span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;background:${order.status==='sent'?'rgba(16,185,129,0.2)':'rgba(245,158,11,0.2)'};color:${order.status==='sent'?'#10b981':'#f59e0b'}">${order.status==='sent'?'✅ Yuborilgan':order.status==='paid'?'⏳ Kutilmoqda':order.status==='pending'?'⏳ To\'lov kutilmoqda':'❌ Bekor'}</span></div>
-                        <div>Berish: ${order.giveAmount} ${order.giveCurrency}</div>
-                        <div>Olish: ${order.getAmount} ${order.getCurrency}</div>
-                        <div>Sana: ${new Date(order.createdAt).toLocaleString()}</div>
-                        ${order.status === 'sent' ? '<div style="color:var(--success);">💰 Aktivlaringiz yuborildi!</div>' : ''}
-                    </div>
-                `).join('');
+            const myOrders = allOrders.filter(order => order.clientId === clientId);
+            
+            if (myOrders.length === 0) {
+                container.innerHTML = '<div class="empty-history">📭 Sizning zakazlaringiz yo\'q</div>';
+            } else {
+                container.innerHTML = myOrders.slice().reverse().map(order => {
+                    let statusText = '', statusClass = '';
+                    if (order.status === 'pending') { statusText = '⏳ To\'lov kutilmoqda'; statusClass = 'pending'; }
+                    else if (order.status === 'paid') { statusText = '✅ To\'langan, admin tekshirmoqda'; statusClass = 'paid'; }
+                    else if (order.status === 'sent') { statusText = '💸 Aktivlaringiz yuborilgan'; statusClass = 'sent'; }
+                    else { statusText = '❌ Bekor qilingan'; statusClass = 'pending'; }
+                    
+                    return `
+                        <div class="history-item status-${statusClass}">
+                            <div><strong>${order.id}</strong> <span class="history-status status-${statusClass}-badge" style="background:rgba(99,102,241,0.2);padding:2px 10px;border-radius:20px;font-size:12px;">${statusText}</span></div>
+                            <div style="margin-top:8px;">💰 Siz yubordingiz: ${order.giveAmount} ${order.giveCurrency}</div>
+                            <div>💎 Siz olasiz: ${order.getAmount.toFixed(6)} ${order.getCurrency}</div>
+                            <div>📅 Sana: ${new Date(order.createdAt).toLocaleString()}</div>
+                            ${order.status === 'sent' ? '<div style="color:var(--success);margin-top:8px;">✅ Pul sizning hamyoningizga yuborildi!</div>' : ''}
+                            ${order.status === 'paid' ? '<div style="color:var(--warning);margin-top:8px;">⏳ Admin tekshirgunga kuting...</div>' : ''}
+                        </div>
+                    `;
+                }).join('');
             }
             document.getElementById('historyModal').classList.add('active');
         }
 
-        function closeHistoryModal() { document.getElementById('historyModal').classList.remove('active'); }
-        function copyText(text) { navigator.clipboard.writeText(text); showToast('✅ Nusxa olindi'); }
-        function showToast(msg) { const toast = document.getElementById('toast'); toast.innerText = msg; toast.classList.add('active'); setTimeout(() => toast.classList.remove('active'), 2500); }
+        function closeHistoryModal() {
+            document.getElementById('historyModal').classList.remove('active');
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text);
+            showToast('✅ Nusxa olindi');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('active');
+            setTimeout(() => toast.classList.remove('active'), 2500);
+        }
 
         loadData();
     </script>
