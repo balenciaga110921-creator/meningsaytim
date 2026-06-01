@@ -2,8 +2,8 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CryptoExchange Pro - Valyuta Almashtirish</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>CryptoExchange Pro - Admin & Client</title>
     <style>
         * {
             margin: 0;
@@ -24,8 +24,6 @@
             --danger: #ef4444;
             --warning: #f59e0b;
             --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
         }
 
@@ -34,10 +32,9 @@
             background: var(--bg-dark);
             color: var(--text-primary);
             min-height: 100vh;
-            overflow-x: hidden;
         }
 
-        /* Background Animation */
+        /* Background */
         .bg-animation {
             position: fixed;
             top: 0;
@@ -45,115 +42,45 @@
             width: 100%;
             height: 100%;
             z-index: -1;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 40% 20%, rgba(99, 102, 241, 0.2) 0%, transparent 50%);
-            animation: bgPulse 8s ease-in-out infinite;
-        }
-
-        @keyframes bgPulse {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-        }
-
-        /* Marquee Ticker */
-        .ticker-container {
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(99, 102, 241, 0.3);
-            padding: 12px 0;
-            overflow: hidden;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .ticker-wrap {
-            display: flex;
-            animation: ticker 30s linear infinite;
-            white-space: nowrap;
-        }
-
-        .ticker-item {
-            display: inline-flex;
-            align-items: center;
-            padding: 0 30px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .ticker-item .coin {
-            color: var(--primary);
-            margin-right: 8px;
-        }
-
-        .ticker-item .price {
-            color: var(--success);
-            margin-left: 5px;
-        }
-
-        .ticker-item .change {
-            margin-left: 8px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-
-        .change.up { background: rgba(16, 185, 129, 0.2); color: var(--success); }
-        .change.down { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
-
-        @keyframes ticker {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+            background: radial-gradient(circle at 20% 50%, rgba(99,102,241,0.3) 0%, transparent 50%);
         }
 
         /* Header */
         .header {
             text-align: center;
-            padding: 40px 20px 20px;
+            padding: 30px 20px 20px;
         }
-
         .header h1 {
-            font-size: 2.5rem;
+            font-size: 2rem;
             background: var(--gradient-1);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
         }
 
-        .header p {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-        }
-
-        /* Main Container */
+        /* Container - exchange first, then rates */
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
             display: grid;
-            grid-template-columns: 1fr 2fr;
+            grid-template-columns: 1fr 1fr;
             gap: 30px;
         }
 
         @media (max-width: 968px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
+            .container { grid-template-columns: 1fr; }
         }
 
-        /* Rates Panel */
-        .rates-panel {
+        /* Exchange Panel (first) */
+        .exchange-panel {
             background: var(--bg-card);
             border-radius: 20px;
-            padding: 25px;
-            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 30px;
+            border: 1px solid rgba(99,102,241,0.2);
             box-shadow: var(--shadow);
-            height: fit-content;
         }
 
-        .rates-panel h2 {
+        .exchange-panel h2, .rates-panel h2 {
             font-size: 1.3rem;
             margin-bottom: 20px;
             display: flex;
@@ -161,228 +88,67 @@
             gap: 10px;
         }
 
-        .rate-card {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s;
-            cursor: pointer;
-            border: 1px solid transparent;
-        }
-
-        .rate-card:hover {
-            background: rgba(99, 102, 241, 0.1);
-            border-color: var(--primary);
-            transform: translateX(5px);
-        }
-
-        .rate-card.active {
-            background: rgba(99, 102, 241, 0.2);
-            border-color: var(--primary);
-        }
-
-        .rate-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .rate-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .icon-btc { background: #f7931a; color: white; }
-        .icon-eth { background: #627eea; color: white; }
-        .icon-usdt { background: #26a17b; color: white; }
-        .icon-ton { background: #0088cc; color: white; }
-        .icon-trx { background: #ff060a; color: white; }
-        .icon-doge { background: #c2a633; color: white; }
-        .icon-usdc { background: #2775ca; color: white; }
-        .icon-usd { background: #85bb65; color: white; }
-        .icon-rub { background: #0033a0; color: white; }
-        .icon-uzs { background: #1eb53a; color: white; }
-
-        .rate-name {
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-
-        .rate-fullname {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        .rate-value {
-            text-align: right;
-        }
-
-        .rate-price {
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: var(--success);
-        }
-
-        .rate-change {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        /* Exchange Panel */
-        .exchange-panel {
-            background: var(--bg-card);
-            border-radius: 20px;
-            padding: 35px;
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            box-shadow: var(--shadow);
-        }
-
-        .exchange-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .exchange-header h2 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-        }
-
-        .exchange-type {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 25px;
-        }
-
-        .type-btn {
-            padding: 10px 25px;
-            border-radius: 25px;
-            border: 2px solid var(--bg-light);
-            background: transparent;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
-        }
-
-        .type-btn.active {
-            background: var(--gradient-1);
-            border-color: transparent;
-            color: white;
-        }
-
         /* Currency Select */
-        .currency-select {
-            position: relative;
+        .currency-select, .amount-input, .wallet-input {
             margin-bottom: 20px;
         }
-
-        .currency-select label {
+        .currency-select label, .amount-input label, .wallet-input label {
             display: block;
             margin-bottom: 8px;
             color: var(--text-secondary);
             font-size: 0.9rem;
-            font-weight: 500;
         }
-
-        .select-wrapper {
-            position: relative;
+        .select-wrapper, .input-wrapper {
             background: var(--bg-light);
             border-radius: 12px;
             border: 2px solid transparent;
             transition: all 0.3s;
         }
-
-        .select-wrapper:focus-within {
+        .select-wrapper:focus-within, .input-wrapper:focus-within {
             border-color: var(--primary);
         }
-
         .select-wrapper select {
             width: 100%;
-            padding: 15px 45px 15px 15px;
+            padding: 15px;
             background: transparent;
             border: none;
             color: var(--text-primary);
             font-size: 1rem;
             cursor: pointer;
-            appearance: none;
             outline: none;
         }
-
-        .select-wrapper::after {
-            content: '▼';
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--primary);
-            pointer-events: none;
-        }
-
-        .select-wrapper select option {
-            background: var(--bg-card);
-            color: var(--text-primary);
-        }
-
-        /* Amount Input */
-        .amount-input {
-            margin-bottom: 20px;
-        }
-
-        .amount-input label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
         .input-wrapper {
-            position: relative;
-            background: var(--bg-light);
-            border-radius: 12px;
-            border: 2px solid transparent;
-            transition: all 0.3s;
             display: flex;
             align-items: center;
         }
-
-        .input-wrapper:focus-within {
-            border-color: var(--primary);
-        }
-
         .input-wrapper input {
             flex: 1;
             padding: 15px;
             background: transparent;
             border: none;
             color: var(--text-primary);
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
             outline: none;
         }
-
-        .input-wrapper input::placeholder {
-            color: var(--text-secondary);
-        }
-
         .input-currency {
             padding: 10px 15px;
-            background: rgba(99, 102, 241, 0.2);
+            background: rgba(99,102,241,0.2);
             border-radius: 8px;
             margin-right: 10px;
             font-weight: 600;
-            color: var(--primary);
+        }
+        .wallet-input input {
+            width: 100%;
+            padding: 15px;
+            background: var(--bg-light);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            color: var(--text-primary);
+            outline: none;
+        }
+        .wallet-input input:focus {
+            border-color: var(--primary);
         }
 
         /* Swap Button */
@@ -391,7 +157,6 @@
             justify-content: center;
             margin: 20px 0;
         }
-
         .swap-btn button {
             width: 50px;
             height: 50px;
@@ -402,74 +167,28 @@
             font-size: 1.5rem;
             cursor: pointer;
             transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
-
         .swap-btn button:hover {
             background: var(--primary);
             color: white;
             transform: rotate(180deg);
         }
 
-        /* Result Display */
+        /* Result */
         .result-display {
             background: var(--gradient-1);
             border-radius: 16px;
             padding: 25px;
-            margin: 25px 0;
+            margin: 20px 0;
             text-align: center;
         }
-
-        .result-label {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            margin-bottom: 10px;
-        }
-
         .result-amount {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 700;
-            margin-bottom: 5px;
         }
-
-        .result-rate {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-
-        /* Info Section */
-        .info-section {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .info-row:last-child {
-            border-bottom: none;
-        }
-
-        .info-label {
-            color: var(--text-secondary);
-        }
-
-        .info-value {
-            font-weight: 600;
-        }
-
-        /* Exchange Button */
         .exchange-btn {
             width: 100%;
-            padding: 18px;
+            padding: 16px;
             border-radius: 12px;
             border: none;
             background: var(--gradient-1);
@@ -477,35 +196,58 @@
             font-size: 1.1rem;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
             margin-top: 20px;
-            position: relative;
-            overflow: hidden;
         }
-
         .exchange-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
         }
 
-        .exchange-btn:active {
-            transform: translateY(0);
+        /* Rates Panel (second) */
+        .rates-panel {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(99,102,241,0.2);
+            height: fit-content;
         }
-
-        .exchange-btn::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: rgba(255, 255, 255, 0.1);
-            transform: rotate(45deg);
-            transition: all 0.5s;
+        .rate-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
         }
-
-        .exchange-btn:hover::after {
-            left: 100%;
+        .rate-card:hover {
+            background: rgba(99,102,241,0.1);
+            transform: translateX(5px);
+        }
+        .rate-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .rate-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .icon-btc { background: #f7931a; }
+        .icon-eth { background: #627eea; }
+        .icon-usdt { background: #26a17b; }
+        .icon-uzs { background: #1eb53a; }
+        .icon-usd { background: #85bb65; }
+        .icon-rub { background: #0033a0; }
+        .rate-price {
+            font-weight: 700;
+            color: var(--success);
         }
 
         /* Modal */
@@ -516,247 +258,81 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0,0,0,0.8);
             backdrop-filter: blur(5px);
             z-index: 1000;
             justify-content: center;
             align-items: center;
             padding: 20px;
         }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
+        .modal-overlay.active { display: flex; }
         .modal {
             background: var(--bg-card);
             border-radius: 24px;
-            padding: 40px;
+            padding: 30px;
             max-width: 600px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            box-shadow: var(--shadow);
-            animation: modalIn 0.3s ease;
         }
-
-        @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
         .modal-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
-
-        .modal-header h2 {
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-            background: var(--gradient-2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .modal-header p {
-            color: var(--text-secondary);
-        }
-
-        /* Timer */
-        .timer-container {
-            text-align: center;
-            margin: 25px 0;
-            padding: 20px;
-            background: rgba(245, 158, 11, 0.1);
-            border-radius: 12px;
-            border: 1px solid rgba(245, 158, 11, 0.3);
-        }
-
-        .timer-label {
-            font-size: 0.9rem;
-            color: var(--warning);
-            margin-bottom: 10px;
-        }
-
-        .timer-display {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--warning);
-            font-family: 'Courier New', monospace;
-        }
-
-        .timer-warning {
-            color: var(--danger);
-            font-size: 0.85rem;
-            margin-top: 10px;
-        }
-
-        /* Payment Details */
         .payment-details {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255,255,255,0.05);
             border-radius: 12px;
             padding: 20px;
             margin: 20px 0;
         }
-
-        .payment-details h3 {
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-        }
-
         .detail-row {
             display: flex;
             justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-
-        .detail-row:last-child {
-            border-bottom: none;
-        }
-
-        .detail-label {
-            color: var(--text-secondary);
-        }
-
-        .detail-value {
-            font-weight: 600;
-            font-family: monospace;
-        }
-
         .copy-btn {
-            background: rgba(99, 102, 241, 0.2);
+            background: rgba(99,102,241,0.2);
             border: none;
             color: var(--primary);
             padding: 5px 12px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 0.8rem;
             margin-left: 10px;
-            transition: all 0.3s;
         }
-
-        .copy-btn:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        /* File Upload */
-        .file-upload {
-            margin: 25px 0;
-        }
-
-        .file-upload label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
         .upload-area {
             border: 2px dashed var(--bg-light);
             border-radius: 12px;
-            padding: 40px;
+            padding: 30px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
-            background: rgba(255, 255, 255, 0.02);
+            margin: 20px 0;
         }
-
-        .upload-area:hover {
-            border-color: var(--primary);
-            background: rgba(99, 102, 241, 0.05);
-        }
-
-        .upload-area i {
-            font-size: 3rem;
-            color: var(--primary);
-            margin-bottom: 15px;
-        }
-
-        .upload-area p {
-            color: var(--text-secondary);
-            margin-bottom: 10px;
-        }
-
-        .upload-area .file-types {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        .upload-area input {
-            display: none;
-        }
-
         .uploaded-file {
             display: none;
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid var(--success);
-            border-radius: 8px;
+            background: rgba(16,185,129,0.1);
             padding: 12px;
-            margin-top: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
             align-items: center;
             gap: 10px;
         }
-
-        .uploaded-file.active {
-            display: flex;
-        }
-
-        .uploaded-file .file-icon {
-            font-size: 1.5rem;
-        }
-
-        .uploaded-file .file-name {
-            flex: 1;
-            font-size: 0.9rem;
-        }
-
-        .uploaded-file .file-remove {
-            background: none;
-            border: none;
-            color: var(--danger);
-            cursor: pointer;
-            font-size: 1.2rem;
-        }
-
-        /* Action Buttons */
+        .uploaded-file.active { display: flex; }
         .action-buttons {
             display: flex;
             gap: 15px;
-            margin-top: 25px;
+            margin-top: 20px;
         }
-
         .action-btn {
             flex: 1;
-            padding: 16px;
+            padding: 14px;
             border-radius: 12px;
             border: none;
-            font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
         }
-
-        .btn-confirm {
-            background: var(--success);
-            color: white;
-        }
-
-        .btn-confirm:hover {
-            background: #059669;
-            transform: translateY(-2px);
-        }
-
-        .btn-cancel {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-cancel:hover {
-            background: #dc2626;
-            transform: translateY(-2px);
-        }
+        .btn-confirm { background: var(--success); color: white; }
+        .btn-cancel { background: var(--danger); color: white; }
 
         /* Admin Panel */
         .admin-panel {
@@ -770,305 +346,105 @@
             z-index: 2000;
             overflow-y: auto;
         }
-
-        .admin-panel.active {
-            display: block;
-        }
-
+        .admin-panel.active { display: block; }
         .admin-header {
             background: var(--bg-card);
             padding: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(99, 102, 241, 0.3);
+            border-bottom: 1px solid rgba(99,102,241,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
-
         .admin-content {
             max-width: 1200px;
             margin: 0 auto;
             padding: 30px 20px;
         }
-
-        .order-card {
+        .rate-admin-card {
             background: var(--bg-card);
             border-radius: 16px;
-            padding: 25px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            transition: all 0.3s;
-        }
-
-        .order-card:hover {
-            border-color: var(--primary);
-            transform: translateY(-2px);
-        }
-
-        .order-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .order-id {
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .order-status {
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .status-pending { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
-        .status-paid { background: rgba(16, 185, 129, 0.2); color: var(--success); }
-        .status-cancelled { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
-
-        .order-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .order-detail {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 15px;
-            border-radius: 10px;
-        }
-
-        .order-detail-label {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-bottom: 5px;
-        }
-
-        .order-detail-value {
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-
-        .order-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .order-btn {
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .btn-view {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-approve {
-            background: var(--success);
-            color: white;
-        }
-
-        .btn-reject {
-            background: var(--danger);
-            color: white;
-        }
-
-        /* Toast Notification */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: var(--bg-card);
-            border: 1px solid var(--primary);
-            border-radius: 12px;
-            padding: 20px 25px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            transform: translateX(400px);
-            transition: all 0.3s;
-            z-index: 3000;
-            box-shadow: var(--shadow);
-        }
-
-        .toast.active {
-            transform: translateX(0);
-        }
-
-        .toast-icon {
-            font-size: 1.5rem;
-        }
-
-        .toast-content h4 {
-            margin-bottom: 5px;
-        }
-
-        .toast-content p {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .header h1 { font-size: 1.8rem; }
-            .exchange-panel { padding: 20px; }
-            .modal { padding: 25px; }
-            .action-buttons { flex-direction: column; }
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--bg-dark);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--bg-light);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--primary);
-        }
-
-        /* Animations */
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
-        /* Wallet Input */
-        .wallet-input {
-            margin: 20px 0;
-        }
-
-        .wallet-input label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .wallet-input input {
-            width: 100%;
-            padding: 15px;
-            background: var(--bg-light);
-            border: 2px solid transparent;
-            border-radius: 12px;
-            color: var(--text-primary);
-            font-size: 1rem;
-            outline: none;
-            transition: all 0.3s;
-            font-family: monospace;
-        }
-
-        .wallet-input input:focus {
-            border-color: var(--primary);
-        }
-
-        /* Card Input */
-        .card-input {
-            margin: 20px 0;
-        }
-
-        .card-input label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .card-input input {
-            width: 100%;
-            padding: 15px;
-            background: var(--bg-light);
-            border: 2px solid transparent;
-            border-radius: 12px;
-            color: var(--text-primary);
-            font-size: 1rem;
-            outline: none;
-            transition: all 0.3s;
-            font-family: monospace;
-        }
-
-        .card-input input:focus {
-            border-color: var(--primary);
-        }
-
-        /* Telegram Settings */
-        .telegram-settings {
-            background: rgba(0, 136, 204, 0.1);
-            border: 1px solid rgba(0, 136, 204, 0.3);
-            border-radius: 12px;
             padding: 20px;
-            margin: 20px 0;
-        }
-
-        .telegram-settings h3 {
-            color: #0088cc;
             margin-bottom: 15px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
         }
-
-        .telegram-settings input {
-            width: 100%;
+        .rate-admin-card input {
             padding: 12px;
-            background: var(--bg-light);
-            border: 1px solid rgba(0, 136, 204, 0.3);
             border-radius: 8px;
-            color: var(--text-primary);
-            margin-bottom: 10px;
-            outline: none;
-        }
-
-        .telegram-settings button {
-            background: #0088cc;
+            border: 1px solid var(--bg-light);
+            background: var(--bg-dark);
             color: white;
-            border: none;
+            font-size: 1rem;
+            width: 150px;
+        }
+        .rate-admin-card button {
             padding: 10px 20px;
+            background: var(--primary);
+            border: none;
             border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        /* Notification Badge */
-        .notif-badge {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--danger);
             color: white;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: 700;
             cursor: pointer;
-            z-index: 500;
-            animation: pulse 2s infinite;
         }
-
+        .order-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(99,102,241,0.2);
+        }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .order-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        .status-pending { background: rgba(245,158,11,0.2); color: var(--warning); }
+        .status-paid { background: rgba(16,185,129,0.2); color: var(--success); }
+        .order-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px,1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .order-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .btn-view-receipt { background: var(--primary); color: white; }
+        .btn-approve { background: var(--success); color: white; }
+        .btn-reject { background: var(--danger); color: white; }
+        .receipt-preview {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 16px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow: auto;
+            z-index: 3000;
+        }
+        .receipt-preview.active { display: block; }
+        .receipt-preview img, .receipt-preview iframe {
+            max-width: 100%;
+            max-height: 70vh;
+        }
         .admin-toggle {
             position: fixed;
             top: 20px;
@@ -1081,163 +457,99 @@
             cursor: pointer;
             z-index: 500;
             font-weight: 600;
-            transition: all 0.3s;
         }
-
-        .admin-toggle:hover {
-            background: var(--primary);
-            color: white;
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 15px 20px;
+            transform: translateX(400px);
+            transition: all 0.3s;
+            z-index: 3000;
+        }
+        .toast.active { transform: translateX(0); }
+        .timer-display {
+            font-size: 2rem;
+            font-family: monospace;
+            color: var(--warning);
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <div class="bg-animation"></div>
 
-    <!-- Admin Toggle -->
-    <button class="admin-toggle" onclick="toggleAdmin()">👤 Admin Panel</button>
+    <button class="admin-toggle" onclick="toggleAdmin()">👑 Admin Panel</button>
 
-    <!-- Notification Badge -->
-    <div class="notif-badge" id="notifBadge" style="display: none;" onclick="toggleAdmin()">0</div>
-
-    <!-- Ticker -->
-    <div class="ticker-container">
-        <div class="ticker-wrap" id="tickerWrap">
-            <!-- Ticker items will be inserted by JS -->
-        </div>
-    </div>
-
-    <!-- Header -->
     <div class="header">
         <h1>💱 CryptoExchange Pro</h1>
-        <p>Tez, xavfsiz va ishonchli valyuta almashtirish</p>
+        <p>Tez va xavfsiz valyuta almashtirish</p>
     </div>
 
-    <!-- Main Container -->
     <div class="container">
-        <!-- Rates Panel -->
-        <div class="rates-panel">
-            <h2>📊 Kurslar</h2>
-            <div id="ratesList">
-                <!-- Rates will be inserted by JS -->
-            </div>
-        </div>
-
-        <!-- Exchange Panel -->
+        <!-- Exchange Panel (first) -->
         <div class="exchange-panel">
-            <div class="exchange-header">
-                <h2>Almashtirish</h2>
-                <p>Eng yaxshi kurslar bilan almashtiring</p>
-            </div>
-
-            <div class="exchange-type">
-                <button class="type-btn active" onclick="setExchangeType('crypto')">💎 Crypto</button>
-                <button class="type-btn" onclick="setExchangeType('fiat')">💵 Fiat</button>
-                <button class="type-btn" onclick="setExchangeType('all')">🔄 Hammasi</button>
-            </div>
-
-            <!-- Give Section -->
+            <h2>💱 Valyuta almashtirish</h2>
+            
             <div class="currency-select">
-                <label>Berish (Siz jo'natasiz):</label>
+                <label>Siz berasiz:</label>
                 <div class="select-wrapper">
                     <select id="giveCurrency" onchange="updateCalculation()">
-                        <option value="UZS">🇺🇿 UZS - O'zbek so'mi</option>
-                        <option value="RUB">🇷🇺 RUB - Rossiya rubli</option>
-                        <option value="USD">🇺🇸 USD - AQSh dollari</option>
+                        <option value="UZS">🇺🇿 UZS - So'm</option>
+                        <option value="USD">🇺🇸 USD - Dollar</option>
+                        <option value="RUB">🇷🇺 RUB - Ruble</option>
                         <option value="USDT">₮ USDT - Tether</option>
                         <option value="BTC">₿ Bitcoin</option>
                         <option value="ETH">Ξ Ethereum</option>
-                        <option value="TON">🌐 TON Coin</option>
-                        <option value="TRX">📱 Tron</option>
-                        <option value="DOGE">🐕 Dogecoin</option>
-                        <option value="USDC">💰 USDC</option>
                     </select>
                 </div>
             </div>
 
             <div class="amount-input">
-                <label>Miqdorni kiriting:</label>
+                <label>Miqdor:</label>
                 <div class="input-wrapper">
-                    <input type="number" id="giveAmount" placeholder="0.00" oninput="updateCalculation()" step="any">
+                    <input type="number" id="giveAmount" placeholder="0.00" oninput="updateCalculation()">
                     <span class="input-currency" id="giveSymbol">UZS</span>
                 </div>
             </div>
 
-            <!-- Swap Button -->
             <div class="swap-btn">
                 <button onclick="swapCurrencies()">⇅</button>
             </div>
 
-            <!-- Get Section -->
             <div class="currency-select">
-                <label>Olish (Siz olasiz):</label>
+                <label>Siz olasiz:</label>
                 <div class="select-wrapper">
                     <select id="getCurrency" onchange="updateCalculation()">
                         <option value="USDT">₮ USDT - Tether</option>
                         <option value="BTC">₿ Bitcoin</option>
                         <option value="ETH">Ξ Ethereum</option>
-                        <option value="TON">🌐 TON Coin</option>
-                        <option value="TRX">📱 Tron</option>
-                        <option value="DOGE">🐕 Dogecoin</option>
-                        <option value="USDC">💰 USDC</option>
-                        <option value="USD">🇺🇸 USD - AQSh dollari</option>
-                        <option value="RUB">🇷🇺 RUB - Rossiya rubli</option>
-                        <option value="UZS">🇺🇿 UZS - O'zbek so'mi</option>
+                        <option value="UZS">🇺🇿 UZS - So'm</option>
+                        <option value="USD">🇺🇸 USD - Dollar</option>
+                        <option value="RUB">🇷🇺 RUB - Ruble</option>
                     </select>
                 </div>
             </div>
 
-            <div class="amount-input">
-                <label>Olmoqchi bo'lgan miqdor:</label>
-                <div class="input-wrapper">
-                    <input type="number" id="getAmount" placeholder="0.00" readonly style="opacity: 0.8;">
-                    <span class="input-currency" id="getSymbol">USDT</span>
-                </div>
-            </div>
-
-            <!-- Result -->
             <div class="result-display">
-                <div class="result-label">Siz olasiz:</div>
                 <div class="result-amount" id="resultAmount">0.00</div>
-                <div class="result-rate" id="resultRate">1 USD = 12,500 UZS</div>
+                <div id="resultRate" style="font-size: 0.85rem; opacity:0.8;">Kurs: -</div>
             </div>
 
-            <!-- Info -->
-            <div class="info-section">
-                <div class="info-row">
-                    <span class="info-label">Kurs:</span>
-                    <span class="info-value" id="infoRate">-</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Komissiya (0.5%):</span>
-                    <span class="info-value" id="infoFee">-</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Jami:</span>
-                    <span class="info-value" id="infoTotal">-</span>
-                </div>
+            <div class="wallet-input">
+                <label>💳 Qabul qiluvchi hamyoni / karta:</label>
+                <input type="text" id="walletAddress" placeholder="Wallet address yoki karta raqami">
             </div>
 
-            <!-- Wallet/Card Input -->
-            <div class="wallet-input" id="walletInput">
-                <label>Qabul qilish hamyoni / karta raqami:</label>
-                <input type="text" id="walletAddress" placeholder="Wallet address yoki karta raqami...">
-            </div>
+            <button class="exchange-btn" onclick="openExchangeModal()">🚀 Almashtirish</button>
+        </div>
 
-            <!-- Exchange Button -->
-            <button class="exchange-btn" onclick="openExchangeModal()">
-                🚀 Almashtirishni boshlash
-            </button>
-
-            <!-- Telegram Settings -->
-            <div class="telegram-settings">
-                <h3>📱 Telegram sozlamalari</h3>
-                <input type="text" id="botToken" placeholder="Bot Token (BotFather dan oling)">
-                <input type="text" id="chatId" placeholder="Chat ID (user yoki group)">
-                <button onclick="saveTelegramSettings()">💾 Saqlash</button>
-                <p style="margin-top: 10px; font-size: 0.85rem; color: var(--text-secondary);">
-                    Zakazlar shu Telegram botga yuboriladi
-                </p>
-            </div>
+        <!-- Rates Panel (second - shows admin-set rates) -->
+        <div class="rates-panel">
+            <h2>📊 Joriy kurslar</h2>
+            <div id="ratesList">Loading...</div>
         </div>
     </div>
 
@@ -1246,79 +558,22 @@
         <div class="modal">
             <div class="modal-header">
                 <h2>✅ Zakazni tasdiqlash</h2>
-                <p>Iltimos, ma'lumotlarni tekshiring</p>
             </div>
-
-            <div class="payment-details">
-                <h3>📋 Zakaz ma'lumotlari</h3>
-                <div class="detail-row">
-                    <span class="detail-label">Zakaz ID:</span>
-                    <span class="detail-value" id="modalOrderId">#12345</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Siz berasiz:</span>
-                    <span class="detail-value" id="modalGive">-</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Siz olasiz:</span>
-                    <span class="detail-value" id="modalGet">-</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Kurs:</span>
-                    <span class="detail-value" id="modalRate">-</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Qabul hamyoni:</span>
-                    <span class="detail-value" id="modalWallet">-</span>
-                </div>
-            </div>
-
-            <!-- Timer -->
+            <div class="payment-details" id="modalDetails"></div>
             <div class="timer-container">
-                <div class="timer-label">⏰ To'lov uchun qolgan vaqt:</div>
                 <div class="timer-display" id="timer">10:00</div>
-                <div class="timer-warning">Agar 10 daqiqa ichida to'lov qilmasangiz, zakaz avtomatik bekor bo'ladi!</div>
             </div>
-
-            <!-- Payment Info -->
-            <div class="payment-details" id="paymentInfo">
-                <h3>💳 To'lov ma'lumotlari</h3>
-                <div class="detail-row">
-                    <span class="detail-label">Karta / Hamyon:</span>
-                    <span class="detail-value">
-                        <span id="paymentAddress">8600 1234 5678 9012</span>
-                        <button class="copy-btn" onclick="copyToClipboard('paymentAddress')">📋 Nusxa</button>
-                    </span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Eslatma:</span>
-                    <span class="detail-value" id="paymentMemo">Zakaz #12345</span>
-                </div>
+            <div class="upload-area" onclick="document.getElementById('receiptFile').click()">
+                📁 Kvitansiya yuklash (PDF/JPG/PNG)
+                <input type="file" id="receiptFile" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleFileUpload(this)">
             </div>
-
-            <!-- File Upload -->
-            <div class="file-upload">
-                <label>📄 To'lov kvitansiyasini yuklash (PDF, JPG, PNG):</label>
-                <div class="upload-area" onclick="document.getElementById('receiptFile').click()">
-                    <div style="font-size: 3rem; margin-bottom: 15px;">📁</div>
-                    <p>Faylni bu yerga tashlang yoki bosing</p>
-                    <div class="file-types">PDF, JPG, PNG (max 10MB)</div>
-                    <input type="file" id="receiptFile" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileUpload(this)">
-                </div>
-                <div class="uploaded-file" id="uploadedFile">
-                    <span class="file-icon">📄</span>
-                    <span class="file-name" id="fileName">receipt.pdf</span>
-                    <button class="file-remove" onclick="removeFile()">✕</button>
-                </div>
+            <div class="uploaded-file" id="uploadedFile">
+                <span>📄</span><span id="fileName"></span>
+                <button onclick="removeFile()" style="background:none; border:none; color:red;">✕</button>
             </div>
-
             <div class="action-buttons">
-                <button class="action-btn btn-confirm" onclick="confirmPayment()">
-                    ✅ To'lov qildim
-                </button>
-                <button class="action-btn btn-cancel" onclick="cancelOrder()">
-                    ❌ Bekor qilish
-                </button>
+                <button class="action-btn btn-confirm" onclick="confirmPayment()">✅ To'ladim</button>
+                <button class="action-btn btn-cancel" onclick="cancelOrder()">❌ Bekor</button>
             </div>
         </div>
     </div>
@@ -1326,119 +581,69 @@
     <!-- Admin Panel -->
     <div class="admin-panel" id="adminPanel">
         <div class="admin-header">
-            <h2>👤 Admin Panel</h2>
-            <button class="admin-toggle" onclick="toggleAdmin()">❌ Yopish</button>
+            <h2>👑 Admin Panel - Kurslarni boshqarish</h2>
+            <button class="admin-toggle" onclick="toggleAdmin()">✕ Yopish</button>
         </div>
         <div class="admin-content">
-            <h2 style="margin-bottom: 25px;">📦 Zakazlar</h2>
-            <div id="ordersList">
-                <!-- Orders will be inserted by JS -->
-            </div>
+            <h3>💱 Valyuta kurslarini o'rnating</h3>
+            <div id="adminRatesList"></div>
+            
+            <h3 style="margin-top: 40px;">📦 Zakazlar</h3>
+            <div id="ordersList"></div>
         </div>
     </div>
 
-    <!-- Toast -->
-    <div class="toast" id="toast">
-        <div class="toast-icon" id="toastIcon">✅</div>
-        <div class="toast-content">
-            <h4 id="toastTitle">Muvaffaqiyatli</h4>
-            <p id="toastMessage">Operatsiya bajarildi</p>
+    <!-- Receipt Preview Modal -->
+    <div class="receipt-preview" id="receiptPreview">
+        <div style="display: flex; justify-content: space-between;">
+            <h3>📄 Kvitansiya</h3>
+            <button onclick="closeReceiptPreview()" style="background:red; border:none; color:white; padding:5px 10px; border-radius:8px;">✕</button>
         </div>
+        <div id="receiptContent"></div>
     </div>
+
+    <div class="toast" id="toast">✅ Muvaffaqiyatli</div>
 
     <script>
-        // Exchange Rates (Base: USD)
-        const rates = {
-            UZS: 12650,
-            RUB: 92.5,
-            USD: 1,
-            USDT: 1,
-            BTC: 0.000015,
-            ETH: 0.00028,
-            TON: 0.15,
-            TRX: 6.5,
-            DOGE: 7.2,
-            USDC: 1
+        // ============ DEFAULT RATES (ADMIN CAN CHANGE) ============
+        let adminRates = JSON.parse(localStorage.getItem('adminRates')) || {
+            UZS: 12650, USD: 1, RUB: 92.5, USDT: 1, BTC: 0.000015, ETH: 0.00028
         };
-
-        const symbols = {
-            UZS: 'UZS', RUB: 'RUB', USD: 'USD', USDT: 'USDT',
-            BTC: 'BTC', ETH: 'ETH', TON: 'TON', TRX: 'TRX',
-            DOGE: 'DOGE', USDC: 'USDC'
-        };
-
-        const names = {
-            UZS: 'O\'zbek so\'mi', RUB: 'Rossiya rubli', USD: 'AQSh dollari',
-            USDT: 'Tether', BTC: 'Bitcoin', ETH: 'Ethereum',
-            TON: 'TON Coin', TRX: 'Tron', DOGE: 'Dogecoin', USDC: 'USD Coin'
-        };
-
-        const icons = {
-            UZS: 'icon-uzs', RUB: 'icon-rub', USD: 'icon-usd',
-            USDT: 'icon-usdt', BTC: 'icon-btc', ETH: 'icon-eth',
-            TON: 'icon-ton', TRX: 'icon-trx', DOGE: 'icon-doge', USDC: 'icon-usdc'
-        };
-
+        
         let currentOrder = null;
+        let orders = JSON.parse(localStorage.getItem('orders')) || [];
         let timerInterval = null;
-        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
-        let telegramSettings = JSON.parse(localStorage.getItem('telegramSettings') || '{}');
+        let uploadedReceiptData = null; // store base64 of receipt
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            initTicker();
-            initRates();
-            loadTelegramSettings();
-            updateCalculation();
-        });
+        const symbols = { UZS:'UZS', USD:'USD', RUB:'RUB', USDT:'USDT', BTC:'BTC', ETH:'ETH' };
+        const names = { UZS:'So\'m', USD:'Dollar', RUB:'Ruble', USDT:'Tether', BTC:'Bitcoin', ETH:'Ethereum' };
+        const icons = { UZS:'icon-uzs', USD:'icon-usd', RUB:'icon-rub', USDT:'icon-usdt', BTC:'icon-btc', ETH:'icon-eth' };
 
-        // Ticker
-        function initTicker() {
-            const tickerWrap = document.getElementById('tickerWrap');
-            const currencies = Object.keys(rates);
-            let tickerHTML = '';
-            
-            currencies.forEach(currency => {
-                const price = (1 / rates[currency]).toFixed(currency === 'BTC' || currency === 'ETH' ? 6 : 2);
-                const change = (Math.random() * 4 - 2).toFixed(2);
-                const changeClass = change >= 0 ? 'up' : 'down';
-                const changeSymbol = change >= 0 ? '↑' : '↓';
-                
-                tickerHTML += `
-                    <div class="ticker-item">
-                        <span class="coin">${currency}</span>
-                        <span class="price">$${price}</span>
-                        <span class="change ${changeClass}">${changeSymbol} ${Math.abs(change)}%</span>
-                    </div>
-                `;
-            });
-            
-            // Duplicate for seamless loop
-            tickerWrap.innerHTML = tickerHTML + tickerHTML;
+        // Save rates to localStorage
+        function saveAdminRates() {
+            localStorage.setItem('adminRates', JSON.stringify(adminRates));
+            initRatesDisplay();      // update client view
+            updateCalculation();     // recalc exchange
+            renderAdminRates();      // update admin panel
         }
 
-        // Rates Panel
-        function initRates() {
-            const ratesList = document.getElementById('ratesList');
-            const currencies = Object.keys(rates);
-            
-            ratesList.innerHTML = currencies.map(currency => {
-                const price = (1 / rates[currency]).toFixed(currency === 'BTC' || currency === 'ETH' ? 6 : 2);
-                const change = (Math.random() * 4 - 2).toFixed(2);
-                const changeClass = change >= 0 ? 'up' : 'down';
-                
+        // Display rates to client (second panel)
+        function initRatesDisplay() {
+            const container = document.getElementById('ratesList');
+            if(!container) return;
+            container.innerHTML = Object.keys(adminRates).map(currency => {
+                const price = (1 / adminRates[currency]).toFixed(currency === 'BTC' ? 8 : 2);
                 return `
                     <div class="rate-card" onclick="selectCurrency('${currency}')">
                         <div class="rate-info">
                             <div class="rate-icon ${icons[currency]}">${currency[0]}</div>
                             <div>
                                 <div class="rate-name">${currency}</div>
-                                <div class="rate-fullname">${names[currency]}</div>
+                                <div class="rate-fullname">${names[currency] || ''}</div>
                             </div>
                         </div>
                         <div class="rate-value">
                             <div class="rate-price">$${price}</div>
-                            <div class="rate-change ${changeClass}">${change > 0 ? '+' : ''}${change}%</div>
                         </div>
                     </div>
                 `;
@@ -1448,439 +653,254 @@
         function selectCurrency(currency) {
             document.getElementById('getCurrency').value = currency;
             updateCalculation();
-            
-            // Highlight selected
-            document.querySelectorAll('.rate-card').forEach(card => {
-                card.classList.remove('active');
-            });
-            event.currentTarget.classList.add('active');
         }
 
-        // Calculation
+        // Exchange calculation based on adminRates
         function updateCalculation() {
-            const giveCurrency = document.getElementById('giveCurrency').value;
-            const getCurrency = document.getElementById('getCurrency').value;
-            const giveAmount = parseFloat(document.getElementById('giveAmount').value) || 0;
+            const giveCurr = document.getElementById('giveCurrency').value;
+            const getCurr = document.getElementById('getCurrency').value;
+            let giveAmount = parseFloat(document.getElementById('giveAmount').value) || 0;
             
-            document.getElementById('giveSymbol').textContent = symbols[giveCurrency];
-            document.getElementById('getSymbol').textContent = symbols[getCurrency];
+            document.getElementById('giveSymbol').innerText = symbols[giveCurr];
             
-            // Calculate rate (give -> USD -> get)
-            const giveInUSD = giveAmount / rates[giveCurrency];
-            const fee = giveInUSD * 0.005; // 0.5% fee
-            const getAmount = (giveInUSD - fee) * rates[getCurrency];
+            const rate = adminRates[getCurr] / adminRates[giveCurr];
+            const fee = 0.005;
+            const getAmount = giveAmount * rate * (1 - fee);
             
-            document.getElementById('getAmount').value = getAmount.toFixed(getCurrency === 'UZS' ? 0 : 6);
-            document.getElementById('resultAmount').textContent = getAmount.toLocaleString('en-US', {
-                maximumFractionDigits: getCurrency === 'UZS' ? 0 : 6
-            }) + ' ' + symbols[getCurrency];
+            const resultSpan = document.getElementById('resultAmount');
+            if(resultSpan) resultSpan.innerText = getAmount.toFixed(getCurr === 'UZS' ? 0 : 6) + ' ' + symbols[getCurr];
             
-            const rate = rates[getCurrency] / rates[giveCurrency];
-            document.getElementById('resultRate').textContent = `1 ${giveCurrency} = ${rate.toFixed(6)} ${getCurrency}`;
-            
-            document.getElementById('infoRate').textContent = `1 ${giveCurrency} = ${rate.toFixed(6)} ${getCurrency}`;
-            document.getElementById('infoFee').textContent = (fee * rates[giveCurrency]).toFixed(2) + ' ' + giveCurrency;
-            document.getElementById('infoTotal').textContent = getAmount.toLocaleString('en-US', {
-                maximumFractionDigits: getCurrency === 'UZS' ? 0 : 6
-            }) + ' ' + getCurrency;
+            const rateSpan = document.getElementById('resultRate');
+            if(rateSpan) rateSpan.innerText = `1 ${giveCurr} = ${rate.toFixed(6)} ${getCurr} (komissiya 0.5%)`;
         }
 
         function swapCurrencies() {
-            const giveCurrency = document.getElementById('giveCurrency').value;
-            const getCurrency = document.getElementById('getCurrency').value;
-            
-            document.getElementById('giveCurrency').value = getCurrency;
-            document.getElementById('getCurrency').value = giveCurrency;
-            
+            const give = document.getElementById('giveCurrency').value;
+            const get = document.getElementById('getCurrency').value;
+            document.getElementById('giveCurrency').value = get;
+            document.getElementById('getCurrency').value = give;
             updateCalculation();
         }
 
-        function setExchangeType(type) {
-            document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            const giveSelect = document.getElementById('giveCurrency');
-            const getSelect = document.getElementById('getCurrency');
-            
-            if (type === 'crypto') {
-                giveSelect.value = 'USDT';
-                getSelect.value = 'BTC';
-            } else if (type === 'fiat') {
-                giveSelect.value = 'UZS';
-                getSelect.value = 'USD';
-            }
-            
-            updateCalculation();
-        }
-
-        // Exchange Modal
+        // Open exchange modal
         function openExchangeModal() {
-            const giveCurrency = document.getElementById('giveCurrency').value;
-            const getCurrency = document.getElementById('getCurrency').value;
-            const giveAmount = parseFloat(document.getElementById('giveAmount').value) || 0;
-            const getAmount = parseFloat(document.getElementById('getAmount').value) || 0;
-            const wallet = document.getElementById('walletAddress').value;
-            
-            if (giveAmount <= 0) {
-                showToast('❌ Xatolik', 'Iltimos, miqdor kiriting', 'error');
+            const giveAmount = parseFloat(document.getElementById('giveAmount').value);
+            if(!giveAmount || giveAmount <= 0) {
+                showToast('❌ Miqdor kiriting', 3000);
                 return;
             }
-            
-            if (!wallet) {
-                showToast('❌ Xatolik', 'Iltimos, hamyon/karta raqamini kiriting', 'error');
+            const wallet = document.getElementById('walletAddress').value;
+            if(!wallet.trim()) {
+                showToast('❌ Hamyon/karta raqamini kiriting', 3000);
                 return;
             }
             
             const orderId = 'ORD-' + Date.now();
             currentOrder = {
                 id: orderId,
-                giveCurrency,
-                getCurrency,
-                giveAmount,
-                getAmount,
-                wallet,
+                giveCurrency: document.getElementById('giveCurrency').value,
+                getCurrency: document.getElementById('getCurrency').value,
+                giveAmount: giveAmount,
+                getAmount: parseFloat(document.getElementById('resultAmount').innerText.split(' ')[0]),
+                wallet: wallet,
                 status: 'pending',
                 createdAt: new Date().toISOString(),
-                receipt: null
+                receiptData: null,
+                receiptName: null
             };
             
-            document.getElementById('modalOrderId').textContent = orderId;
-            document.getElementById('modalGive').textContent = `${giveAmount.toLocaleString()} ${giveCurrency}`;
-            document.getElementById('modalGet').textContent = `${getAmount.toLocaleString()} ${getCurrency}`;
-            document.getElementById('modalRate').textContent = document.getElementById('infoRate').textContent;
-            document.getElementById('modalWallet').textContent = wallet;
-            
-            // Payment info based on currency
-            const paymentAddresses = {
-                UZS: '8600 1234 5678 9012 (UzCard)',
-                RUB: '2200 1234 5678 9012 (Mir)',
-                USD: '4242 4242 4242 4242 (Visa)',
-                USDT: 'TRC20: TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-                BTC: 'bc1qxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-                ETH: '0xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-                TON: 'EQXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-                TRX: 'TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-                DOGE: 'DXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-                USDC: '0xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
-            };
-            
-            document.getElementById('paymentAddress').textContent = paymentAddresses[giveCurrency] || 'Bank transfer';
-            document.getElementById('paymentMemo').textContent = `Zakaz ${orderId}`;
-            
+            document.getElementById('modalDetails').innerHTML = `
+                <div class="detail-row"><span>Zakaz ID:</span><span>${orderId}</span></div>
+                <div class="detail-row"><span>Siz berasiz:</span><span>${giveAmount} ${currentOrder.giveCurrency}</span></div>
+                <div class="detail-row"><span>Siz olasiz:</span><span>${currentOrder.getAmount} ${currentOrder.getCurrency}</span></div>
+                <div class="detail-row"><span>Hamyon:</span><span>${wallet}</span></div>
+            `;
             document.getElementById('exchangeModal').classList.add('active');
-            
-            // Send Telegram notification
-            sendTelegramNotification(currentOrder);
-            
-            // Start timer
-            startTimer(600); // 10 minutes
+            startTimer(600);
+            showToast('📋 Zakaz yaratildi', 2000);
         }
 
-        // Timer
         function startTimer(seconds) {
             let remaining = seconds;
             const timerDisplay = document.getElementById('timer');
-            
-            if (timerInterval) clearInterval(timerInterval);
-            
+            if(timerInterval) clearInterval(timerInterval);
             timerInterval = setInterval(() => {
                 const mins = Math.floor(remaining / 60);
                 const secs = remaining % 60;
-                timerDisplay.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-                
-                if (remaining <= 60) {
-                    timerDisplay.style.color = 'var(--danger)';
-                }
-                
-                if (remaining <= 0) {
+                timerDisplay.innerText = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+                if(remaining <= 0) {
                     clearInterval(timerInterval);
                     cancelOrder();
-                    showToast('⏰ Vaqt tugadi', 'Zakaz avtomatik bekor qilindi', 'error');
                 }
-                
                 remaining--;
             }, 1000);
         }
 
-        // File Upload
         function handleFileUpload(input) {
             const file = input.files[0];
-            if (!file) return;
-            
-            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
-            if (!allowedTypes.includes(file.type)) {
-                showToast('❌ Xatolik', 'Faqat PDF, JPG, PNG fayllar', 'error');
-                return;
-            }
-            
-            if (file.size > 10 * 1024 * 1024) {
-                showToast('❌ Xatolik', 'Fayl hajmi 10MB dan oshmasligi kerak', 'error');
-                return;
-            }
-            
-            document.getElementById('fileName').textContent = file.name;
-            document.getElementById('uploadedFile').classList.add('active');
-            
-            // Store file reference
-            if (currentOrder) {
-                currentOrder.receipt = file.name;
-            }
-            
-            showToast('✅ Yuklandi', 'Kvitansiya muvaffaqiyatli yuklandi', 'success');
+            if(!file) return;
+            if(file.size > 10*1024*1024) { showToast('❌ Fayl 10MB dan katta'); return; }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                uploadedReceiptData = e.target.result;
+                if(currentOrder) {
+                    currentOrder.receiptData = uploadedReceiptData;
+                    currentOrder.receiptName = file.name;
+                }
+                document.getElementById('fileName').innerText = file.name;
+                document.getElementById('uploadedFile').classList.add('active');
+                showToast('✅ Kvitansiya yuklandi');
+            };
+            reader.readAsDataURL(file);
         }
 
         function removeFile() {
-            document.getElementById('receiptFile').value = '';
+            uploadedReceiptData = null;
+            if(currentOrder) { currentOrder.receiptData = null; currentOrder.receiptName = null; }
             document.getElementById('uploadedFile').classList.remove('active');
-            if (currentOrder) currentOrder.receipt = null;
+            document.getElementById('receiptFile').value = '';
         }
 
-        // Payment Actions
         function confirmPayment() {
-            if (!currentOrder.receipt) {
-                showToast('❌ Xatolik', 'Iltimos, to\'lov kvitansiyasini yuklang', 'error');
+            if(!currentOrder.receiptData) {
+                showToast('❌ Iltimos, kvitansiyani yuklang');
                 return;
             }
-            
             currentOrder.status = 'paid';
             currentOrder.paidAt = new Date().toISOString();
             orders.push(currentOrder);
             localStorage.setItem('orders', JSON.stringify(orders));
-            
-            clearInterval(timerInterval);
-            document.getElementById('exchangeModal').classList.remove('active');
-            
-            showToast('✅ To\'lov tasdiqlandi', 'Admin tekshiruvidan so\'ng pul yuboriladi', 'success');
-            updateAdminBadge();
-            
-            // Send confirmation to Telegram
-            sendTelegramNotification(currentOrder, 'paid');
-        }
-
-        function cancelOrder() {
-            if (currentOrder) {
-                currentOrder.status = 'cancelled';
-                currentOrder.cancelledAt = new Date().toISOString();
-                orders.push(currentOrder);
-                localStorage.setItem('orders', JSON.stringify(orders));
-                
-                sendTelegramNotification(currentOrder, 'cancelled');
-            }
-            
             clearInterval(timerInterval);
             document.getElementById('exchangeModal').classList.remove('active');
             removeFile();
-            
-            showToast('❌ Bekor qilindi', 'Zakaz bekor qilindi', 'error');
+            showToast('✅ To\'lov tasdiqlandi. Admin tekshiradi.');
+            renderAdminOrders();
         }
 
-        // Admin Panel
+        function cancelOrder() {
+            if(currentOrder && currentOrder.receiptData) {
+                currentOrder.status = 'cancelled';
+                orders.push(currentOrder);
+                localStorage.setItem('orders', JSON.stringify(orders));
+            }
+            clearInterval(timerInterval);
+            document.getElementById('exchangeModal').classList.remove('active');
+            removeFile();
+            showToast('❌ Zakaz bekor qilindi');
+            renderAdminOrders();
+        }
+
+        // Admin Panel Functions
         function toggleAdmin() {
             const panel = document.getElementById('adminPanel');
             panel.classList.toggle('active');
-            
-            if (panel.classList.contains('active')) {
-                renderOrders();
+            if(panel.classList.contains('active')) {
+                renderAdminRates();
+                renderAdminOrders();
             }
         }
 
-        function renderOrders() {
-            const ordersList = document.getElementById('ordersList');
-            
-            if (orders.length === 0) {
-                ordersList.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 40px;">Zakazlar yo\'q</p>';
+        function renderAdminRates() {
+            const container = document.getElementById('adminRatesList');
+            container.innerHTML = Object.keys(adminRates).map(curr => `
+                <div class="rate-admin-card">
+                    <strong>${curr} (${names[curr] || ''})</strong>
+                    <input type="number" id="rate_${curr}" value="${adminRates[curr]}" step="any" placeholder="Kurs (USD ga nisbatan)">
+                    <button onclick="updateRate('${curr}')">💾 Saqlash</button>
+                </div>
+            `).join('');
+        }
+
+        function updateRate(currency) {
+            const newRate = parseFloat(document.getElementById(`rate_${currency}`).value);
+            if(!isNaN(newRate) && newRate > 0) {
+                adminRates[currency] = newRate;
+                saveAdminRates();
+                showToast(`✅ ${currency} kursi yangilandi: ${newRate}`);
+            } else {
+                showToast('❌ Noto\'g\'ri qiymat');
+            }
+        }
+
+        function renderAdminOrders() {
+            const container = document.getElementById('ordersList');
+            if(orders.length === 0) {
+                container.innerHTML = '<p>Zakazlar yo\'q</p>';
                 return;
             }
-            
-            ordersList.innerHTML = orders.slice().reverse().map(order => {
-                const statusClass = order.status === 'pending' ? 'status-pending' : 
-                                   order.status === 'paid' ? 'status-paid' : 'status-cancelled';
-                const statusText = order.status === 'pending' ? 'Kutilmoqda' : 
-                                  order.status === 'paid' ? 'To\'langan' : 'Bekor qilindi';
-                
-                return `
-                    <div class="order-card">
-                        <div class="order-header">
-                            <span class="order-id">${order.id}</span>
-                            <span class="order-status ${statusClass}">${statusText}</span>
-                        </div>
-                        <div class="order-details">
-                            <div class="order-detail">
-                                <div class="order-detail-label">Berish</div>
-                                <div class="order-detail-value">${order.giveAmount.toLocaleString()} ${order.giveCurrency}</div>
-                            </div>
-                            <div class="order-detail">
-                                <div class="order-detail-label">Olish</div>
-                                <div class="order-detail-value">${order.getAmount.toLocaleString()} ${order.getCurrency}</div>
-                            </div>
-                            <div class="order-detail">
-                                <div class="order-detail-label">Hamyon</div>
-                                <div class="order-detail-value" style="font-size: 0.9rem;">${order.wallet}</div>
-                            </div>
-                            <div class="order-detail">
-                                <div class="order-detail-label">Sana</div>
-                                <div class="order-detail-value">${new Date(order.createdAt).toLocaleString('uz-UZ')}</div>
-                            </div>
-                        </div>
-                        ${order.status === 'paid' ? `
-                            <div class="order-actions">
-                                <button class="order-btn btn-view" onclick="viewReceipt('${order.id}')">📄 Kvitansiya</button>
-                                <button class="order-btn btn-approve" onclick="approveOrder('${order.id}')">✅ Tasdiqlash</button>
-                                <button class="order-btn btn-reject" onclick="rejectOrder('${order.id}')">❌ Rad etish</button>
-                            </div>
-                        ` : ''}
+            container.innerHTML = orders.slice().reverse().map(order => `
+                <div class="order-card">
+                    <div class="order-header">
+                        <span><strong>${order.id}</strong></span>
+                        <span class="order-status status-${order.status}">${order.status === 'pending' ? 'Kutilmoqda' : (order.status === 'paid' ? 'To\'langan' : 'Bekor')}</span>
                     </div>
-                `;
-            }).join('');
+                    <div class="order-details">
+                        <div>Berish: ${order.giveAmount} ${order.giveCurrency}</div>
+                        <div>Olish: ${order.getAmount} ${order.getCurrency}</div>
+                        <div>Hamyon: ${order.wallet.substring(0,20)}...</div>
+                        <div>Sana: ${new Date(order.createdAt).toLocaleString()}</div>
+                    </div>
+                    ${order.receiptData ? `<button class="order-btn btn-view-receipt" onclick="viewReceipt('${order.id}')">📄 Kvitansiyani ko\'rish</button>` : '<span style="color:gray;">Kvitansiya yo\'q</span>'}
+                    ${order.status === 'paid' ? `
+                        <button class="order-btn btn-approve" onclick="approveOrder('${order.id}')">✅ Tasdiqlash</button>
+                        <button class="order-btn btn-reject" onclick="rejectOrder('${order.id}')">❌ Rad etish</button>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function viewReceipt(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if(order && order.receiptData) {
+                const content = document.getElementById('receiptContent');
+                if(order.receiptData.startsWith('data:application/pdf')) {
+                    content.innerHTML = `<iframe src="${order.receiptData}" width="100%" height="500px"></iframe>`;
+                } else {
+                    content.innerHTML = `<img src="${order.receiptData}" style="max-width:100%;">`;
+                }
+                document.getElementById('receiptPreview').classList.add('active');
+            } else {
+                showToast('❌ Kvitansiya topilmadi');
+            }
+        }
+
+        function closeReceiptPreview() {
+            document.getElementById('receiptPreview').classList.remove('active');
         }
 
         function approveOrder(orderId) {
             const order = orders.find(o => o.id === orderId);
-            if (order) {
+            if(order) {
                 order.status = 'completed';
-                order.completedAt = new Date().toISOString();
                 localStorage.setItem('orders', JSON.stringify(orders));
-                renderOrders();
-                showToast('✅ Tasdiqlandi', 'Zakaz muvaffaqiyatli tasdiqlandi', 'success');
-                sendTelegramNotification(order, 'completed');
+                renderAdminOrders();
+                showToast(`✅ ${orderId} tasdiqlandi`);
             }
         }
 
         function rejectOrder(orderId) {
             const order = orders.find(o => o.id === orderId);
-            if (order) {
+            if(order) {
                 order.status = 'rejected';
-                order.rejectedAt = new Date().toISOString();
                 localStorage.setItem('orders', JSON.stringify(orders));
-                renderOrders();
-                showToast('❌ Rad etildi', 'Zakaz rad etildi', 'error');
-                sendTelegramNotification(order, 'rejected');
+                renderAdminOrders();
+                showToast(`❌ ${orderId} rad etildi`);
             }
         }
 
-        function viewReceipt(orderId) {
-            showToast('📄 Kvitansiya', 'Kvitansiya ko\'rish funksiyasi ishlamoqda', 'info');
-        }
-
-        function updateAdminBadge() {
-            const pendingCount = orders.filter(o => o.status === 'paid').length;
-            const badge = document.getElementById('notifBadge');
-            if (pendingCount > 0) {
-                badge.textContent = pendingCount;
-                badge.style.display = 'flex';
-            } else {
-                badge.style.display = 'none';
-            }
-        }
-
-        // Telegram Integration
-        function saveTelegramSettings() {
-            const botToken = document.getElementById('botToken').value;
-            const chatId = document.getElementById('chatId').value;
-            
-            if (!botToken || !chatId) {
-                showToast('❌ Xatolik', 'Bot token va Chat ID kiriting', 'error');
-                return;
-            }
-            
-            telegramSettings = { botToken, chatId };
-            localStorage.setItem('telegramSettings', JSON.stringify(telegramSettings));
-            showToast('✅ Saqlandi', 'Telegram sozlamalari saqlandi', 'success');
-        }
-
-        function loadTelegramSettings() {
-            if (telegramSettings.botToken) {
-                document.getElementById('botToken').value = telegramSettings.botToken;
-            }
-            if (telegramSettings.chatId) {
-                document.getElementById('chatId').value = telegramSettings.chatId;
-            }
-        }
-
-        function sendTelegramNotification(order, type = 'new') {
-            if (!telegramSettings.botToken || !telegramSettings.chatId) return;
-            
-            let message = '';
-            
-            if (type === 'new') {
-                message = `🆕 Yangi zakaz!\n\n` +
-                         `🆔 ID: ${order.id}\n` +
-                         `💰 Berish: ${order.giveAmount.toLocaleString()} ${order.giveCurrency}\n` +
-                         `💎 Olish: ${order.getAmount.toLocaleString()} ${order.getCurrency}\n` +
-                         `👛 Hamyon: ${order.wallet}\n` +
-                         `⏰ Sana: ${new Date().toLocaleString('uz-UZ')}\n\n` +
-                         `📎 Admin panelda tekshiring!`;
-            } else if (type === 'paid') {
-                message = `💰 To'lov tasdiqlandi!\n\n` +
-                         `🆔 ID: ${order.id}\n` +
-                         `✅ Status: To'langan\n` +
-                         `📄 Kvitansiya yuklandi\n\n` +
-                         `Tekshirishni kutmoqda...`;
-            } else if (type === 'cancelled') {
-                message = `❌ Zakaz bekor qilindi!\n\n` +
-                         `🆔 ID: ${order.id}\n` +
-                         `⏰ Vaqt tugagan yoki foydalanuvchi bekor qilgan`;
-            } else if (type === 'completed') {
-                message = `✅ Zakaz bajarildi!\n\n` +
-                         `🆔 ID: ${order.id}\n` +
-                         `💎 Pul yuborildi`;
-            } else if (type === 'rejected') {
-                message = `❌ Zakaz rad etildi!\n\n` +
-                         `🆔 ID: ${order.id}\n` +
-                         `📄 Kvitansiya noto'g'ri yoki to'lov kelmagan`;
-            }
-            
-            // In real implementation, this would be sent to your backend
-            // which then calls Telegram API
-            console.log('Telegram message:', message);
-            
-            // For demo, we'll show a toast
-            if (type === 'new') {
-                showToast('📱 Telegram', 'Zakaz haqida xabar yuborildi', 'info');
-            }
-        }
-
-        // Utilities
-        function copyToClipboard(elementId) {
-            const text = document.getElementById(elementId).textContent;
-            navigator.clipboard.writeText(text).then(() => {
-                showToast('✅ Nusxa olindi', 'Manzil nusxalandi', 'success');
-            });
-        }
-
-        function showToast(title, message, type = 'success') {
+        function showToast(msg, duration=2500) {
             const toast = document.getElementById('toast');
-            const toastIcon = document.getElementById('toastIcon');
-            const toastTitle = document.getElementById('toastTitle');
-            const toastMessage = document.getElementById('toastMessage');
-            
-            const icons = {
-                success: '✅',
-                error: '❌',
-                info: 'ℹ️'
-            };
-            
-            toastIcon.textContent = icons[type] || 'ℹ️';
-            toastTitle.textContent = title;
-            toastMessage.textContent = message;
-            
+            toast.innerText = msg;
             toast.classList.add('active');
-            
-            setTimeout(() => {
-                toast.classList.remove('active');
-            }, 3000);
+            setTimeout(() => toast.classList.remove('active'), duration);
         }
 
-        // Close modal on outside click
-        document.getElementById('exchangeModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                // Don't close automatically to prevent accidental closing
-            }
+        // Initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            initRatesDisplay();
+            updateCalculation();
+            renderAdminOrders();
         });
-
-        // Update badge on load
-        updateAdminBadge();
     </script>
 </body>
 </html>
-
