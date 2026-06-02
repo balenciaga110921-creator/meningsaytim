@@ -556,26 +556,36 @@ client_html = '''<!DOCTYPE html>
             reader.readAsDataURL(file);
         }
 
+        // ⭐ TO'G'RILANGAN: confirmPayment funksiyasi
         function confirmPayment() {
+            // 1. Kvitansiya yuklanganmi tekshirish
             if (!currentOrder || !currentOrder.receiptData) { 
                 showToast('❌ Iltimos, kvitansiyani yuklang', 'error'); 
                 return; 
             }
-            if (currentOrder.status !== 'pending') { 
-                showToast('⚠️ Bu zakaz allaqachon tasdiqlangan', 'warning'); 
-                return; 
-            }
             
+            // 2. Timer ni to'xtatish
+            if (paymentTimerInterval) clearInterval(paymentTimerInterval);
+            
+            // 3. Status ni 'paid' ga o'zgartirish
             currentOrder.status = 'paid';
             currentOrder.paidAt = new Date().toISOString();
             
-            // ⭐ Zakazni saqlash
+            // 4. Zakazni localStorage ga saqlash
             let orders = loadOrders();
             orders.push(currentOrder);
             saveOrders(orders);
             
+            // 5. Payment modal ni yopish
             closePaymentModal();
+            
+            // 6. Waiting modal ni ko'rsatish
             showWaitingModal();
+            
+            // 7. Status tekshirishni boshlash
+            startStatusCheck();
+            
+            showToast('✅ To\'lovingiz qabul qilindi! Admin tekshiruvini kuting', 'success');
         }
 
         function showWaitingModal() {
@@ -600,7 +610,6 @@ client_html = '''<!DOCTYPE html>
             
             modal.classList.add('active');
             startWaitingTimer(900);
-            startStatusCheck();
         }
 
         function startWaitingTimer(seconds) {
@@ -807,5 +816,5 @@ client_html = '''<!DOCTYPE html>
 with open('/mnt/agents/output/index.html', 'w', encoding='utf-8') as f:
     f.write(client_html)
 
-print("✅ Mijoz paneli tayyor!")
+print("✅ Mijoz paneli to'g'rilandi!")
 print(f"📄 Fayl hajmi: {len(client_html)} belgi")
