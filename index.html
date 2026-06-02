@@ -334,16 +334,24 @@
         let currencyIcons = { BTC:'₿', ETH:'Ξ', USDT:'₮', TON:'🌐', TRX:'📱', DOGE:'🐕', USDC:'💰', UZS:'🇺🇿', USD:'🇺🇸', RUB:'🇷🇺' };
         let currencyNames = { BTC:'Bitcoin', ETH:'Ethereum', USDT:'Tether', TON:'TON', TRX:'Tron', DOGE:'Dogecoin', USDC:'USD Coin', UZS:'So\'m', USD:'Dollar', RUB:'Ruble' };
         
-        let allOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-        let currentOrder = null;
-        let paymentTimerInterval = null;
-        let waitingTimerInterval = null;
-        
-        // Client ID
+        // Client ID - har bir mijozga o'ziga xos ID
         let clientId = localStorage.getItem('clientId');
         if (!clientId) {
             clientId = 'CLIENT_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
             localStorage.setItem('clientId', clientId);
+        }
+        
+        let currentOrder = null;
+        let paymentTimerInterval = null;
+        let waitingTimerInterval = null;
+        let statusCheckInterval = null;
+        
+        function loadOrders() {
+            return JSON.parse(localStorage.getItem('orders') || '[]');
+        }
+        
+        function saveOrders(orders) {
+            localStorage.setItem('orders', JSON.stringify(orders));
         }
 
         async function loadData() {
@@ -437,7 +445,6 @@
                 receiptName: null
             };
 
-            // Show payment modal with timer
             showPaymentModal();
         }
 
@@ -484,8 +491,9 @@
                     if (currentOrder && currentOrder.status === 'pending') {
                         currentOrder.status = 'cancelled';
                         currentOrder.cancelledAt = new Date().toISOString();
-                        allOrders.push(currentOrder);
-                        localStorage.setItem('orders', JSON.stringify(allOrders));
+                        let orders = loadOrders();
+                        orders.push(currentOrder);
+                        saveOrders(orders);
                         closePaymentModal();
                         showToast('⏰ Vaqt tugadi! Zakaz bekor qilindi');
                     }
@@ -544,6 +552,7 @@
                     <div>📱 Telegram: ${contactInfo.telegram || '-'}</div>
                 </div>
                 <div class="warning-text">⚠️ Admin tekshiruvidan so'ng aktivlaringiz yuboriladi. Agar 15 daqiqa ichida kelmasa, bog'lanishingiz mumkin!</div>
+                <div id="orderStatusMsg" style="margin-top:15px;padding:15px;background:rgba(99,102,241,0.1);border-radius:12px;text-align:center;">⏳ Admin tekshirgunga kuting...</div>
             `;
             
             modal.classList.add('active');
@@ -569,19 +578,21 @@
         }
 
         function saveOrderAndStartCheck() {
-            allOrders.push(currentOrder);
-            localStorage.setItem('orders', JSON.stringify(allOrders));
+            let orders = loadOrders();
+            orders.push(currentOrder);
+            saveOrders(orders);
             
-            // Status check every 5 seconds
-            const statusInterval = setInterval(() => {
-                allOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-                const updatedOrder = allOrders.find(o => o.id === currentOrder.id);
+            // Status check every 3 seconds
+            if (statusCheckInterval) clearInterval(statusCheckInterval);
+            statusCheckInterval = setInterval(() => {
+                let orders = loadOrders();
+                const updatedOrder = orders.find(o => o.id === currentOrder.id);
                 if (updatedOrder && updatedOrder.status === 'sent') {
-                    clearInterval(statusInterval);
+                    clearInterval(statusCheckInterval);
                     if (waitingTimerInterval) clearInterval(waitingTimerInterval);
                     showOrderSent();
                 }
-            }, 5000);
+            }, 3000);
         }
 
         function showOrderSent() {
@@ -589,13 +600,13 @@
             const content = document.getElementById('waitingContent');
             
             content.innerHTML = `
-                <h3>✅ Aktivlaringiz yuborildi!</h3>
+                <h3>✅ Tokenlaringiz yuborildi!</h3>
                 <div class="payment-detail-row"><span>📋 Zakaz ID:</span><span>${currentOrder.id}</span></div>
                 <div class="payment-detail-row"><span>💰 Siz yuborgan:</span><span>${currentOrder.giveAmount} ${currentOrder.giveCurrency}</span></div>
                 <div class="payment-detail-row"><span>💎 Siz olgan:</span><span>${currentOrder.getAmount.toFixed(6)} ${currentOrder.getCurrency}</span></div>
                 <div class="contact-info" style="background:rgba(16,185,129,0.1);border-color:var(--success);">
                     <h4>🎉 Tranzaksiya muvaffaqiyatli yakunlandi!</h4>
-                    <p>Aktivlaringiz sizning hamyoningizga yuborildi.</p>
+                    <p>Aktivlaringiz sizning hamyoningizga yuborildi. Hamyoningizni tekshiring!</p>
                 </div>
             `;
         }
@@ -604,8 +615,9 @@
             if (currentOrder) {
                 currentOrder.status = 'cancelled';
                 currentOrder.cancelledAt = new Date().toISOString();
-                allOrders.push(currentOrder);
-                localStorage.setItem('orders', JSON.stringify(allOrders));
+                let orders = loadOrders();
+                orders.push(currentOrder);
+                saveOrders(orders);
                 closePaymentModal();
                 showToast('❌ Zakaz bekor qilindi');
             }
@@ -619,9 +631,10 @@
         function closeWaitingModal() {
             document.getElementById('waitingModal').classList.remove('active');
             if (waitingTimerInterval) clearInterval(waitingTimerInterval);
+            if (statusCheckInterval) clearInterval(statusCheckInterval);
         }
 
-        // History with 3 tabs
+        // History with 3 tabs - faqat o'z zakazlari
         let currentHistoryTab = 'pending';
         
         function switchHistoryTab(tab) {
@@ -635,7 +648,8 @@
         
         function renderHistoryList() {
             const container = document.getElementById('historyList');
-            const myOrders = allOrders.filter(order => order.clientId === clientId);
+            const orders = loadOrders();
+            const myOrders = orders.filter(order => order.clientId === clientId);
             
             let filteredOrders = [];
             if (currentHistoryTab === 'pending') {
@@ -663,7 +677,7 @@
                         <div><strong>${order.id}</strong> <span class="history-status">${statusText}</span></div>
                         <div style="margin-top:8px;">💰 Siz: ${order.giveAmount} ${order.giveCurrency} → ${order.getAmount.toFixed(6)} ${order.getCurrency}</div>
                         <div>📅 Sana: ${new Date(order.createdAt).toLocaleString()}</div>
-                        ${order.status === 'sent' ? '<div style="color:var(--success);margin-top:8px;">✅ Pul sizning hamyoningizga yuborildi!</div>' : ''}
+                        ${order.status === 'sent' ? '<div style="color:var(--success);margin-top:8px;">✅ Tokenlaringiz yuborildi! Hamyoningizni tekshiring.</div>' : ''}
                         ${order.status === 'paid' ? '<div style="color:var(--warning);margin-top:8px;">⏳ Admin tekshirgunga kuting...</div>' : ''}
                         ${order.status === 'cancelled' ? '<div style="color:var(--danger);margin-top:8px;">⏰ Vaqt tugagan yoki bekor qilingan</div>' : ''}
                     </div>
