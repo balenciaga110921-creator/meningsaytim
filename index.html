@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+html_code = '''<!DOCTYPE html>
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
@@ -164,6 +164,8 @@
             transition: all 0.3s; z-index: 3000; border-left: 4px solid var(--success);
         }
         .toast.active { transform: translateX(0); }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.warning { border-left-color: var(--warning); }
         
         /* History Tabs */
         .history-tabs {
@@ -194,14 +196,22 @@
             border-left: 3px solid transparent;
         }
         .history-item.pending { border-left-color: var(--warning); }
+        .history-item.paid { border-left-color: var(--primary); }
         .history-item.sent { border-left-color: var(--success); }
+        .history-item.rejected { border-left-color: var(--danger); }
         .history-item.cancelled { border-left-color: var(--danger); }
         .history-status {
             display: inline-block;
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 0.8rem;
+            font-weight: 600;
         }
+        .status-pending { background: rgba(245,158,11,0.2); color: var(--warning); }
+        .status-paid { background: rgba(99,102,241,0.2); color: var(--primary); }
+        .status-sent { background: rgba(16,185,129,0.2); color: var(--success); }
+        .status-rejected { background: rgba(239,68,68,0.2); color: var(--danger); }
+        .status-cancelled { background: rgba(239,68,68,0.2); color: var(--danger); }
         .empty-history {
             text-align: center;
             padding: 40px;
@@ -211,6 +221,12 @@
             color: var(--warning);
             font-size: 0.85rem;
             margin-top: 10px;
+        }
+        .success-text {
+            color: var(--success);
+            font-size: 0.9rem;
+            margin-top: 10px;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -233,7 +249,7 @@
                 <label>Siz berasiz:</label>
                 <div class="select-wrapper">
                     <select id="giveCurrency" onchange="updateCalculation()">
-                        <option value="UZS">🇺🇿 UZS - So'm</option>
+                        <option value="UZS">🇺🇿 UZS - So\'m</option>
                         <option value="USD">🇺🇸 USD - Dollar</option>
                         <option value="RUB">🇷🇺 RUB - Ruble</option>
                         <option value="USDT">₮ USDT - Tether</option>
@@ -327,6 +343,11 @@
     <div class="toast" id="toast">✅ Muvaffaqiyatli</div>
 
     <script>
+        // GitHub Pages URL - sizning rates.json
+        const RATES_URL = 'https://balenciaga110921-creator.github.io/meningsaytim/rates.json';
+        const WALLETS_URL = 'https://balenciaga110921-creator.github.io/meningsaytim/wallets.json';
+        const CONTACTS_URL = 'https://balenciaga110921-creator.github.io/meningsaytim/contacts.json';
+        
         let rates = {};
         let receiverWallets = {};
         let contactInfo = {};
@@ -356,19 +377,23 @@
 
         async function loadData() {
             try {
-                const ratesRes = await fetch('rates.json?v=' + Date.now());
+                // GitHub'dan rates.json ni o'qish
+                const ratesRes = await fetch(RATES_URL + '?t=' + Date.now());
                 rates = await ratesRes.json();
                 
-                const walletsRes = await fetch('wallets.json?v=' + Date.now());
+                const walletsRes = await fetch(WALLETS_URL + '?t=' + Date.now());
                 receiverWallets = await walletsRes.json();
                 
-                const contactsRes = await fetch('contacts.json?v=' + Date.now());
+                const contactsRes = await fetch(CONTACTS_URL + '?t=' + Date.now());
                 contactInfo = await contactsRes.json();
                 
                 updateTicker();
                 renderRatesList();
                 updateCalculation();
-            } catch(e) { console.error('Ma\'lumot yuklanmadi:', e); showToast('⚠️ Internetni tekshiring'); }
+            } catch(e) { 
+                console.error('Ma\'lumot yuklanmadi:', e); 
+                showToast('⚠️ Internetni tekshiring', 'error'); 
+            }
         }
 
         function updateTicker() {
@@ -376,8 +401,17 @@
             let html = '';
             allCurrencies.forEach(curr => {
                 if(rates[curr]) {
-                    const price = (1 / rates[curr]).toFixed(curr === 'BTC' || curr === 'ETH' ? 8 : 2);
-                    html += `<div class="ticker-item"><span class="coin">${currencyIcons[curr]} ${curr}</span><span class="price">$${price}</span></div>`;
+                    // GitHub'dagi narxni to'g'ridan-to'g'ri ko'rsatish
+                    const rateValue = parseFloat(rates[curr]);
+                    let displayValue;
+                    if (curr === 'BTC' || curr === 'ETH') {
+                        displayValue = rateValue.toFixed(8);
+                    } else if (curr === 'USDT' || curr === 'USDC' || curr === 'USD') {
+                        displayValue = rateValue.toFixed(2);
+                    } else {
+                        displayValue = rateValue.toLocaleString('uz-UZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    }
+                    html += `<div class="ticker-item"><span class="coin">${currencyIcons[curr]} ${curr}</span><span class="price">1 UZS = ${displayValue} ${curr}</span></div>`;
                 }
             });
             wrap.innerHTML = html + html;
@@ -385,12 +419,20 @@
 
         function renderRatesList() {
             const container = document.getElementById('ratesList');
-            container.innerHTML = allCurrencies.filter(c => rates[c]).map(curr => {
-                const price = (1 / rates[curr]).toFixed(curr === 'BTC' || curr === 'ETH' ? 8 : 2);
+            container.innerHTML = allCurrencies.filter(c => rates[c] !== undefined).map(curr => {
+                const rateValue = parseFloat(rates[curr]);
+                let displayValue;
+                if (curr === 'BTC' || curr === 'ETH') {
+                    displayValue = rateValue.toFixed(8);
+                } else if (curr === 'USDT' || curr === 'USDC' || curr === 'USD') {
+                    displayValue = rateValue.toFixed(2);
+                } else {
+                    displayValue = rateValue.toLocaleString('uz-UZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                }
                 return `<div class="rate-card">
                     <div class="rate-info"><div class="rate-icon icon-${curr.toLowerCase()}">${currencyIcons[curr]}</div>
-                    <div><div class="rate-name">${curr}</div><div class="rate-fullname">${currencyNames[curr]}</div></div></div>
-                    <div class="rate-value"><div class="rate-price">$${price}</div></div>
+                    <div><div style="font-weight:700">${curr}</div><div style="font-size:0.8rem;color:var(--text-secondary)">${currencyNames[curr]}</div></div></div>
+                    <div class="rate-value"><div class="rate-price">${displayValue}</div><div style="font-size:0.7rem;color:var(--text-secondary)">1 UZS</div></div>
                 </div>`;
             }).join('');
         }
@@ -402,7 +444,11 @@
             document.getElementById('giveSymbol').innerText = giveCurr;
             
             if(rates[giveCurr] && rates[getCurr]) {
-                const rate = rates[getCurr] / rates[giveCurr];
+                // GitHub'dagi narxlar asosida hisoblash
+                // rates.json da: "USDT": 0.000079 deb saqlangan bo'lsa
+                // Bu 1 UZS = 0.000079 USDT degani
+                // giveAmount UZS bo'lsa: giveAmount * rates[getCurr]
+                const rate = parseFloat(rates[getCurr]) / parseFloat(rates[giveCurr]);
                 const fee = 0.005;
                 const getAmount = giveAmount * rate * (1 - fee);
                 document.getElementById('resultAmount').innerHTML = getAmount.toFixed(getCurr === 'UZS' ? 0 : 6) + ' ' + getCurr;
@@ -420,9 +466,9 @@
 
         function openExchangeModal() {
             const giveAmount = parseFloat(document.getElementById('giveAmount').value);
-            if (!giveAmount || giveAmount <= 0) { showToast('❌ Miqdor kiriting'); return; }
+            if (!giveAmount || giveAmount <= 0) { showToast('❌ Miqdor kiriting', 'error'); return; }
             const userWallet = document.getElementById('userWallet').value;
-            if (!userWallet.trim()) { showToast('❌ Sizning hamyoningizni kiriting'); return; }
+            if (!userWallet.trim()) { showToast('❌ Sizning hamyoningizni kiriting', 'error'); return; }
 
             const giveCurr = document.getElementById('giveCurrency').value;
             const getCurr = document.getElementById('getCurrency').value;
@@ -495,7 +541,7 @@
                         orders.push(currentOrder);
                         saveOrders(orders);
                         closePaymentModal();
-                        showToast('⏰ Vaqt tugadi! Zakaz bekor qilindi');
+                        showToast('⏰ Vaqt tugadi! Zakaz bekor qilindi', 'warning');
                     }
                 }
                 remaining--;
@@ -505,7 +551,7 @@
         function handleReceiptUpload(input) {
             const file = input.files[0];
             if (!file) return;
-            if (file.size > 10 * 1024 * 1024) { showToast('❌ Fayl 10MB dan katta'); return; }
+            if (file.size > 10 * 1024 * 1024) { showToast('❌ Fayl 10MB dan katta', 'error'); return; }
             const reader = new FileReader();
             reader.onload = function(e) {
                 if (currentOrder) { 
@@ -520,16 +566,21 @@
 
         function confirmPayment() {
             if (!currentOrder || !currentOrder.receiptData) { 
-                showToast('❌ Iltimos, kvitansiyani yuklang'); 
+                showToast('❌ Iltimos, kvitansiyani yuklang', 'error'); 
                 return; 
             }
             if (currentOrder.status !== 'pending') { 
-                showToast('⚠️ Bu zakaz allaqachon tasdiqlangan'); 
+                showToast('⚠️ Bu zakaz allaqachon tasdiqlangan', 'warning'); 
                 return; 
             }
             
             currentOrder.status = 'paid';
             currentOrder.paidAt = new Date().toISOString();
+            
+            // ⭐ Zakazni saqlash
+            let orders = loadOrders();
+            orders.push(currentOrder);
+            saveOrders(orders);
             
             closePaymentModal();
             showWaitingModal();
@@ -557,7 +608,7 @@
             
             modal.classList.add('active');
             startWaitingTimer(900);
-            saveOrderAndStartCheck();
+            startStatusCheck();
         }
 
         function startWaitingTimer(seconds) {
@@ -577,38 +628,61 @@
             }, 1000);
         }
 
-        function saveOrderAndStartCheck() {
-            let orders = loadOrders();
-            orders.push(currentOrder);
-            saveOrders(orders);
-            
-            // Status check every 3 seconds
+        // ⭐ Status tekshirish - admin "sent" qilganda xabar
+        function startStatusCheck() {
             if (statusCheckInterval) clearInterval(statusCheckInterval);
             statusCheckInterval = setInterval(() => {
                 let orders = loadOrders();
                 const updatedOrder = orders.find(o => o.id === currentOrder.id);
-                if (updatedOrder && updatedOrder.status === 'sent') {
-                    clearInterval(statusCheckInterval);
-                    if (waitingTimerInterval) clearInterval(waitingTimerInterval);
-                    showOrderSent();
+                if (updatedOrder) {
+                    if (updatedOrder.status === 'sent') {
+                        // Admin pul yuborgan!
+                        clearInterval(statusCheckInterval);
+                        if (waitingTimerInterval) clearInterval(waitingTimerInterval);
+                        showOrderSent(updatedOrder);
+                    } else if (updatedOrder.status === 'rejected') {
+                        // Admin rad etgan!
+                        clearInterval(statusCheckInterval);
+                        if (waitingTimerInterval) clearInterval(waitingTimerInterval);
+                        showOrderRejected(updatedOrder);
+                    }
                 }
             }, 3000);
         }
 
-        function showOrderSent() {
-            const modal = document.getElementById('waitingModal');
+        // ⭐ Admin pul yuborganida ko'rsatish
+        function showOrderSent(order) {
             const content = document.getElementById('waitingContent');
-            
             content.innerHTML = `
                 <h3>✅ Tokenlaringiz yuborildi!</h3>
-                <div class="payment-detail-row"><span>📋 Zakaz ID:</span><span>${currentOrder.id}</span></div>
-                <div class="payment-detail-row"><span>💰 Siz yuborgan:</span><span>${currentOrder.giveAmount} ${currentOrder.giveCurrency}</span></div>
-                <div class="payment-detail-row"><span>💎 Siz olgan:</span><span>${currentOrder.getAmount.toFixed(6)} ${currentOrder.getCurrency}</span></div>
+                <div class="payment-detail-row"><span>📋 Zakaz ID:</span><span>${order.id}</span></div>
+                <div class="payment-detail-row"><span>💰 Siz yuborgan:</span><span>${order.giveAmount} ${order.giveCurrency}</span></div>
+                <div class="payment-detail-row"><span>💎 Siz olgan:</span><span>${order.getAmount.toFixed(6)} ${order.getCurrency}</span></div>
+                <div class="payment-detail-row"><span>👛 Hamyoningiz:</span><span>${order.userWallet}</span></div>
                 <div class="contact-info" style="background:rgba(16,185,129,0.1);border-color:var(--success);">
                     <h4>🎉 Tranzaksiya muvaffaqiyatli yakunlandi!</h4>
-                    <p>Aktivlaringiz sizning hamyoningizga yuborildi. Hamyoningizni tekshiring!</p>
+                    <p class="success-text">Aktivlaringiz sizning hamyoningizga yuborildi. Hamyoningizni tekshiring!</p>
+                    <p style="margin-top:10px;font-size:0.85rem;">📅 Yuborilgan: ${new Date().toLocaleString()}</p>
                 </div>
             `;
+            showToast('✅ Tokenlaringiz yuborildi! Hamyoningizni tekshiring', 'success');
+        }
+
+        // ⭐ Admin rad etganda ko'rsatish
+        function showOrderRejected(order) {
+            const content = document.getElementById('waitingContent');
+            content.innerHTML = `
+                <h3>❌ Zakaz rad etildi</h3>
+                <div class="payment-detail-row"><span>📋 Zakaz ID:</span><span>${order.id}</span></div>
+                <div class="payment-detail-row"><span>💰 Siz yuborgan:</span><span>${order.giveAmount} ${order.giveCurrency}</span></div>
+                <div class="contact-info" style="background:rgba(239,68,68,0.1);border-color:var(--danger);">
+                    <h4>⚠️ Zakaz admin tomonidan rad etildi</h4>
+                    <p style="color:var(--danger);margin-top:10px;">Batafsil ma'lumot uchun biz bilan bog'laning:</p>
+                    <div style="margin-top:10px;">📞 Tel: ${contactInfo.phone || '-'}</div>
+                    <div>📱 Telegram: ${contactInfo.telegram || '-'}</div>
+                </div>
+            `;
+            showToast('❌ Zakaz rad etildi. Qo\'llab-quvvatlash bilan bog\'laning', 'error');
         }
 
         function cancelOrderFromPayment() {
@@ -619,7 +693,7 @@
                 orders.push(currentOrder);
                 saveOrders(orders);
                 closePaymentModal();
-                showToast('❌ Zakaz bekor qilindi');
+                showToast('❌ Zakaz bekor qilindi', 'warning');
             }
         }
 
@@ -634,7 +708,7 @@
             if (statusCheckInterval) clearInterval(statusCheckInterval);
         }
 
-        // History with 3 tabs - faqat o'z zakazlari
+        // History with 3 tabs
         let currentHistoryTab = 'pending';
         
         function switchHistoryTab(tab) {
@@ -653,11 +727,14 @@
             
             let filteredOrders = [];
             if (currentHistoryTab === 'pending') {
+                // Jarayondagilar: pending (to'lov kutilmoqda) va paid (admin tekshiruvi)
                 filteredOrders = myOrders.filter(o => o.status === 'pending' || o.status === 'paid');
             } else if (currentHistoryTab === 'completed') {
+                // Tugatilgan: sent (pul yuborilgan)
                 filteredOrders = myOrders.filter(o => o.status === 'sent');
             } else {
-                filteredOrders = myOrders.filter(o => o.status === 'cancelled' || o.status === 'rejected');
+                // Bekor qilingan: rejected (admin rad etgan) va cancelled (mijoz bekor qilgan)
+                filteredOrders = myOrders.filter(o => o.status === 'rejected' || o.status === 'cancelled');
             }
             
             if (filteredOrders.length === 0) {
@@ -666,20 +743,46 @@
             }
             
             container.innerHTML = filteredOrders.slice().reverse().map(order => {
-                let statusText = '', statusClass = '';
-                if (order.status === 'pending') { statusText = '⏳ To\'lov kutilmoqda'; statusClass = 'pending'; }
-                else if (order.status === 'paid') { statusText = '✅ To\'langan, tekshirilmoqda'; statusClass = 'pending'; }
-                else if (order.status === 'sent') { statusText = '💸 Aktivlaringiz yuborilgan'; statusClass = 'sent'; }
-                else { statusText = '❌ Bekor qilingan'; statusClass = 'cancelled'; }
+                let statusText = '', statusClass = '', statusBadge = '';
+                if (order.status === 'pending') { 
+                    statusText = '⏳ To\'lov kutilmoqda'; 
+                    statusClass = 'pending'; 
+                    statusBadge = 'status-pending';
+                }
+                else if (order.status === 'paid') { 
+                    statusText = '✅ To\'langan, tekshirilmoqda'; 
+                    statusClass = 'paid'; 
+                    statusBadge = 'status-paid';
+                }
+                else if (order.status === 'sent') { 
+                    statusText = '💸 Aktivlaringiz yuborilgan'; 
+                    statusClass = 'sent'; 
+                    statusBadge = 'status-sent';
+                }
+                else if (order.status === 'rejected') { 
+                    statusText = '❌ Admin rad etdi'; 
+                    statusClass = 'rejected'; 
+                    statusBadge = 'status-rejected';
+                }
+                else { 
+                    statusText = '❌ Bekor qilingan'; 
+                    statusClass = 'cancelled'; 
+                    statusBadge = 'status-cancelled';
+                }
                 
                 return `
                     <div class="history-item ${statusClass}">
-                        <div><strong>${order.id}</strong> <span class="history-status">${statusText}</span></div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                            <strong>${order.id}</strong> 
+                            <span class="history-status ${statusBadge}">${statusText}</span>
+                        </div>
                         <div style="margin-top:8px;">💰 Siz: ${order.giveAmount} ${order.giveCurrency} → ${order.getAmount.toFixed(6)} ${order.getCurrency}</div>
-                        <div>📅 Sana: ${new Date(order.createdAt).toLocaleString()}</div>
-                        ${order.status === 'sent' ? '<div style="color:var(--success);margin-top:8px;">✅ Tokenlaringiz yuborildi! Hamyoningizni tekshiring.</div>' : ''}
-                        ${order.status === 'paid' ? '<div style="color:var(--warning);margin-top:8px;">⏳ Admin tekshirgunga kuting...</div>' : ''}
-                        ${order.status === 'cancelled' ? '<div style="color:var(--danger);margin-top:8px;">⏰ Vaqt tugagan yoki bekor qilingan</div>' : ''}
+                        <div style="margin-top:4px;color:var(--text-secondary);font-size:0.85rem;">📅 Sana: ${new Date(order.createdAt).toLocaleString()}</div>
+                        ${order.status === 'sent' ? '<div style="color:var(--success);margin-top:8px;font-weight:600;">✅ Tokenlaringiz yuborildi! Hamyoningizni tekshiring.</div>' : ''}
+                        ${order.status === 'paid' ? '<div style="color:var(--primary);margin-top:8px;font-weight:600;">⏳ Admin tekshirgunga kuting...</div>' : ''}
+                        ${order.status === 'pending' ? '<div style="color:var(--warning);margin-top:8px;font-weight:600;">⏳ To\'lovni amalga oshiring...</div>' : ''}
+                        ${order.status === 'rejected' ? '<div style="color:var(--danger);margin-top:8px;font-weight:600;">❌ Admin rad etdi. Qo\'llab-quvvatlash bilan bog\'laning.</div>' : ''}
+                        ${order.status === 'cancelled' ? '<div style="color:var(--danger);margin-top:8px;font-weight:600;">❌ Siz bekor qildingiz yoki vaqt tugadi.</div>' : ''}
                     </div>
                 `;
             }).join('');
@@ -699,14 +802,23 @@
             showToast('✅ Nusxa olindi');
         }
 
-        function showToast(msg) {
+        function showToast(msg, type = 'success') {
             const toast = document.getElementById('toast');
             toast.innerText = msg;
-            toast.classList.add('active');
+            toast.className = 'toast active ' + type;
             setTimeout(() => toast.classList.remove('active'), 2500);
         }
 
+        // Auto-refresh har 30 soniyada kurslarni yangilash
+        setInterval(() => { loadData(); }, 30000);
+        
         loadData();
     </script>
 </body>
-</html>
+</html>'''
+
+with open('/mnt/agents/output/index.html', 'w', encoding='utf-8') as f:
+    f.write(html_code)
+
+print("✅ Mijoz paneli tayyor!")
+print(f"📄 Fayl hajmi: {len(html_code)} belgi")
