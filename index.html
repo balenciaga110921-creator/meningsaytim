@@ -1,4 +1,4 @@
-html_code = '''<!DOCTYPE html>
+client_html = '''<!DOCTYPE html>
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
@@ -125,7 +125,6 @@ html_code = '''<!DOCTYPE html>
         .icon-rub { background: #0033a0; }
         .rate-price { font-weight: 700; font-size: 1.1rem; color: var(--success); }
         
-        /* Modal styles */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 1000;
@@ -167,7 +166,6 @@ html_code = '''<!DOCTYPE html>
         .toast.error { border-left-color: var(--danger); }
         .toast.warning { border-left-color: var(--warning); }
         
-        /* History Tabs */
         .history-tabs {
             display: flex;
             gap: 10px;
@@ -306,7 +304,7 @@ html_code = '''<!DOCTYPE html>
         </div>
     </div>
 
-    <!-- Payment Modal (initial) -->
+    <!-- Payment Modal -->
     <div class="modal-overlay" id="paymentModal">
         <div class="modal">
             <div id="paymentContent"></div>
@@ -316,7 +314,7 @@ html_code = '''<!DOCTYPE html>
         </div>
     </div>
 
-    <!-- Waiting Modal (after payment) -->
+    <!-- Waiting Modal -->
     <div class="modal-overlay" id="waitingModal">
         <div class="modal">
             <div id="waitingContent"></div>
@@ -343,7 +341,7 @@ html_code = '''<!DOCTYPE html>
     <div class="toast" id="toast">✅ Muvaffaqiyatli</div>
 
     <script>
-        // GitHub Pages URL - sizning rates.json
+        // GitHub Pages URL
         const RATES_URL = 'https://balenciaga110921-creator.github.io/meningsaytim/rates.json';
         const WALLETS_URL = 'https://balenciaga110921-creator.github.io/meningsaytim/wallets.json';
         const CONTACTS_URL = 'https://balenciaga110921-creator.github.io/meningsaytim/contacts.json';
@@ -355,7 +353,7 @@ html_code = '''<!DOCTYPE html>
         let currencyIcons = { BTC:'₿', ETH:'Ξ', USDT:'₮', TON:'🌐', TRX:'📱', DOGE:'🐕', USDC:'💰', UZS:'🇺🇿', USD:'🇺🇸', RUB:'🇷🇺' };
         let currencyNames = { BTC:'Bitcoin', ETH:'Ethereum', USDT:'Tether', TON:'TON', TRX:'Tron', DOGE:'Dogecoin', USDC:'USD Coin', UZS:'So\'m', USD:'Dollar', RUB:'Ruble' };
         
-        // Client ID - har bir mijozga o'ziga xos ID
+        // Client ID
         let clientId = localStorage.getItem('clientId');
         if (!clientId) {
             clientId = 'CLIENT_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
@@ -377,7 +375,6 @@ html_code = '''<!DOCTYPE html>
 
         async function loadData() {
             try {
-                // GitHub'dan rates.json ni o'qish
                 const ratesRes = await fetch(RATES_URL + '?t=' + Date.now());
                 rates = await ratesRes.json();
                 
@@ -401,7 +398,6 @@ html_code = '''<!DOCTYPE html>
             let html = '';
             allCurrencies.forEach(curr => {
                 if(rates[curr]) {
-                    // GitHub'dagi narxni to'g'ridan-to'g'ri ko'rsatish
                     const rateValue = parseFloat(rates[curr]);
                     let displayValue;
                     if (curr === 'BTC' || curr === 'ETH') {
@@ -444,10 +440,6 @@ html_code = '''<!DOCTYPE html>
             document.getElementById('giveSymbol').innerText = giveCurr;
             
             if(rates[giveCurr] && rates[getCurr]) {
-                // GitHub'dagi narxlar asosida hisoblash
-                // rates.json da: "USDT": 0.000079 deb saqlangan bo'lsa
-                // Bu 1 UZS = 0.000079 USDT degani
-                // giveAmount UZS bo'lsa: giveAmount * rates[getCurr]
                 const rate = parseFloat(rates[getCurr]) / parseFloat(rates[giveCurr]);
                 const fee = 0.005;
                 const getAmount = giveAmount * rate * (1 - fee);
@@ -628,7 +620,6 @@ html_code = '''<!DOCTYPE html>
             }, 1000);
         }
 
-        // ⭐ Status tekshirish - admin "sent" qilganda xabar
         function startStatusCheck() {
             if (statusCheckInterval) clearInterval(statusCheckInterval);
             statusCheckInterval = setInterval(() => {
@@ -636,12 +627,10 @@ html_code = '''<!DOCTYPE html>
                 const updatedOrder = orders.find(o => o.id === currentOrder.id);
                 if (updatedOrder) {
                     if (updatedOrder.status === 'sent') {
-                        // Admin pul yuborgan!
                         clearInterval(statusCheckInterval);
                         if (waitingTimerInterval) clearInterval(waitingTimerInterval);
                         showOrderSent(updatedOrder);
                     } else if (updatedOrder.status === 'rejected') {
-                        // Admin rad etgan!
                         clearInterval(statusCheckInterval);
                         if (waitingTimerInterval) clearInterval(waitingTimerInterval);
                         showOrderRejected(updatedOrder);
@@ -650,7 +639,6 @@ html_code = '''<!DOCTYPE html>
             }, 3000);
         }
 
-        // ⭐ Admin pul yuborganida ko'rsatish
         function showOrderSent(order) {
             const content = document.getElementById('waitingContent');
             content.innerHTML = `
@@ -668,7 +656,6 @@ html_code = '''<!DOCTYPE html>
             showToast('✅ Tokenlaringiz yuborildi! Hamyoningizni tekshiring', 'success');
         }
 
-        // ⭐ Admin rad etganda ko'rsatish
         function showOrderRejected(order) {
             const content = document.getElementById('waitingContent');
             content.innerHTML = `
@@ -818,7 +805,7 @@ html_code = '''<!DOCTYPE html>
 </html>'''
 
 with open('/mnt/agents/output/index.html', 'w', encoding='utf-8') as f:
-    f.write(html_code)
+    f.write(client_html)
 
 print("✅ Mijoz paneli tayyor!")
-print(f"📄 Fayl hajmi: {len(html_code)} belgi")
+print(f"📄 Fayl hajmi: {len(client_html)} belgi")
