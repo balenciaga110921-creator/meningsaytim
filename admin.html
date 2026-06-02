@@ -49,7 +49,7 @@
         .header p { color: var(--text-secondary); margin-top: 5px; }
         .container { max-width: 1400px; margin: 0 auto; padding: 30px 20px; }
         
-        /* Stats Cards */
+        /* Stats Cards - filter qilish uchun */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -70,7 +70,6 @@
         .stat-number { font-size: 2.5rem; font-weight: 700; color: var(--primary); }
         .stat-label { color: var(--text-secondary); margin-top: 10px; }
         
-        /* Cards */
         .card {
             background: var(--bg-card);
             border-radius: 20px;
@@ -88,7 +87,6 @@
             color: var(--primary);
         }
         
-        /* JSON Links */
         .json-links {
             display: flex;
             gap: 15px;
@@ -106,7 +104,6 @@
             text-decoration: none;
             font-weight: 600;
             transition: all 0.3s;
-            border: 1px solid transparent;
         }
         .json-link:hover {
             background: var(--primary);
@@ -114,7 +111,6 @@
             transform: translateY(-2px);
         }
         
-        /* Rates Grid */
         .rates-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -130,18 +126,10 @@
             transition: all 0.3s;
         }
         .rate-item:hover { background: rgba(99,102,241,0.1); transform: translateX(5px); }
-        .rate-currency {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .rate-currency { display: flex; align-items: center; gap: 10px; }
         .rate-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
             font-weight: bold;
         }
         .icon-btc { background: #f7931a; }
@@ -156,7 +144,6 @@
         .icon-rub { background: #0033a0; }
         .rate-price { font-weight: 600; color: var(--success); }
         
-        /* Orders */
         .order-card {
             background: rgba(255,255,255,0.05);
             border-radius: 16px;
@@ -256,7 +243,6 @@
         }
         .clear-filter:hover { background: var(--primary); color: white; }
         
-        /* Toast */
         .toast {
             position: fixed;
             bottom: 30px;
@@ -287,7 +273,7 @@
     </div>
     
     <div class="container">
-        <!-- Stats Cards (clickable filters) -->
+        <!-- Stats Cards (filter uchun) -->
         <div class="stats-grid" id="statsGrid">
             <div class="stat-card" data-filter="all" onclick="setFilter('all')">
                 <div class="stat-number" id="totalOrders">0</div>
@@ -338,7 +324,7 @@
     </div>
     
     <div class="toast" id="toast">✅ Muvaffaqiyatli</div>
-    
+
     <script>
         let rates = {};
         let orders = JSON.parse(localStorage.getItem('orders') || '[]');
@@ -347,10 +333,9 @@
         let currencyNames = { BTC:'Bitcoin', ETH:'Ethereum', USDT:'Tether', TON:'TON', TRX:'Tron', DOGE:'Dogecoin', USDC:'USD Coin', UZS:'So\'m', USD:'Dollar', RUB:'Ruble' };
         let currencyIcons = { BTC:'₿', ETH:'Ξ', USDT:'₮', TON:'🌐', TRX:'📱', DOGE:'🐕', USDC:'💰', UZS:'🇺🇿', USD:'🇺🇸', RUB:'🇷🇺' };
         
-        function showToast(msg, isError = false) {
+        function showToast(msg) {
             const toast = document.getElementById('toast');
             toast.innerText = msg;
-            toast.style.borderLeftColor = isError ? 'var(--danger)' : 'var(--success)';
             toast.classList.add('active');
             setTimeout(() => toast.classList.remove('active'), 2500);
         }
@@ -393,13 +378,9 @@
             document.getElementById('paidOrders').innerText = orders.filter(o => o.status === 'paid').length;
             document.getElementById('sentOrders').innerText = orders.filter(o => o.status === 'sent').length;
             
-            // Highlight active filter card
             document.querySelectorAll('.stat-card').forEach(card => {
-                if (card.dataset.filter === currentFilter) {
-                    card.classList.add('active');
-                } else {
-                    card.classList.remove('active');
-                }
+                if (card.dataset.filter === currentFilter) card.classList.add('active');
+                else card.classList.remove('active');
             });
         }
         
@@ -433,7 +414,7 @@
                         `<img src="${order.receiptData}" style="max-width:100%;max-height:100vh;">`}
                     </body></html>
                 `);
-            } else { showToast('❌ Kvitansiya topilmadi', true); }
+            } else { showToast('❌ Kvitansiya topilmadi'); }
         }
         
         function markAsSent(orderId) {
@@ -444,7 +425,7 @@
                 localStorage.setItem('orders', JSON.stringify(orders));
                 updateStats();
                 renderOrders();
-                showToast(`✅ ${orderId} - pul yuborilgan deb belgilandi`);
+                showToast(`✅ ${orderId} - pul yuborilgan deb belgilandi va mijozga xabar yuborildi`);
             }
         }
         
@@ -455,7 +436,7 @@
                 localStorage.setItem('orders', JSON.stringify(orders));
                 updateStats();
                 renderOrders();
-                showToast(`❌ ${orderId} rad etildi`, true);
+                showToast(`❌ ${orderId} rad etildi`);
             }
         }
         
