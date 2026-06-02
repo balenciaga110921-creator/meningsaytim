@@ -1,4 +1,4 @@
-html_code = '''<!DOCTYPE html>
+admin_html = '''<!DOCTYPE html>
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
@@ -283,13 +283,13 @@ html_code = '''<!DOCTYPE html>
                 <div class="stat-number" id="newOrders">0</div>
                 <div class="stat-label">🆕 Yangi zakazlar</div>
             </div>
+            <div class="stat-card" data-filter="paid" onclick="setFilter('paid')">
+                <div class="stat-number" id="paidOrders">0</div>
+                <div class="stat-label">✅ Qabul qilingan</div>
+            </div>
             <div class="stat-card" data-filter="sent" onclick="setFilter('sent')">
                 <div class="stat-number" id="sentOrders">0</div>
-                <div class="stat-label">✅ Tugatilgan</div>
-            </div>
-            <div class="stat-card" data-filter="all" onclick="setFilter('all')">
-                <div class="stat-number" id="totalOrders">0</div>
-                <div class="stat-label">📋 Barchasi</div>
+                <div class="stat-label">💸 Tugatilgan</div>
             </div>
             <div class="stat-card" data-filter="rejected" onclick="setFilter('rejected')">
                 <div class="stat-number" id="rejectedOrders">0</div>
@@ -330,7 +330,6 @@ html_code = '''<!DOCTYPE html>
 
     <script>
         // GitHub Pages URL - sizning saytingizdan rates.json ni o'qish
-        // GitHub repo: balenciaga110921-creator/meningsaytim
         const RATES_URL = 'https://balenciaga110921-creator.github.io/meningsaytim/rates.json';
         
         let rates = {};
@@ -360,24 +359,17 @@ html_code = '''<!DOCTYPE html>
             showToast('✅ Hamyon manzili nusxalandi!');
         }
         
-        // GitHub'dagi rates.json dan kurslarni o'qish
         async function loadRates() {
             const container = document.getElementById('currentRates');
             try {
-                // Cache ni oldini olish uchun timestamp qo'shamiz
                 const res = await fetch(RATES_URL + '?t=' + Date.now(), {
                     method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                    }
+                    headers: { 'Accept': 'application/json' }
                 });
                 
-                if (!res.ok) {
-                    throw new Error('HTTP ' + res.status);
-                }
+                if (!res.ok) throw new Error('HTTP ' + res.status);
                 
                 rates = await res.json();
-                console.log('Kurslar yuklandi:', rates);
                 displayRates();
             } catch(e) {
                 console.error('Kurs yuklanmadi:', e);
@@ -394,18 +386,12 @@ html_code = '''<!DOCTYPE html>
         function displayRates() {
             const container = document.getElementById('currentRates');
             container.innerHTML = '';
-            
             let hasRates = false;
             
             allCurrencies.forEach(curr => {
                 if (rates[curr] !== undefined && rates[curr] !== null) {
                     hasRates = true;
-                    // GitHub'dagi narxni to'g'ridan-to'g'ri ko'rsatamiz
-                    // rates.json da: "BTC": 0.000015 shaklida saqlangan
-                    // Bu 1 UZS = 0.000015 BTC degan ma'noni anglatadi
                     const rateValue = parseFloat(rates[curr]);
-                    
-                    // Ko'rsatish formati
                     let displayValue;
                     if (curr === 'BTC' || curr === 'ETH') {
                         displayValue = rateValue.toFixed(8);
@@ -446,12 +432,14 @@ html_code = '''<!DOCTYPE html>
         function updateStats() {
             const orders = loadOrders();
             
+            // Hisoblash
             const newOrders = orders.filter(o => o.status === 'pending');
+            const paidOrders = orders.filter(o => o.status === 'paid');
             const sentOrders = orders.filter(o => o.status === 'sent');
-            const rejectedOrders = orders.filter(o => o.status === 'rejected');
+            const rejectedOrders = orders.filter(o => o.status === 'rejected' || o.status === 'cancelled');
             
-            document.getElementById('totalOrders').innerText = orders.length;
             document.getElementById('newOrders').innerText = newOrders.length;
+            document.getElementById('paidOrders').innerText = paidOrders.length;
             document.getElementById('sentOrders').innerText = sentOrders.length;
             document.getElementById('rejectedOrders').innerText = rejectedOrders.length;
             
@@ -487,7 +475,7 @@ html_code = '''<!DOCTYPE html>
             } else { showToast('❌ Kvitansiya topilmadi', 'error'); }
         }
         
-        // ✅ Zakazni qabul qilish (pending -> paid)
+        // ✅ Yangi zakazni qabul qilish (pending -> paid)
         function acceptOrder(orderId) {
             let orders = loadOrders();
             const orderIndex = orders.findIndex(o => o.id === orderId);
@@ -501,7 +489,7 @@ html_code = '''<!DOCTYPE html>
             }
         }
         
-        // ❌ Zakazni bekor qilish (pending -> rejected)
+        // ❌ Zakazni rad etish (har qanday status -> rejected)
         function rejectOrder(orderId) {
             let orders = loadOrders();
             const orderIndex = orders.findIndex(o => o.id === orderId);
@@ -511,7 +499,7 @@ html_code = '''<!DOCTYPE html>
                 saveOrders(orders);
                 updateStats();
                 renderOrders();
-                showToast(`❌ ${orderId} zakaz bekor qilindi`, 'warning');
+                showToast(`❌ ${orderId} zakaz rad etildi`, 'warning');
             }
         }
         
@@ -531,10 +519,11 @@ html_code = '''<!DOCTYPE html>
         
         function getStatusInfo(status) {
             switch(status) {
-                case 'pending': return { text: '🆕 Yangi zakaz', class: 'status-new-badge', cardClass: 'status-new' };
-                case 'paid': return { text: '✅ Qabul qilingan', class: 'status-paid-badge', cardClass: 'status-paid' };
+                case 'pending': return { text: '🆕 Yangi (to\'lov kutilmoqda)', class: 'status-new-badge', cardClass: 'status-new' };
+                case 'paid': return { text: '✅ To\'langan (tekshirish kerak)', class: 'status-paid-badge', cardClass: 'status-paid' };
                 case 'sent': return { text: '💸 Tugatilgan', class: 'status-sent-badge', cardClass: 'status-sent' };
-                case 'rejected': return { text: '❌ Bekor qilingan', class: 'status-rejected-badge', cardClass: 'status-rejected' };
+                case 'rejected': return { text: '❌ Admin rad etdi', class: 'status-rejected-badge', cardClass: 'status-rejected' };
+                case 'cancelled': return { text: '❌ Mijoz bekor qildi', class: 'status-rejected-badge', cardClass: 'status-rejected' };
                 default: return { text: '❓ Noma\'lum', class: 'status-pending-badge', cardClass: 'status-pending' };
             }
         }
@@ -542,8 +531,8 @@ html_code = '''<!DOCTYPE html>
         function getFilterTitle(filter) {
             const titles = {
                 'new': '🆕 Yangi zakazlar',
-                'sent': '✅ Tugatilgan zakazlar',
-                'all': '📋 Barcha zakazlar',
+                'paid': '✅ Qabul qilingan zakazlar',
+                'sent': '💸 Tugatilgan zakazlar',
                 'rejected': '❌ Bekor qilingan zakazlar'
             };
             return titles[filter] || '📦 Zakazlar';
@@ -566,8 +555,12 @@ html_code = '''<!DOCTYPE html>
             
             if (currentFilter === 'new') {
                 filteredOrders = orders.filter(o => o.status === 'pending');
-            } else if (currentFilter !== 'all') {
-                filteredOrders = orders.filter(o => o.status === currentFilter);
+            } else if (currentFilter === 'paid') {
+                filteredOrders = orders.filter(o => o.status === 'paid');
+            } else if (currentFilter === 'sent') {
+                filteredOrders = orders.filter(o => o.status === 'sent');
+            } else if (currentFilter === 'rejected') {
+                filteredOrders = orders.filter(o => o.status === 'rejected' || o.status === 'cancelled');
             }
             
             if (filteredOrders.length === 0) {
@@ -581,19 +574,23 @@ html_code = '''<!DOCTYPE html>
                 let actionButtons = '';
                 
                 if (order.status === 'pending') {
+                    // Yangi zakaz - Qabul qilish va Rad etish
                     actionButtons = `
                         <div class="order-actions">
                             <button class="btn btn-success" onclick="acceptOrder('${order.id}')">✅ Qabul qilish</button>
-                            <button class="btn btn-danger" onclick="rejectOrder('${order.id}')">❌ Bekor qilish</button>
+                            <button class="btn btn-danger" onclick="rejectOrder('${order.id}')">❌ Rad etish</button>
                         </div>
                     `;
                 } else if (order.status === 'paid') {
+                    // Qabul qilingan - Pul yuborildi va Rad etish
                     actionButtons = `
                         <div class="order-actions">
                             <button class="btn btn-primary" onclick="markAsSent('${order.id}')">💸 Pul yuborildi</button>
+                            <button class="btn btn-danger" onclick="rejectOrder('${order.id}')">❌ Rad etish</button>
                         </div>
                     `;
                 }
+                // sent, rejected, cancelled - tugma yo'q
                 
                 return `
                     <div class="order-card ${statusInfo.cardClass}">
@@ -625,6 +622,11 @@ html_code = '''<!DOCTYPE html>
                                 <div class="order-detail-label">📅 Sana</div>
                                 <div class="order-detail-value">${new Date(order.createdAt).toLocaleString()}</div>
                             </div>
+                            ${order.paidAt ? `
+                            <div class="order-detail">
+                                <div class="order-detail-label">💳 To'langan</div>
+                                <div class="order-detail-value">${new Date(order.paidAt).toLocaleString()}</div>
+                            </div>` : ''}
                             ${order.acceptedAt ? `
                             <div class="order-detail">
                                 <div class="order-detail-label">✅ Qabul qilingan</div>
@@ -637,7 +639,7 @@ html_code = '''<!DOCTYPE html>
                             </div>` : ''}
                             ${order.rejectedAt ? `
                             <div class="order-detail">
-                                <div class="order-detail-label">❌ Bekor qilingan</div>
+                                <div class="order-detail-label">❌ Rad etilgan</div>
                                 <div class="order-detail-value">${new Date(order.rejectedAt).toLocaleString()}</div>
                             </div>` : ''}
                         </div>
@@ -656,19 +658,16 @@ html_code = '''<!DOCTYPE html>
             }
         }, 3000);
         
-        // Kurslarni har 30 soniyada yangilash
-        setInterval(() => { loadRates(); }, 30000);
-        
-        // Sahifa yuklanganda ishga tushirish
         loadRates();
         updateStats();
         renderOrders();
+        setInterval(() => { loadRates(); }, 30000);
     </script>
 </body>
 </html>'''
 
-with open('/mnt/agents/output/admin_panel.html', 'w', encoding='utf-8') as f:
-    f.write(html_code)
+with open('/mnt/agents/output/admin.html', 'w', encoding='utf-8') as f:
+    f.write(admin_html)
 
 print("✅ Admin panel tayyor!")
-print(f"📄 Fayl hajmi: {len(html_code)} belgi")
+print(f"📄 Fayl hajmi: {len(admin_html)} belgi")
