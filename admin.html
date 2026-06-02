@@ -1,4 +1,4 @@
-admin_html = '''<!DOCTYPE html>
+html_code = '''<!DOCTYPE html>
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
@@ -235,8 +235,6 @@ admin_html = '''<!DOCTYPE html>
         .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
         .btn-info { background: var(--info); color: white; }
         .btn-info:hover { background: #2563eb; transform: translateY(-2px); }
-        .btn-warning { background: var(--warning); color: white; }
-        .btn-warning:hover { background: #d97706; transform: translateY(-2px); }
         
         .empty-state {
             text-align: center;
@@ -317,19 +315,17 @@ admin_html = '''<!DOCTYPE html>
             </div>
         </div>
         
-        <!-- Zakazlar bo'limi - faqat tanlangan bo'lim ko'rsatiladi -->
-        <div class="card" id="ordersCard">
+        <!-- ⭐ Zakazlar bo'limi - bo'lim bosilganda shu yerda ko'rinadi -->
+        <div class="card" id="ordersCard" style="display: none;">
             <h2 id="ordersTitle">📦 Zakazlar</h2>
-            <div id="ordersList">
-                <div class="empty-state">👆 Yuqoridagi bo'limlardan birini tanlang</div>
-            </div>
+            <div id="ordersList"></div>
         </div>
     </div>
     
     <div class="toast" id="toast">✅ Muvaffaqiyatli</div>
 
     <script>
-        // GitHub Pages URL - sizning saytingizdan rates.json ni o'qish
+        // GitHub Pages URL
         const RATES_URL = 'https://balenciaga110921-creator.github.io/meningsaytim/rates.json';
         
         let rates = {};
@@ -432,7 +428,6 @@ admin_html = '''<!DOCTYPE html>
         function updateStats() {
             const orders = loadOrders();
             
-            // Hisoblash
             const newOrders = orders.filter(o => o.status === 'pending');
             const paidOrders = orders.filter(o => o.status === 'paid');
             const sentOrders = orders.filter(o => o.status === 'sent');
@@ -489,7 +484,7 @@ admin_html = '''<!DOCTYPE html>
             }
         }
         
-        // ❌ Zakazni rad etish (har qanday status -> rejected)
+        // ❌ Zakazni rad etish
         function rejectOrder(orderId) {
             let orders = loadOrders();
             const orderIndex = orders.findIndex(o => o.id === orderId);
@@ -542,13 +537,16 @@ admin_html = '''<!DOCTYPE html>
             const orders = loadOrders();
             const container = document.getElementById('ordersList');
             const titleEl = document.getElementById('ordersTitle');
+            const cardEl = document.getElementById('ordersCard');
             
+            // ⭐ Bo'lim tanlanmagan bo'lsa, zakazlar bo'limini yashirish
             if (!currentFilter) {
-                container.innerHTML = '<div class="empty-state">👆 Yuqoridagi bo\'limlardan birini tanlang</div>';
-                titleEl.innerText = '📦 Zakazlar';
+                cardEl.style.display = 'none';
                 return;
             }
             
+            // ⭐ Bo'lim tanlanganda ko'rsatish
+            cardEl.style.display = 'block';
             titleEl.innerText = getFilterTitle(currentFilter);
             
             let filteredOrders = orders;
@@ -574,7 +572,6 @@ admin_html = '''<!DOCTYPE html>
                 let actionButtons = '';
                 
                 if (order.status === 'pending') {
-                    // Yangi zakaz - Qabul qilish va Rad etish
                     actionButtons = `
                         <div class="order-actions">
                             <button class="btn btn-success" onclick="acceptOrder('${order.id}')">✅ Qabul qilish</button>
@@ -582,7 +579,6 @@ admin_html = '''<!DOCTYPE html>
                         </div>
                     `;
                 } else if (order.status === 'paid') {
-                    // Qabul qilingan - Pul yuborildi va Rad etish
                     actionButtons = `
                         <div class="order-actions">
                             <button class="btn btn-primary" onclick="markAsSent('${order.id}')">💸 Pul yuborildi</button>
@@ -590,7 +586,6 @@ admin_html = '''<!DOCTYPE html>
                         </div>
                     `;
                 }
-                // sent, rejected, cancelled - tugma yo'q
                 
                 return `
                     <div class="order-card ${statusInfo.cardClass}">
@@ -660,14 +655,13 @@ admin_html = '''<!DOCTYPE html>
         
         loadRates();
         updateStats();
-        renderOrders();
         setInterval(() => { loadRates(); }, 30000);
     </script>
 </body>
 </html>'''
 
 with open('/mnt/agents/output/admin.html', 'w', encoding='utf-8') as f:
-    f.write(admin_html)
+    f.write(html_code)
 
 print("✅ Admin panel tayyor!")
-print(f"📄 Fayl hajmi: {len(admin_html)} belgi")
+print(f"📄 Fayl hajmi: {len(html_code)} belgi")
