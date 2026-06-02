@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+html_code = '''<!DOCTYPE html>
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
@@ -17,6 +17,7 @@
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
+            --info: #3b82f6;
             --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
         }
@@ -28,10 +29,7 @@
         }
         .bg-animation {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
             background: radial-gradient(circle at 20% 50%, rgba(99,102,241,0.3) 0%, transparent 50%);
         }
@@ -65,7 +63,7 @@
             cursor: pointer;
         }
         .stat-card:hover { transform: translateY(-5px); border-color: var(--primary); background: rgba(99,102,241,0.1); }
-        .stat-card.active { border-color: var(--primary); background: rgba(99,102,241,0.15); }
+        .stat-card.active { border-color: var(--primary); background: rgba(99,102,241,0.15); box-shadow: 0 0 20px rgba(99,102,241,0.3); }
         .stat-number { font-size: 2.5rem; font-weight: 700; color: var(--primary); }
         .stat-label { color: var(--text-secondary); margin-top: 10px; }
         
@@ -112,35 +110,54 @@
         
         .rates-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 15px;
         }
         .rate-item {
             background: rgba(255,255,255,0.05);
-            border-radius: 12px;
-            padding: 15px;
+            border-radius: 16px;
+            padding: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s;
         }
-        .rate-item:hover { background: rgba(99,102,241,0.1); transform: translateX(5px); }
-        .rate-currency { display: flex; align-items: center; gap: 10px; }
+        .rate-item:hover { 
+            background: rgba(99,102,241,0.1); 
+            transform: translateX(5px); 
+            border-color: rgba(99,102,241,0.3);
+        }
+        .rate-currency { display: flex; align-items: center; gap: 12px; }
         .rate-icon {
-            width: 36px; height: 36px; border-radius: 50%;
+            width: 44px; height: 44px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        .icon-btc { background: #f7931a; }
-        .icon-eth { background: #627eea; }
-        .icon-usdt { background: #26a17b; }
-        .icon-ton { background: #0088cc; }
-        .icon-trx { background: #ff060a; }
-        .icon-doge { background: #c2a633; }
-        .icon-usdc { background: #2775ca; }
-        .icon-uzs { background: #1eb53a; }
-        .icon-usd { background: #85bb65; }
-        .icon-rub { background: #0033a0; }
-        .rate-price { font-weight: 600; color: var(--success); }
+        .icon-btc { background: linear-gradient(135deg, #f7931a, #e8850a); }
+        .icon-eth { background: linear-gradient(135deg, #627eea, #4a6de5); }
+        .icon-usdt { background: linear-gradient(135deg, #26a17b, #1e8a6a); }
+        .icon-ton { background: linear-gradient(135deg, #0088cc, #006fa8); }
+        .icon-trx { background: linear-gradient(135deg, #ff060a, #d90408); }
+        .icon-doge { background: linear-gradient(135deg, #c2a633, #a8902a); }
+        .icon-usdc { background: linear-gradient(135deg, #2775ca, #1f5fa8); }
+        .icon-uzs { background: linear-gradient(135deg, #1eb53a, #179a30); }
+        .icon-usd { background: linear-gradient(135deg, #85bb65, #6da350); }
+        .icon-rub { background: linear-gradient(135deg, #0033a0, #002880); }
+        .rate-price { 
+            font-weight: 700; 
+            color: var(--success); 
+            font-size: 1.1rem;
+            text-align: right;
+        }
+        .rate-price small {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
         
         .order-card {
             background: rgba(255,255,255,0.05);
@@ -148,10 +165,14 @@
             padding: 20px;
             margin-bottom: 15px;
             border-left: 4px solid transparent;
+            transition: all 0.3s;
         }
+        .order-card:hover { transform: translateX(5px); }
         .order-card.status-pending { border-left-color: var(--warning); }
         .order-card.status-paid { border-left-color: var(--success); }
         .order-card.status-sent { border-left-color: var(--primary); }
+        .order-card.status-rejected { border-left-color: var(--danger); }
+        .order-card.status-new { border-left-color: var(--info); }
         .order-header {
             display: flex;
             justify-content: space-between;
@@ -171,6 +192,8 @@
         .status-pending-badge { background: rgba(245,158,11,0.2); color: var(--warning); }
         .status-paid-badge { background: rgba(16,185,129,0.2); color: var(--success); }
         .status-sent-badge { background: rgba(99,102,241,0.2); color: var(--primary); }
+        .status-rejected-badge { background: rgba(239,68,68,0.2); color: var(--danger); }
+        .status-new-badge { background: rgba(59,130,246,0.2); color: var(--info); }
         .order-details {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -202,6 +225,7 @@
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
+            font-size: 0.9rem;
         }
         .btn-success { background: var(--success); color: white; }
         .btn-success:hover { background: #059669; transform: translateY(-2px); }
@@ -209,34 +233,16 @@
         .btn-danger:hover { background: #dc2626; transform: translateY(-2px); }
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        .btn-info { background: var(--info); color: white; }
+        .btn-info:hover { background: #2563eb; transform: translateY(-2px); }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-warning:hover { background: #d97706; transform: translateY(-2px); }
         
         .empty-state {
             text-align: center;
             padding: 50px;
             color: var(--text-secondary);
         }
-        
-        .filter-info {
-            background: rgba(99,102,241,0.1);
-            padding: 10px 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .clear-filter {
-            background: none;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            padding: 5px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-        .clear-filter:hover { background: var(--primary); color: white; }
         
         .toast {
             position: fixed;
@@ -252,10 +258,13 @@
             box-shadow: var(--shadow);
         }
         .toast.active { transform: translateX(0); }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.warning { border-left-color: var(--warning); }
         
         @media (max-width: 768px) {
             .container { padding: 20px 15px; }
             .order-details { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
@@ -268,22 +277,23 @@
     </div>
     
     <div class="container">
+        <!-- 4 ta bo'lim -->
         <div class="stats-grid" id="statsGrid">
-            <div class="stat-card" data-filter="all" onclick="setFilter('all')">
-                <div class="stat-number" id="totalOrders">0</div>
-                <div class="stat-label">📋 Jami zakazlar</div>
-            </div>
-            <div class="stat-card" data-filter="pending" onclick="setFilter('pending')">
-                <div class="stat-number" id="pendingOrders">0</div>
-                <div class="stat-label">⏳ Kutilayotgan</div>
-            </div>
-            <div class="stat-card" data-filter="paid" onclick="setFilter('paid')">
-                <div class="stat-number" id="paidOrders">0</div>
-                <div class="stat-label">✅ To'langan</div>
+            <div class="stat-card" data-filter="new" onclick="setFilter('new')">
+                <div class="stat-number" id="newOrders">0</div>
+                <div class="stat-label">🆕 Yangi zakazlar</div>
             </div>
             <div class="stat-card" data-filter="sent" onclick="setFilter('sent')">
                 <div class="stat-number" id="sentOrders">0</div>
-                <div class="stat-label">💸 Yuborilgan</div>
+                <div class="stat-label">✅ Tugatilgan</div>
+            </div>
+            <div class="stat-card" data-filter="all" onclick="setFilter('all')">
+                <div class="stat-number" id="totalOrders">0</div>
+                <div class="stat-label">📋 Barchasi</div>
+            </div>
+            <div class="stat-card" data-filter="rejected" onclick="setFilter('rejected')">
+                <div class="stat-number" id="rejectedOrders">0</div>
+                <div class="stat-label">❌ Bekor qilingan</div>
             </div>
         </div>
         
@@ -299,30 +309,36 @@
             </div>
         </div>
         
+        <!-- GitHub'dagi rates.json dan o'qilgan kurslar -->
         <div class="card">
-            <h2>💰 Joriy valyuta kurslari</h2>
-            <div class="rates-grid" id="currentRates">Yuklanmoqda...</div>
+            <h2>💰 Joriy valyuta kurslari (GitHub)</h2>
+            <div class="rates-grid" id="currentRates">
+                <div class="empty-state">⏳ Kurslar yuklanmoqda...</div>
+            </div>
         </div>
         
-        <div class="card">
-            <h2>📦 Zakazlar</h2>
-            <div id="filterInfo" class="filter-info" style="display: none;">
-                <span>🔍 <span id="filterText"></span> holatidagi zakazlar</span>
-                <button class="clear-filter" onclick="setFilter('all')">❌ Filtrni tozalash</button>
+        <!-- Zakazlar bo'limi - faqat tanlangan bo'lim ko'rsatiladi -->
+        <div class="card" id="ordersCard">
+            <h2 id="ordersTitle">📦 Zakazlar</h2>
+            <div id="ordersList">
+                <div class="empty-state">👆 Yuqoridagi bo'limlardan birini tanlang</div>
             </div>
-            <div id="ordersList">Yuklanmoqda...</div>
         </div>
     </div>
     
     <div class="toast" id="toast">✅ Muvaffaqiyatli</div>
 
     <script>
+        // GitHub Pages URL - sizning saytingizdan rates.json ni o'qish
+        // GitHub repo: balenciaga110921-creator/meningsaytim
+        const RATES_URL = 'https://balenciaga110921-creator.github.io/meningsaytim/rates.json';
+        
         let rates = {};
         let allCurrencies = ['BTC', 'ETH', 'USDT', 'TON', 'TRX', 'DOGE', 'USDC', 'UZS', 'USD', 'RUB'];
         let currencyNames = { BTC:'Bitcoin', ETH:'Ethereum', USDT:'Tether', TON:'TON', TRX:'Tron', DOGE:'Dogecoin', USDC:'USD Coin', UZS:'So\'m', USD:'Dollar', RUB:'Ruble' };
         let currencyIcons = { BTC:'₿', ETH:'Ξ', USDT:'₮', TON:'🌐', TRX:'📱', DOGE:'🐕', USDC:'💰', UZS:'🇺🇿', USD:'🇺🇸', RUB:'🇷🇺' };
         
-        let currentFilter = 'all';
+        let currentFilter = null;
         
         function loadOrders() {
             return JSON.parse(localStorage.getItem('orders') || '[]');
@@ -332,10 +348,10 @@
             localStorage.setItem('orders', JSON.stringify(orders));
         }
         
-        function showToast(msg) {
+        function showToast(msg, type = 'success') {
             const toast = document.getElementById('toast');
             toast.innerText = msg;
-            toast.classList.add('active');
+            toast.className = 'toast active ' + type;
             setTimeout(() => toast.classList.remove('active'), 2500);
         }
         
@@ -344,43 +360,107 @@
             showToast('✅ Hamyon manzili nusxalandi!');
         }
         
+        // GitHub'dagi rates.json dan kurslarni o'qish
         async function loadRates() {
+            const container = document.getElementById('currentRates');
             try {
-                const res = await fetch('rates.json?v=' + Date.now());
+                // Cache ni oldini olish uchun timestamp qo'shamiz
+                const res = await fetch(RATES_URL + '?t=' + Date.now(), {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                    }
+                });
+                
+                if (!res.ok) {
+                    throw new Error('HTTP ' + res.status);
+                }
+                
                 rates = await res.json();
+                console.log('Kurslar yuklandi:', rates);
                 displayRates();
-            } catch(e) { console.error('Kurs yuklanmadi'); }
+            } catch(e) {
+                console.error('Kurs yuklanmadi:', e);
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        ❌ Kurslarni yuklashda xatolik<br>
+                        <small style="color:var(--text-secondary)">${e.message}</small><br>
+                        <button class="btn btn-primary" onclick="loadRates()" style="margin-top:15px;">🔄 Qayta yuklash</button>
+                    </div>
+                `;
+            }
         }
         
         function displayRates() {
             const container = document.getElementById('currentRates');
             container.innerHTML = '';
+            
+            let hasRates = false;
+            
             allCurrencies.forEach(curr => {
-                if (rates[curr]) {
-                    const price = (1 / rates[curr]).toFixed(curr === 'BTC' || curr === 'ETH' ? 8 : 2);
+                if (rates[curr] !== undefined && rates[curr] !== null) {
+                    hasRates = true;
+                    // GitHub'dagi narxni to'g'ridan-to'g'ri ko'rsatamiz
+                    // rates.json da: "BTC": 0.000015 shaklida saqlangan
+                    // Bu 1 UZS = 0.000015 BTC degan ma'noni anglatadi
+                    const rateValue = parseFloat(rates[curr]);
+                    
+                    // Ko'rsatish formati
+                    let displayValue;
+                    if (curr === 'BTC' || curr === 'ETH') {
+                        displayValue = rateValue.toFixed(8);
+                    } else if (curr === 'USDT' || curr === 'USDC' || curr === 'USD') {
+                        displayValue = rateValue.toFixed(2);
+                    } else {
+                        displayValue = rateValue.toLocaleString('uz-UZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    }
+                    
                     container.innerHTML += `
                         <div class="rate-item">
                             <div class="rate-currency">
                                 <div class="rate-icon icon-${curr.toLowerCase()}">${currencyIcons[curr]}</div>
-                                <div><strong>${curr}</strong><br><span style="font-size:0.75rem;color:var(--text-secondary)">${currencyNames[curr]}</span></div>
+                                <div>
+                                    <strong style="font-size:1.1rem;">${curr}</strong><br>
+                                    <span style="font-size:0.75rem;color:var(--text-secondary)">${currencyNames[curr]}</span>
+                                </div>
                             </div>
-                            <div class="rate-price">$${price}</div>
+                            <div class="rate-price">
+                                ${displayValue}
+                                <small>1 UZS = ${displayValue} ${curr}</small>
+                            </div>
                         </div>
                     `;
                 }
             });
+            
+            if (!hasRates) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        📭 Kurslar topilmadi<br>
+                        <small style="color:var(--text-secondary)">rates.json faylini tekshiring</small>
+                    </div>
+                `;
+            }
         }
         
         function updateStats() {
             const orders = loadOrders();
+            
+            const newOrders = orders.filter(o => o.status === 'pending');
+            const sentOrders = orders.filter(o => o.status === 'sent');
+            const rejectedOrders = orders.filter(o => o.status === 'rejected');
+            
             document.getElementById('totalOrders').innerText = orders.length;
-            document.getElementById('pendingOrders').innerText = orders.filter(o => o.status === 'pending').length;
-            document.getElementById('paidOrders').innerText = orders.filter(o => o.status === 'paid').length;
-            document.getElementById('sentOrders').innerText = orders.filter(o => o.status === 'sent').length;
+            document.getElementById('newOrders').innerText = newOrders.length;
+            document.getElementById('sentOrders').innerText = sentOrders.length;
+            document.getElementById('rejectedOrders').innerText = rejectedOrders.length;
             
             document.querySelectorAll('.stat-card').forEach(card => {
-                if (card.dataset.filter === currentFilter) card.classList.add('active');
-                else card.classList.remove('active');
+                if (currentFilter && card.dataset.filter === currentFilter) {
+                    card.classList.add('active');
+                } else {
+                    card.classList.remove('active');
+                }
             });
         }
         
@@ -388,17 +468,6 @@
             currentFilter = filter;
             updateStats();
             renderOrders();
-            
-            const filterInfo = document.getElementById('filterInfo');
-            const filterText = document.getElementById('filterText');
-            
-            if (filter === 'all') {
-                filterInfo.style.display = 'none';
-            } else {
-                filterInfo.style.display = 'flex';
-                const filterNames = { pending: 'Kutilayotgan', paid: 'To\'langan', sent: 'Yuborilgan' };
-                filterText.innerText = filterNames[filter] || filter;
-            }
         }
         
         function viewReceipt(orderId) {
@@ -415,9 +484,38 @@
                         `<img src="${order.receiptData}" style="max-width:100%;max-height:100vh;">`}
                     </body></html>
                 `);
-            } else { showToast('❌ Kvitansiya topilmadi'); }
+            } else { showToast('❌ Kvitansiya topilmadi', 'error'); }
         }
         
+        // ✅ Zakazni qabul qilish (pending -> paid)
+        function acceptOrder(orderId) {
+            let orders = loadOrders();
+            const orderIndex = orders.findIndex(o => o.id === orderId);
+            if (orderIndex !== -1) {
+                orders[orderIndex].status = 'paid';
+                orders[orderIndex].acceptedAt = new Date().toISOString();
+                saveOrders(orders);
+                updateStats();
+                renderOrders();
+                showToast(`✅ ${orderId} zakaz qabul qilindi!`);
+            }
+        }
+        
+        // ❌ Zakazni bekor qilish (pending -> rejected)
+        function rejectOrder(orderId) {
+            let orders = loadOrders();
+            const orderIndex = orders.findIndex(o => o.id === orderId);
+            if (orderIndex !== -1) {
+                orders[orderIndex].status = 'rejected';
+                orders[orderIndex].rejectedAt = new Date().toISOString();
+                saveOrders(orders);
+                updateStats();
+                renderOrders();
+                showToast(`❌ ${orderId} zakaz bekor qilindi`, 'warning');
+            }
+        }
+        
+        // 💸 Pul yuborildi (paid -> sent)
         function markAsSent(orderId) {
             let orders = loadOrders();
             const orderIndex = orders.findIndex(o => o.id === orderId);
@@ -431,44 +529,77 @@
             }
         }
         
-        function markAsRejected(orderId) {
-            let orders = loadOrders();
-            const orderIndex = orders.findIndex(o => o.id === orderId);
-            if (orderIndex !== -1) {
-                orders[orderIndex].status = 'rejected';
-                saveOrders(orders);
-                updateStats();
-                renderOrders();
-                showToast(`❌ ${orderId} rad etildi`);
+        function getStatusInfo(status) {
+            switch(status) {
+                case 'pending': return { text: '🆕 Yangi zakaz', class: 'status-new-badge', cardClass: 'status-new' };
+                case 'paid': return { text: '✅ Qabul qilingan', class: 'status-paid-badge', cardClass: 'status-paid' };
+                case 'sent': return { text: '💸 Tugatilgan', class: 'status-sent-badge', cardClass: 'status-sent' };
+                case 'rejected': return { text: '❌ Bekor qilingan', class: 'status-rejected-badge', cardClass: 'status-rejected' };
+                default: return { text: '❓ Noma\'lum', class: 'status-pending-badge', cardClass: 'status-pending' };
             }
+        }
+        
+        function getFilterTitle(filter) {
+            const titles = {
+                'new': '🆕 Yangi zakazlar',
+                'sent': '✅ Tugatilgan zakazlar',
+                'all': '📋 Barcha zakazlar',
+                'rejected': '❌ Bekor qilingan zakazlar'
+            };
+            return titles[filter] || '📦 Zakazlar';
         }
         
         function renderOrders() {
             const orders = loadOrders();
+            const container = document.getElementById('ordersList');
+            const titleEl = document.getElementById('ordersTitle');
+            
+            if (!currentFilter) {
+                container.innerHTML = '<div class="empty-state">👆 Yuqoridagi bo\'limlardan birini tanlang</div>';
+                titleEl.innerText = '📦 Zakazlar';
+                return;
+            }
+            
+            titleEl.innerText = getFilterTitle(currentFilter);
+            
             let filteredOrders = orders;
             
-            if (currentFilter !== 'all') {
+            if (currentFilter === 'new') {
+                filteredOrders = orders.filter(o => o.status === 'pending');
+            } else if (currentFilter !== 'all') {
                 filteredOrders = orders.filter(o => o.status === currentFilter);
             }
             
-            const container = document.getElementById('ordersList');
             if (filteredOrders.length === 0) {
-                container.innerHTML = '<div class="empty-state">📭 Hozircha zakazlar yo\'q</div>';
+                container.innerHTML = '<div class="empty-state">📭 Bu bo\'limda zakazlar yo\'q</div>';
                 return;
             }
             
             container.innerHTML = filteredOrders.slice().reverse().map(order => {
-                let statusText = '', statusClass = '';
-                if (order.status === 'pending') { statusText = '⏳ To\'lov kutilmoqda'; statusClass = 'status-pending-badge'; }
-                else if (order.status === 'paid') { statusText = '✅ To\'langan'; statusClass = 'status-paid-badge'; }
-                else if (order.status === 'sent') { statusText = '💸 Yuborilgan'; statusClass = 'status-sent-badge'; }
-                else { statusText = '❌ Bekor'; statusClass = 'status-pending-badge'; }
+                const statusInfo = getStatusInfo(order.status);
+                
+                let actionButtons = '';
+                
+                if (order.status === 'pending') {
+                    actionButtons = `
+                        <div class="order-actions">
+                            <button class="btn btn-success" onclick="acceptOrder('${order.id}')">✅ Qabul qilish</button>
+                            <button class="btn btn-danger" onclick="rejectOrder('${order.id}')">❌ Bekor qilish</button>
+                        </div>
+                    `;
+                } else if (order.status === 'paid') {
+                    actionButtons = `
+                        <div class="order-actions">
+                            <button class="btn btn-primary" onclick="markAsSent('${order.id}')">💸 Pul yuborildi</button>
+                        </div>
+                    `;
+                }
                 
                 return `
-                    <div class="order-card status-${order.status}">
+                    <div class="order-card ${statusInfo.cardClass}">
                         <div class="order-header">
                             <span class="order-id">📋 ${order.id}</span>
-                            <span class="order-status ${statusClass}">${statusText}</span>
+                            <span class="order-status ${statusInfo.class}">${statusInfo.text}</span>
                         </div>
                         <div class="order-details">
                             <div class="order-detail">
@@ -477,11 +608,11 @@
                             </div>
                             <div class="order-detail">
                                 <div class="order-detail-label">💎 Olish</div>
-                                <div class="order-detail-value">${order.getAmount.toFixed(6)} ${order.getCurrency}</div>
+                                <div class="order-detail-value">${order.getAmount ? order.getAmount.toFixed(6) : '0.000000'} ${order.getCurrency}</div>
                             </div>
                             <div class="order-detail">
                                 <div class="order-detail-label">👛 Mijoz hamyoni</div>
-                                <div class="order-detail-value" style="font-size:0.85rem;">${order.userWallet}</div>
+                                <div class="order-detail-value" style="font-size:0.85rem;">${order.userWallet || 'Mavjud emas'}</div>
                             </div>
                             <div class="order-detail">
                                 <div class="order-detail-label">🏦 Sizning hamyoningiz</div>
@@ -494,30 +625,50 @@
                                 <div class="order-detail-label">📅 Sana</div>
                                 <div class="order-detail-value">${new Date(order.createdAt).toLocaleString()}</div>
                             </div>
+                            ${order.acceptedAt ? `
+                            <div class="order-detail">
+                                <div class="order-detail-label">✅ Qabul qilingan</div>
+                                <div class="order-detail-value">${new Date(order.acceptedAt).toLocaleString()}</div>
+                            </div>` : ''}
+                            ${order.sentAt ? `
+                            <div class="order-detail">
+                                <div class="order-detail-label">💸 Yuborilgan</div>
+                                <div class="order-detail-value">${new Date(order.sentAt).toLocaleString()}</div>
+                            </div>` : ''}
+                            ${order.rejectedAt ? `
+                            <div class="order-detail">
+                                <div class="order-detail-label">❌ Bekor qilingan</div>
+                                <div class="order-detail-value">${new Date(order.rejectedAt).toLocaleString()}</div>
+                            </div>` : ''}
                         </div>
-                        ${order.receiptData ? `<div class="order-actions"><button class="btn btn-primary" onclick="viewReceipt('${order.id}')">📄 Kvitansiyani ko'rish</button></div>` : ''}
-                        ${order.status === 'paid' ? `
-                            <div class="order-actions">
-                                <button class="btn btn-success" onclick="markAsSent('${order.id}')">✅ Pul yuborildi</button>
-                                <button class="btn btn-danger" onclick="markAsRejected('${order.id}')">❌ Rad etish</button>
-                            </div>
-                        ` : ''}
-                        ${order.status === 'sent' ? '<div style="margin-top:15px; color:var(--success);">✅ Pul mijozga yuborilgan</div>' : ''}
+                        ${order.receiptData ? `<div class="order-actions"><button class="btn btn-info" onclick="viewReceipt('${order.id}')">📄 Kvitansiyani ko'rish</button></div>` : ''}
+                        ${actionButtons}
                     </div>
                 `;
             }).join('');
         }
         
-        // Auto-refresh every 3 seconds
+        // Auto-refresh har 3 soniyada
         setInterval(() => {
             updateStats();
-            renderOrders();
+            if (currentFilter) {
+                renderOrders();
+            }
         }, 3000);
         
+        // Kurslarni har 30 soniyada yangilash
+        setInterval(() => { loadRates(); }, 30000);
+        
+        // Sahifa yuklanganda ishga tushirish
         loadRates();
         updateStats();
         renderOrders();
-        setInterval(() => { loadRates(); }, 30000);
     </script>
 </body>
-</html>
+</html>'''
+
+with open('/mnt/agents/output/admin_panel.html', 'w', encoding='utf-8') as f:
+    f.write(html_code)
+
+print("✅ Admin panel tayyor!")
+print(f"📄 Fayl hajmi: {len(html_code)} belgi")
