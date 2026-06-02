@@ -49,7 +49,6 @@
         .header p { color: var(--text-secondary); margin-top: 5px; }
         .container { max-width: 1400px; margin: 0 auto; padding: 30px 20px; }
         
-        /* Stats Cards - filter qilish uchun */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -123,7 +122,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.3s;
         }
         .rate-item:hover { background: rgba(99,102,241,0.1); transform: translateX(5px); }
         .rate-currency { display: flex; align-items: center; gap: 10px; }
@@ -149,10 +147,8 @@
             border-radius: 16px;
             padding: 20px;
             margin-bottom: 15px;
-            transition: all 0.3s;
             border-left: 4px solid transparent;
         }
-        .order-card:hover { transform: translateY(-2px); background: rgba(255,255,255,0.08); }
         .order-card.status-pending { border-left-color: var(--warning); }
         .order-card.status-paid { border-left-color: var(--success); }
         .order-card.status-sent { border-left-color: var(--primary); }
@@ -196,7 +192,6 @@
             border-radius: 6px;
             cursor: pointer;
             font-size: 0.7rem;
-            transition: all 0.3s;
         }
         .copy-wallet-btn:hover { background: var(--primary); color: white; }
         .order-actions { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
@@ -273,7 +268,6 @@
     </div>
     
     <div class="container">
-        <!-- Stats Cards (filter uchun) -->
         <div class="stats-grid" id="statsGrid">
             <div class="stat-card" data-filter="all" onclick="setFilter('all')">
                 <div class="stat-number" id="totalOrders">0</div>
@@ -293,7 +287,6 @@
             </div>
         </div>
         
-        <!-- JSON Files Card -->
         <div class="card">
             <h2>📁 Ma'lumotlarni boshqarish</h2>
             <div class="json-links">
@@ -306,13 +299,11 @@
             </div>
         </div>
         
-        <!-- Current Rates Card -->
         <div class="card">
             <h2>💰 Joriy valyuta kurslari</h2>
             <div class="rates-grid" id="currentRates">Yuklanmoqda...</div>
         </div>
         
-        <!-- Orders Card -->
         <div class="card">
             <h2>📦 Zakazlar</h2>
             <div id="filterInfo" class="filter-info" style="display: none;">
@@ -327,11 +318,19 @@
 
     <script>
         let rates = {};
-        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
-        let currentFilter = 'all';
         let allCurrencies = ['BTC', 'ETH', 'USDT', 'TON', 'TRX', 'DOGE', 'USDC', 'UZS', 'USD', 'RUB'];
         let currencyNames = { BTC:'Bitcoin', ETH:'Ethereum', USDT:'Tether', TON:'TON', TRX:'Tron', DOGE:'Dogecoin', USDC:'USD Coin', UZS:'So\'m', USD:'Dollar', RUB:'Ruble' };
         let currencyIcons = { BTC:'₿', ETH:'Ξ', USDT:'₮', TON:'🌐', TRX:'📱', DOGE:'🐕', USDC:'💰', UZS:'🇺🇿', USD:'🇺🇸', RUB:'🇷🇺' };
+        
+        let currentFilter = 'all';
+        
+        function loadOrders() {
+            return JSON.parse(localStorage.getItem('orders') || '[]');
+        }
+        
+        function saveOrders(orders) {
+            localStorage.setItem('orders', JSON.stringify(orders));
+        }
         
         function showToast(msg) {
             const toast = document.getElementById('toast');
@@ -373,6 +372,7 @@
         }
         
         function updateStats() {
+            const orders = loadOrders();
             document.getElementById('totalOrders').innerText = orders.length;
             document.getElementById('pendingOrders').innerText = orders.filter(o => o.status === 'pending').length;
             document.getElementById('paidOrders').innerText = orders.filter(o => o.status === 'paid').length;
@@ -402,6 +402,7 @@
         }
         
         function viewReceipt(orderId) {
+            const orders = loadOrders();
             const order = orders.find(o => o.id === orderId);
             if (order && order.receiptData) {
                 const win = window.open();
@@ -418,22 +419,24 @@
         }
         
         function markAsSent(orderId) {
-            const order = orders.find(o => o.id === orderId);
-            if (order) {
-                order.status = 'sent';
-                order.sentAt = new Date().toISOString();
-                localStorage.setItem('orders', JSON.stringify(orders));
+            let orders = loadOrders();
+            const orderIndex = orders.findIndex(o => o.id === orderId);
+            if (orderIndex !== -1) {
+                orders[orderIndex].status = 'sent';
+                orders[orderIndex].sentAt = new Date().toISOString();
+                saveOrders(orders);
                 updateStats();
                 renderOrders();
-                showToast(`✅ ${orderId} - pul yuborilgan deb belgilandi va mijozga xabar yuborildi`);
+                showToast(`✅ ${orderId} - pul yuborilgan deb belgilandi`);
             }
         }
         
         function markAsRejected(orderId) {
-            const order = orders.find(o => o.id === orderId);
-            if (order) {
-                order.status = 'rejected';
-                localStorage.setItem('orders', JSON.stringify(orders));
+            let orders = loadOrders();
+            const orderIndex = orders.findIndex(o => o.id === orderId);
+            if (orderIndex !== -1) {
+                orders[orderIndex].status = 'rejected';
+                saveOrders(orders);
                 updateStats();
                 renderOrders();
                 showToast(`❌ ${orderId} rad etildi`);
@@ -441,13 +444,14 @@
         }
         
         function renderOrders() {
-            const container = document.getElementById('ordersList');
+            const orders = loadOrders();
             let filteredOrders = orders;
             
             if (currentFilter !== 'all') {
                 filteredOrders = orders.filter(o => o.status === currentFilter);
             }
             
+            const container = document.getElementById('ordersList');
             if (filteredOrders.length === 0) {
                 container.innerHTML = '<div class="empty-state">📭 Hozircha zakazlar yo\'q</div>';
                 return;
@@ -480,10 +484,10 @@
                                 <div class="order-detail-value" style="font-size:0.85rem;">${order.userWallet}</div>
                             </div>
                             <div class="order-detail">
-                                <div class="order-detail-label">🏦 Sizning hamyoningiz (mijoz yuboradi)</div>
+                                <div class="order-detail-label">🏦 Sizning hamyoningiz</div>
                                 <div class="order-detail-value">
                                     <span style="font-size:0.85rem; word-break:break-all;">${order.receiverWallet || 'Manzil mavjud emas'}</span>
-                                    ${order.receiverWallet ? `<button class="copy-wallet-btn" onclick="copyToClipboard('${order.receiverWallet.replace(/'/g, "\\'")}')">📋 Nusxa olish</button>` : ''}
+                                    ${order.receiverWallet ? `<button class="copy-wallet-btn" onclick="copyToClipboard('${order.receiverWallet.replace(/'/g, "\\'")}')">📋 Nusxa</button>` : ''}
                                 </div>
                             </div>
                             <div class="order-detail">
@@ -503,6 +507,12 @@
                 `;
             }).join('');
         }
+        
+        // Auto-refresh every 3 seconds
+        setInterval(() => {
+            updateStats();
+            renderOrders();
+        }, 3000);
         
         loadRates();
         updateStats();
