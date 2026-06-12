@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2P Dosya Transferi (WebRTC)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .status {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .status.waiting {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            background: #fafafa;
+        }
+
+        .section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            resize: vertical;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button.danger {
+            background: #e74c3c;
+        }
+
+        button.danger:hover {
+            background: #c0392b;
+        }
+
+        button.success {
+            background: #27ae60;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .progress-bar.active {
+            display: block;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .log {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 13px;
+            height: 200px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            border-left: 3px solid #667eea;
+            padding-left: 10px;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .info-box p {
+            margin: 5px 0;
+            color: #333;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #receivedFiles {
+            margin-top: 15px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .file-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .file-size {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 P2P Dosya Transferi</h1>
+        <p class="subtitle">WebRTC ile tarayıcılar arası doğrudan dosya paylaşımı</p>
+
+        <div class="info-box">
+            <p><strong>Nasıl Çalışır?</strong></p>
+            <p>1. "Bağlantı Oluştur" butonuna tıklayın</p>
+            <p>2. Oluşan kodu karşı tarafa gönderin</p>
+            <p>3. Karşı taraf kodu yapıştırıp "Bağlan" dediğinde bağlantı kurulur</p>
+            <p>4. Dosya seçip gönderin!</p>
+        </div>
+
+        <div id="status" class="status waiting">⏳ Bağlantı bekleniyor...</div>
+
+        <!-- Bağlantı Kurma -->
+        <div class="section" id="connectionSection">
+            <h3>📡 Bağlantı</h3>
+            <button id="createBtn" onclick="createConnection()">Bağlantı Oluştur</button>
+            <button id="joinBtn" onclick="showJoin()">Bağlan</button>
+            
+            <div id="createArea" class="hidden">
+                <p style="margin-top: 15px;"><strong>Bağlantı Kodunuz (Karşı tarafa gönderin):</strong></p>
+                <textarea id="offerCode" readonly></textarea>
+                <button onclick="copyOffer()">📋 Kopyala</button>
+                <p style="margin-top: 15px;"><strong>Karşı tarafın cevap kodunu yapıştırın:</strong></p>
+                <textarea id="answerInput" placeholder="Karşı tarafın cevap kodunu buraya yapıştırın..."></textarea>
+                <button onclick="acceptAnswer()">✅ Cevabı Onayla</button>
+            </div>
+
+            <div id="joinArea" class="hidden">
+                <p style="margin-top: 15px;"><strong>Bağlantı Kodunu Yapıştırın:</strong></p>
+                <textarea id="offerInput" placeholder="Bağlantı kodunu buraya yapıştırın..."></textarea>
+                <button onclick="acceptOffer()">🔗 Bağlan</button>
+                <p style="margin-top: 15px;"><strong>Cevap Kodunuz (Karşı tarafa gönderin):</strong></p>
+                <textarea id="answerCode" readonly></textarea>
+                <button onclick="copyAnswer()">📋 Kopyala</button>
+            </div>
+        </div>
+
+        <!-- Dosya Gönderme -->
+        <div class="section hidden" id="sendSection">
+            <h3>📤 Dosya Gönder</h3>
+            <div class="file-input-wrapper">
+                <button>Dosya Seç</button>
+                <input type="file" id="fileInput" onchange="sendFile()">
+            </div>
+            <div class="progress-bar" id="sendProgress">
+                <div class="progress-fill" id="sendProgressFill">0%</div>
+            </div>
+        </div>
+
+        <!-- Gelen Dosyalar -->
+        <div class="section hidden" id="receiveSection">
+            <h3>📥 Gelen Dosyalar</h3>
+            <div id="receivedFiles"></div>
+            <div class="progress-bar" id="receiveProgress">
+                <div class="progress-fill" id="receiveProgressFill">0%</div>
+            </div>
+        </div>
+
+        <!-- Log -->
+        <div class="log" id="log"></div>
+    </div>
+
+    <script>
+        // ==================== DEĞİŞKENLER ====================
+        let pc = null;
+        let dataChannel = null;
+        let receiveBuffer = [];
+        let receivedSize = 0;
+        let fileSize = 0;
+        let fileName = '';
+        let fileType = '';
+
+        const statusDiv = document.getElementById('status');
+        const logDiv = document.getElementById('log');
+
+        // ==================== YARDIMCI FONKSİYONLAR ====================
+        function log(message) {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+
+        function updateStatus(text, type) {
+            statusDiv.textContent = text;
+            statusDiv.className = `status ${type}`;
+        }
+
+        function showElement(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function hideElement(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        // ==================== BAĞLANTI KURMA ====================
+        async function createConnection() {
+            log('Bağlantı oluşturuluyor...');
+            
+            pc = new RTCPeerConnection({
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:stun1.l.google.com:19302' }
+                ]
+            });
+
+            // Data Channel oluştur
+            dataChannel = pc.createDataChannel('fileTransfer', {
+                ordered: true
+            });
+
+            setupDataChannel(dataChannel);
+
+            pc.onicecandidate = (e) => {
+                if (e.candidate === null) {
+                    const offer = pc.localDescription;
+                    document.getElementById('offerCode').value = btoa(JSON.stringify(offer));
+                    log('Offer kodu oluşturuldu!');
+                    showElement('createArea');
+                    hideElement('joinBtn');
+                    hideElement('createBtn');
+                }
+            };
+
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            log('Offer oluşturuldu, ICE toplanıyor...');
+        }
+
+        function showJoin() {
+            showElement('joinArea');
+            hideElement('createBtn');
+            hideElement('joinBtn');
+        }
+
+        async function acceptOffer() {
+            const offerCode = document.getElementById('offerInput').value;
+            if (!offerCode) {
+                alert('Lütfen bağlantı kodunu yapıştırın!');
+                return;
+            }
+
+            try {
+                const offer = JSON.parse(atob(offerCode));
+                
+                pc = new RTCPeerConnection({
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' }
+                    ]
+                });
+
+                pc.ondatachannel = (e) => {
+                    dataChannel = e.channel;
+                    setupDataChannel(dataChannel);
+                    log('Data channel alındı!');
+                };
+
+                pc.onicecandidate = (e) => {
+                    if (e.candidate === null) {
+                        const answer = pc.localDescription;
+                        document.getElementById('answerCode').value = btoa(JSON.stringify(answer));
+                        log('Answer kodu oluşturuldu!');
+                    }
+                };
+
+                await pc.setRemoteDescription(offer);
+                const answer = await pc.createAnswer();
+                await pc.setLocalDescription(answer);
+                log('Answer oluşturuldu, ICE toplanıyor...');
+
+            } catch (err) {
+                log('Hata: ' + err.message);
+                alert('Geçersiz bağlantı kodu!');
+            }
+        }
+
+        async function acceptAnswer() {
+            const answerCode = document.getElementById('answerInput').value;
+            if (!answerCode) {
+                alert('Lütfen cevap kodunu yapıştırın!');
+                return;
+            }
+
+            try {
+                const answer = JSON.parse(atob(answerCode));
+                await pc.setRemoteDescription(answer);
+                log('Answer kabul edildi! Bağlantı kuruluyor...');
+            } catch (err) {
+                log('Hata: ' + err.message);
+                alert('Geçersiz cevap kodu!');
+            }
+        }
+
+        function copyOffer() {
+            const code = document.getElementById('offerCode');
+            code.select();
+            document.execCommand('copy');
+            log('Offer kodu kopyalandı!');
+        }
+
+        function copyAnswer() {
+            const code = document.getElementById('answerCode');
+            code.select();
+            document.execCommand('copy');
+            log('Answer kodu kopyalandı!');
+        }
+
+        // ==================== DATA CHANNEL YÖNETİMİ ====================
+        function setupDataChannel(channel) {
+            channel.onopen = () => {
+                log('✅ Data channel açıldı! Dosya transferine hazır.');
+                updateStatus('✅ Bağlantı kuruldu! Dosya gönderebilirsiniz.', 'connected');
+                showElement('sendSection');
+                showElement('receiveSection');
+                hideElement('connectionSection');
+            };
+
+            channel.onclose = () => {
+                log('❌ Data channel kapandı.');
+                updateStatus('Bağlantı kapandı.', 'waiting');
+            };
+
+            channel.onerror = (err) => {
+                log('Data channel hatası: ' + err.message);
+                updateStatus('Bağlantı hatası!', 'error');
+            };
+
+            channel.onmessage = async (e) => {
+                // Dosya meta verisi
+                if (typeof e.data === 'string') {
+                    const msg = JSON.parse(e.data);
+                    if (msg.type === 'start') {
+                        fileSize = msg.size;
+                        fileName = msg.name;
+                        fileType = msg.fileType;
+                        receivedSize = 0;
+                        receiveBuffer = [];
+                        log(`Dosya alınıyor: ${fileName} (${formatBytes(fileSize)})`);
+                        showElement('receiveProgress');
+                    } else if (msg.type === 'end') {
+                        const blob = new Blob(receiveBuffer);
+                        const url = URL.createObjectURL(blob);
+                        
+                        const fileDiv = document.createElement('div');
+                        fileDiv.className = 'file-item';
+                        fileDiv.innerHTML = `
+                            <div>
+                                <div class="file-name">${fileName}</div>
+                                <div class="file-size">${formatBytes(fileSize)}</div>
+                            </div>
+                            <a href="${url}" download="${fileName}">
+                                <button class="success">⬇️ İndir</button>
+                            </a>
+                        `;
+                        document.getElementById('receivedFiles').appendChild(fileDiv);
+                        
+                        log(`✅ Dosya alındı: ${fileName}`);
+                        hideElement('receiveProgress');
+                        document.getElementById('receiveProgressFill').style.width = '0%';
+                        document.getElementById('receiveProgressFill').textContent = '0%';
+                    }
+                } 
+                // Dosya verisi
+                else {
+                    receiveBuffer.push(e.data);
+                    receivedSize += e.data.byteLength;
+                    
+                    const progress = Math.round((receivedSize / fileSize) * 100);
+                    document.getElementById('receiveProgressFill').style.width = progress + '%';
+                    document.getElementById('receiveProgressFill').textContent = progress + '%';
+                    
+                    if (receivedSize === fileSize) {
+                        log('Dosya tamamen alındı, birleştiriliyor...');
+                    }
+                }
+            };
+        }
+
+        // ==================== DOSYA GÖNDERME ====================
+        async function sendFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) return;
+            if (!dataChannel || dataChannel.readyState !== 'open') {
+                alert('Bağlantı henüz kurulmadı!');
+                return;
+            }
+
+            log(`Dosya gönderiliyor: ${file.name} (${formatBytes(file.size)})`);
+
+            // Meta veriyi gönder
+            dataChannel.send(JSON.stringify({
+                type: 'start',
+                name: file.name,
+                size: file.size,
+                fileType: file.type
+            }));
+
+            // Dosyayı parçalara böl ve gönder (16KB parçalar)
+            const chunkSize = 16384;
+            const buffer = await file.arrayBuffer();
+            let offset = 0;
+
+            showElement('sendProgress');
+
+            while (offset < buffer.byteLength) {
+                const chunk = buffer.slice(offset, offset + chunkSize);
+                dataChannel.send(chunk);
+                offset += chunk.byteLength;
+
+                const progress = Math.round((offset / buffer.byteLength) * 100);
+                document.getElementById('sendProgressFill').style.width = progress + '%';
+                document.getElementById('sendProgressFill').textContent = progress + '%';
+
+                // Flow control - buffer kontrolü
+                if (dataChannel.bufferedAmount > dataChannel.bufferedAmountLowThreshold) {
+                    await new Promise(resolve => {
+                        dataChannel.onbufferedamountlow = resolve;
+                    });
+                }
+            }
+
+            // Bitiş sinyali
+            dataChannel.send(JSON.stringify({ type: 'end' }));
+            
+            log(`✅ Dosya gönderildi: ${file.name}`);
+            hideElement('sendProgress');
+            document.getElementById('sendProgressFill').style.width = '0%';
+            document.getElementById('sendProgressFill').textContent = '0%';
+            
+            fileInput.value = '';
+        }
+
+        // ==================== YARDIMCI ====================
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Sayfa yüklendiğinde
+        log('P2P Dosya Transferi hazır. Bağlantı oluşturun veya bağlanın.');
+    </script>
+</body>
+</html>
