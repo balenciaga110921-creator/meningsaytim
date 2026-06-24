@@ -1,1 +1,800 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoExchange Pro - Valyuta Almashtirish</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-light: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-dark); color: var(--text-primary); min-height: 100vh; }
 
+        /* TICKER */
+        .ticker-container {
+            background: rgba(15,23,42,0.97);
+            border-bottom: 1px solid rgba(99,102,241,0.3);
+            padding: 12px 0; overflow: hidden;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .ticker-wrap { display: flex; animation: ticker 40s linear infinite; white-space: nowrap; }
+        .ticker-item { display: inline-flex; align-items: center; padding: 0 28px; font-size: 14px; font-weight: 600; gap: 6px; }
+        .ticker-coin { color: var(--primary); }
+        .ticker-price { color: var(--success); }
+        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        /* HEADER */
+        .header { text-align: center; padding: 28px 20px 16px; }
+        .header h1 { font-size: 2rem; background: var(--gradient-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header p { color: var(--text-secondary); margin-top: 5px; }
+
+        .history-btn {
+            position: fixed; top: 75px; right: 18px;
+            background: var(--bg-card); border: 1px solid var(--primary);
+            color: var(--primary); padding: 9px 16px; border-radius: 25px;
+            cursor: pointer; z-index: 500; font-weight: 600; font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        .history-btn:hover { background: var(--primary); color: white; }
+
+        /* MAIN GRID */
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+        @media (max-width: 968px) { .container { grid-template-columns: 1fr; } }
+
+        .panel {
+            background: var(--bg-card); border-radius: 20px; padding: 28px;
+            border: 1px solid rgba(99,102,241,0.2); box-shadow: var(--shadow);
+        }
+        .panel h2 { font-size: 1.2rem; margin-bottom: 20px; color: var(--primary); }
+
+        /* FORM ELEMENTS */
+        .field { margin-bottom: 18px; }
+        .field label { display: block; margin-bottom: 7px; color: var(--text-secondary); font-size: 0.88rem; }
+        .select-wrap, .input-wrap {
+            background: var(--bg-light); border-radius: 12px;
+            border: 2px solid transparent; transition: border-color 0.3s;
+        }
+        .select-wrap:focus-within, .input-wrap:focus-within { border-color: var(--primary); }
+        .select-wrap select {
+            width: 100%; padding: 14px; background: transparent;
+            border: none; color: var(--text-primary); font-size: 1rem; cursor: pointer; outline: none;
+        }
+        .input-wrap { display: flex; align-items: center; }
+        .input-wrap input {
+            flex: 1; padding: 14px; background: transparent; border: none;
+            color: var(--text-primary); font-size: 1.1rem; font-weight: 600; outline: none;
+        }
+        .input-sym { padding: 8px 12px; background: rgba(99,102,241,0.2); border-radius: 8px; margin-right: 10px; font-weight: 700; min-width: 52px; text-align: center; }
+        .wallet-input { width: 100%; padding: 14px; background: var(--bg-light); border-radius: 12px; color: var(--text-primary); outline: none; border: 2px solid transparent; font-size: 0.95rem; transition: border-color 0.3s; }
+        .wallet-input:focus { border-color: var(--primary); }
+
+        .swap-row { display: flex; justify-content: center; margin: 14px 0; }
+        .swap-btn {
+            width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--primary);
+            background: var(--bg-card); color: var(--primary); font-size: 1.4rem;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .swap-btn:hover { background: var(--primary); color: white; transform: rotate(180deg); }
+
+        .result-box {
+            background: var(--gradient-1); border-radius: 16px; padding: 22px;
+            margin: 18px 0; text-align: center;
+        }
+        .result-amount { font-size: 2rem; font-weight: 700; }
+        .result-rate { font-size: 0.82rem; opacity: 0.85; margin-top: 4px; }
+
+        .exchange-btn {
+            width: 100%; padding: 15px; border-radius: 12px; border: none;
+            background: var(--gradient-1); color: white; font-size: 1.1rem;
+            font-weight: 700; cursor: pointer; transition: opacity 0.3s; margin-top: 8px;
+        }
+        .exchange-btn:hover { opacity: 0.9; }
+        .exchange-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* RATES PANEL */
+        .rate-card {
+            background: rgba(255,255,255,0.05); border-radius: 12px; padding: 14px;
+            margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid transparent; transition: all 0.3s;
+        }
+        .rate-card:hover { background: rgba(99,102,241,0.15); transform: translateX(4px); border-color: rgba(99,102,241,0.3); }
+        .rate-left { display: flex; align-items: center; gap: 12px; }
+        .rate-icon {
+            width: 40px; height: 40px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; font-weight: bold; font-size: 1rem;
+        }
+        .icon-btc  { background: linear-gradient(135deg,#f7931a,#e08010); }
+        .icon-eth  { background: linear-gradient(135deg,#627eea,#4a6de5); }
+        .icon-usdt { background: linear-gradient(135deg,#26a17b,#1c8060); }
+        .icon-ton  { background: linear-gradient(135deg,#0088cc,#006fa8); }
+        .icon-trx  { background: linear-gradient(135deg,#ff060a,#d00408); }
+        .icon-doge { background: linear-gradient(135deg,#c2a633,#a8902a); }
+        .icon-usdc { background: linear-gradient(135deg,#2775ca,#1f5fa8); }
+        .icon-uzs  { background: linear-gradient(135deg,#1eb53a,#179a30); }
+        .icon-usd  { background: linear-gradient(135deg,#85bb65,#6da350); }
+        .icon-rub  { background: linear-gradient(135deg,#0033a0,#002880); }
+        .rate-name { font-weight: 700; font-size: 1rem; }
+        .rate-sub  { font-size: 0.75rem; color: var(--text-secondary); }
+        .rate-value { text-align: right; }
+        .rate-price { font-weight: 700; font-size: 1rem; color: var(--success); }
+        .rate-label { font-size: 0.7rem; color: var(--text-secondary); }
+
+        /* SKELETON LOADER */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 12px; height: 64px; margin-bottom: 10px;
+        }
+        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+        /* MODALS */
+        .overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.82); backdrop-filter: blur(6px);
+            z-index: 1000; justify-content: center; align-items: center; padding: 20px;
+        }
+        .overlay.open { display: flex; }
+        .modal {
+            background: var(--bg-card); border-radius: 22px; padding: 28px;
+            width: 100%; max-width: 540px; max-height: 92vh; overflow-y: auto;
+            border: 1px solid rgba(99,102,241,0.25);
+        }
+        .modal h3 { font-size: 1.2rem; margin-bottom: 18px; }
+        .detail-row {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,0.07);
+            gap: 10px; flex-wrap: wrap;
+        }
+        .detail-label { color: var(--text-secondary); font-size: 0.88rem; flex-shrink: 0; }
+        .detail-value { font-weight: 600; text-align: right; word-break: break-all; }
+        .copy-btn {
+            background: rgba(99,102,241,0.2); border: none; color: var(--primary);
+            padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.78rem; margin-left: 6px;
+        }
+        .copy-btn:hover { background: var(--primary); color: white; }
+
+        /* TIMER */
+        .timer-box {
+            text-align: center; margin: 18px 0;
+            background: rgba(245,158,11,0.1); border-radius: 14px; padding: 16px;
+            border: 1px solid rgba(245,158,11,0.3);
+        }
+        .timer-label { font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 4px; }
+        .timer-display { font-size: 2.4rem; font-family: monospace; font-weight: 700; color: var(--warning); }
+        .timer-display.urgent { color: var(--danger); }
+
+        /* UPLOAD & PROGRESS */
+        .upload-area {
+            border: 2px dashed rgba(99,102,241,0.4); border-radius: 12px; padding: 22px;
+            text-align: center; cursor: pointer; margin: 16px 0;
+            transition: all 0.3s; color: var(--text-secondary);
+            position: relative; overflow: hidden;
+        }
+        .upload-area:hover { border-color: var(--primary); background: rgba(99,102,241,0.08); }
+        .upload-area.has-file { border-color: var(--success); background: rgba(16,185,129,0.08); color: var(--success); }
+
+        .progress-container {
+            width: 100%; height: 8px; background: rgba(255,255,255,0.1);
+            border-radius: 10px; margin: 10px 0; display: none; overflow: hidden;
+        }
+        .progress-bar { height: 100%; width: 0%; background: var(--success); transition: width 0.3s; }
+        .progress-pct { text-align:center; font-size:0.82rem; color:var(--text-secondary); margin-top:4px; display:none; }
+
+        .contact-box {
+            background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.3);
+            border-radius: 12px; padding: 14px; margin-top: 14px; font-size: 0.9rem;
+        }
+        .contact-box h4 { margin-bottom: 8px; font-size: 0.95rem; }
+
+        .modal-actions { display: flex; gap: 12px; margin-top: 18px; }
+        .btn { padding: 12px 18px; border: none; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.95rem; transition: all 0.3s; flex: 1; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover:not(:disabled) { background: #059669; }
+        .btn-danger  { background: var(--danger);  color: white; }
+        .btn-danger:hover:not(:disabled)  { background: #dc2626; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+        .btn-gray    { background: var(--bg-light); color: var(--text-primary); }
+
+        /* STATUS BOX */
+        .status-box { text-align:center; padding:18px; border-radius:12px; margin-top:14px; font-size:1.1rem; font-weight:600; }
+        .status-box.waiting  { background:rgba(99,102,241,0.12); color:var(--primary); }
+        .status-box.success  { background:rgba(16,185,129,0.15); color:var(--success); }
+        .status-box.rejected { background:rgba(239,68,68,0.15);  color:var(--danger); }
+
+        /* TOAST */
+        .toast {
+            position: fixed; bottom: 28px; right: 28px;
+            background: var(--bg-card); border-radius: 12px;
+            padding: 14px 22px; transform: translateX(420px);
+            transition: all 0.35s; z-index: 3000; border-left: 4px solid var(--success);
+            box-shadow: var(--shadow); max-width: 320px;
+        }
+        .toast.show { transform: translateX(0); }
+        .toast.err  { border-left-color: var(--danger); }
+        .toast.warn { border-left-color: var(--warning); }
+
+        /* HISTORY */
+        .h-item { background: rgba(255,255,255,0.05); border-radius: 14px; padding: 16px; margin-bottom: 12px; border-left: 4px solid transparent; cursor: pointer; transition: background 0.2s; }
+        .h-item:hover { background: rgba(255,255,255,0.08); }
+        .h-item.pending  { border-left-color: var(--warning); }
+        .h-item.paid     { border-left-color: var(--primary); }
+        .h-item.sent     { border-left-color: var(--success); }
+        .h-item.rejected { border-left-color: var(--danger); }
+        .h-item-top { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .h-item-id  { font-weight: 700; color: var(--primary); font-family: monospace; font-size:0.9rem; }
+        .h-status   { font-size:0.82rem; color:var(--text-secondary); }
+        .h-detail   { font-size:0.82rem; color:var(--text-secondary); margin-top:4px; }
+
+        .empty-msg { text-align:center; padding:30px; color:var(--text-secondary); }
+        .h-loading  { text-align:center; padding:20px; color:var(--text-secondary); font-size:0.9rem; }
+    </style>
+</head>
+<body>
+
+<div class="ticker-container">
+    <div class="ticker-wrap" id="tickerWrap">
+        <div class="ticker-item"><span class="ticker-coin">⏳</span><span class="ticker-price">Kurslar yuklanmoqda...</span></div>
+    </div>
+</div>
+
+<button class="history-btn" onclick="openHistory()">📜 Tarixim</button>
+
+<div class="header">
+    <h1>💱 CryptoExchange Pro</h1>
+    <p>Valyuta va kripto almashtirish</p>
+</div>
+
+<div class="container">
+    <div class="panel">
+        <h2>💱 Almashtirish</h2>
+        <div class="field">
+            <label>Siz berasiz:</label>
+            <div class="select-wrap">
+                <select id="giveCurr" onchange="calc()">
+                    <option value="USDT">USDT (TRC20)</option>
+                    <option value="BTC">Bitcoin (BTC)</option>
+                    <option value="ETH">Ethereum (ETH)</option>
+                    <option value="TON">TON Coin</option>
+                    <option value="TRX">TRON (TRX)</option>
+                    <option value="UZS">UZS (Karta/Humo)</option>
+                </select>
+            </div>
+        </div>
+        <div class="field">
+            <div class="input-wrap">
+                <input type="number" id="giveAmt" placeholder="0.00" oninput="calc()" min="0">
+                <div class="input-sym" id="giveSym">USDT</div>
+            </div>
+        </div>
+        <div class="swap-row"><button class="swap-btn" onclick="swapCurr()">⇄</button></div>
+        <div class="field">
+            <label>Siz olasiz:</label>
+            <div class="select-wrap">
+                <select id="getCurr" onchange="calc()">
+                    <option value="UZS">UZS (Karta/Humo)</option>
+                    <option value="USDT">USDT (TRC20)</option>
+                    <option value="BTC">Bitcoin (BTC)</option>
+                    <option value="ETH">Ethereum (ETH)</option>
+                    <option value="TON">TON Coin</option>
+                    <option value="TRX">TRON (TRX)</option>
+                </select>
+            </div>
+        </div>
+        <div class="result-box">
+            <div class="result-amount" id="resultAmt">—</div>
+            <div class="result-rate" id="resultRate">Kurslar yuklanmoqda...</div>
+        </div>
+        <div class="field">
+            <label>Qabul qiluvchi hamyon / Karta raqami:</label>
+            <input type="text" id="userWallet" class="wallet-input" placeholder="8600... yoki TRC20 manzili">
+        </div>
+        <button class="exchange-btn" id="exchangeBtn" onclick="startExchange()" disabled>⏳ Kurslar yuklanmoqda...</button>
+    </div>
+
+    <div class="panel">
+        <h2>💰 Joriy Kurslar</h2>
+        <!-- Skeleton loader — kurslar yuklanguncha ko'rinadi -->
+        <div id="ratesList">
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TO'LOV MODALI -->
+<div class="overlay" id="paymentOverlay">
+    <div class="modal">
+        <h3>💳 To'lov Ma'lumotlari</h3>
+        <div id="paymentBody"></div>
+        <div class="modal-actions" id="paymentActions"></div>
+    </div>
+</div>
+
+<!-- KUTISH MODALI -->
+<div class="overlay" id="waitingOverlay">
+    <div class="modal">
+        <h3>⏳ Tasdiqlash kutilmoqda</h3>
+        <div id="waitingBody"></div>
+        <div class="modal-actions">
+            <button class="btn btn-gray" onclick="closeWaiting()">Yopish</button>
+        </div>
+    </div>
+</div>
+
+<!-- TARIX MODALI -->
+<div class="overlay" id="historyOverlay">
+    <div class="modal">
+        <h3>📜 Mening Almashtirishlarim</h3>
+        <div id="historyBody"><div class="h-loading">⏳ Yuklanmoqda...</div></div>
+        <div class="modal-actions">
+            <button class="btn btn-primary" onclick="closeHistory()">Yopish</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp }    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getDatabase, ref, push, set, onValue, get, query, orderByChild, equalTo }
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL }
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyC5JMD4_rmYSLbFFYwKY3D6EZYxWtpfi0k",
+    authDomain: "cryptoexchangepro110921.firebaseapp.com",
+    databaseURL: "https://cryptoexchangepro110921-default-rtdb.firebaseio.com",
+    projectId: "cryptoexchangepro110921",
+    storageBucket: "cryptoexchangepro110921.firebasestorage.app",
+    messagingSenderId: "848073389707",
+    appId: "1:848073389707:web:d3c40dbd3f88766d7a068e"
+};
+
+const app     = initializeApp(firebaseConfig);
+const db      = getDatabase(app);
+const storage = getStorage(app);
+
+// ─── CONSTANTS ──────────────────────────────────────────────────────────────
+const BASE_URL = 'https://balenciaga110921-creator.github.io/meningsaytim';
+// GitHub Pages CDN keshini 5 daqiqaga qo'lda saqlaymiz — har yuklanishda cache buzilmaydi
+const CACHE_TTL = 5 * 60 * 1000;
+const CURR_ICONS = { BTC:'₿', ETH:'Ξ', USDT:'₮', TON:'🌐', TRX:'📱', DOGE:'🐕', USDC:'💰', UZS:'🇺🇿', USD:'🇺🇸', RUB:'🇷🇺' };
+const CURR_NAMES = { BTC:'Bitcoin', ETH:'Ethereum', USDT:'Tether', TON:'TON', TRX:'Tron', DOGE:'Dogecoin', USDC:'USD Coin', UZS:"So'm", USD:'Dollar', RUB:'Rubl' };
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let rates = {}, wallets = {}, contacts = {};
+let curOrder = null, timerInt = null, selectedFile = null;
+let orderUnsubscribe = null; // memory leak oldini olish uchun
+
+const clientId = localStorage.getItem('ce_client_id')
+    || 'C' + Math.random().toString(36).slice(2,9).toUpperCase();
+localStorage.setItem('ce_client_id', clientId);
+
+// ─── FIX 1: TEZLASHTIRILGAN YUKLANISH ────────────────────────────────────────
+// Muammo: 3 ta fetch ketma-ket kutib qolar edi
+// Yechim: Promise.all + localStorage cache (5 daqiqa)
+async function fetchWithCache(key, url) {
+    const cached = localStorage.getItem('cache_' + key);
+    if (cached) {
+        try {
+            const { ts, data } = JSON.parse(cached);
+            if (Date.now() - ts < CACHE_TTL) return data; // Cache'dan ol
+        } catch(e) { /* buzilgan cache — o'chiramiz */ localStorage.removeItem('cache_' + key); }
+    }
+    // Cache yo'q yoki eskirgan — tarmoqdan ol
+    const res  = await fetch(url + '?t=' + Math.floor(Date.now() / CACHE_TTL)); // 5 daqiqada bir yangi URL
+    const data = await res.json();
+    localStorage.setItem('cache_' + key, JSON.stringify({ ts: Date.now(), data }));
+    return data;
+}
+
+async function loadData() {
+    try {
+        // Uchala faylni PARALLEL yuklaymiz + cache ishlatamiz
+        const [r, w, c] = await Promise.all([
+            fetchWithCache('rates',    BASE_URL + '/rates.json'),
+            fetchWithCache('wallets',  BASE_URL + '/wallets.json'),
+            fetchWithCache('contacts', BASE_URL + '/contacts.json'),
+        ]);
+        rates = r; wallets = w; contacts = c;
+        renderRates();
+        calc();
+        // Exchange tugmasini yoqamiz
+        const btn = document.getElementById('exchangeBtn');
+        btn.disabled = false;
+        btn.textContent = '🚀 Almashtirishni boshlash';
+        checkActiveOrder();
+    } catch(e) {
+        // Cache'da eski ma'lumot bormi? Ishlatamiz
+        const cached = localStorage.getItem('cache_rates');
+        if (cached) {
+            try {
+                rates = JSON.parse(cached).data;
+                renderRates(); calc();
+                toast('⚠️ Eski kurslar ishlatilmoqda', 'warn');
+                const btn = document.getElementById('exchangeBtn');
+                btn.disabled = false; btn.textContent = '🚀 Almashtirishni boshlash';
+                return;
+            } catch(e2) {}
+        }
+        document.getElementById('ratesList').innerHTML = `<div class="empty-msg">❌ Kurslarni yuklab bo'lmadi. Internet aloqasini tekshiring.</div>`;
+        toast('❌ Yuklashda xato', 'err');
+    }
+}
+
+// ─── FIX 2: RENDER RATES — icon va nom bilan ────────────────────────────────
+function renderRates() {
+    const el = document.getElementById('ratesList');
+    // Ticker ham yangilaylik
+    renderTicker();
+    let h = '';
+    Object.keys(rates).forEach(c => {
+        if (c === 'UZS') return;
+        const icon = CURR_ICONS[c] || c[0];
+        const name = CURR_NAMES[c] || c;
+        h += `
+        <div class="rate-card">
+            <div class="rate-left">
+                <div class="rate-icon icon-${c.toLowerCase()}">${icon}</div>
+                <div><div class="rate-name">${c}</div><div class="rate-sub">${name}</div></div>
+            </div>
+            <div class="rate-value">
+                <div class="rate-price">${rates[c].toLocaleString('uz-UZ')} UZS</div>
+                <div class="rate-label">1 ${c} uchun</div>
+            </div>
+        </div>`;
+    });
+    el.innerHTML = h || '<div class="empty-msg">📭 Kurslar yo\'q</div>';
+}
+
+function renderTicker() {
+    const items = Object.keys(rates)
+        .filter(c => c !== 'UZS')
+        .map(c => `<span class="ticker-item"><span class="ticker-coin">${CURR_ICONS[c]||c} ${c}</span><span class="ticker-price">${rates[c].toLocaleString()} UZS</span></span>`)
+        .join('');
+    // Animatsiya uchun 2x takrorlaymiz
+    document.getElementById('tickerWrap').innerHTML = items + items;
+}
+
+// ─── CALC ────────────────────────────────────────────────────────────────────
+function calc() {
+    const gc = document.getElementById('giveCurr').value;
+    const rc = document.getElementById('getCurr').value;
+    const ga = parseFloat(document.getElementById('giveAmt').value) || 0;
+    document.getElementById('giveSym').textContent = gc;
+
+    // Kurslar yuklanmagan yoki nol bo'lsa
+    if (!rates[gc] || !rates[rc]) {
+        document.getElementById('resultAmt').textContent = '—';
+        document.getElementById('resultRate').textContent = 'Kurslar yuklanmoqda...';
+        return;
+    }
+    const res  = (ga * rates[gc] / rates[rc]) * 0.995;
+    const rate = (rates[gc] / rates[rc]);
+    document.getElementById('resultAmt').textContent  = ga > 0 ? res.toLocaleString('uz-UZ', {maximumFractionDigits:6}) + ' ' + rc : '—';
+    document.getElementById('resultRate').textContent = `1 ${gc} = ${rate.toLocaleString('uz-UZ', {maximumFractionDigits:4})} ${rc} (0.5% komissiya)`;
+}
+window.calc = calc;
+
+function swapCurr() {
+    const gc = document.getElementById('giveCurr');
+    const rc = document.getElementById('getCurr');
+    const tmp = gc.value;
+    // getCurr optionlarida gc.value bormi tekshiramiz
+    const opt = [...rc.options].map(o => o.value);
+    if (opt.includes(tmp)) {
+        const tmpR = rc.value;
+        rc.value = tmp;
+        gc.value = tmpR;
+        calc();
+    } else {
+        toast('⚠️ Bu juftlik almashtirib bo\'lmaydi', 'warn');
+    }
+}
+window.swapCurr = swapCurr;
+
+// ─── EXCHANGE ────────────────────────────────────────────────────────────────
+function startExchange() {
+    const gc = document.getElementById('giveCurr').value;
+    const rc = document.getElementById('getCurr').value;
+    const ga = parseFloat(document.getElementById('giveAmt').value);
+    const uw = document.getElementById('userWallet').value.trim();
+
+    if (gc === rc)  { toast('❌ Bir xil valyutani almashtirib bo\'lmaydi', 'err'); return; }
+    if (!ga || ga <= 0) { toast('❌ Miqdorni kiriting', 'err'); return; }
+    if (!uw)        { toast('❌ Hamyon / karta raqamini kiriting', 'err'); return; }
+
+    curOrder = {
+        id:             'TX' + Date.now(),
+        clientId,
+        giveCurr:       gc,
+        getCurr:        rc,
+        giveAmt:        ga,
+        getAmt:         (ga * rates[gc] / rates[rc]) * 0.995,
+        userWallet:     uw,
+        receiverWallet: wallets[gc] || 'Admin bilan bog\'laning',
+        status:         'pending',
+        createdAt:      new Date().toISOString(),
+    };
+    localStorage.setItem('ce_active_order', JSON.stringify(curOrder));
+    showPaymentModal();
+}
+window.startExchange = startExchange;
+
+// ─── PAYMENT MODAL ────────────────────────────────────────────────────────────
+function showPaymentModal() {
+    const b = document.getElementById('paymentBody');
+    const a = document.getElementById('paymentActions');
+    b.innerHTML = `
+        <div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">${curOrder.id}</span></div>
+        <div class="detail-row"><span class="detail-label">Siz berasiz:</span><span class="detail-value">${curOrder.giveAmt} ${curOrder.giveCurr}</span></div>
+        <div class="detail-row">
+            <span class="detail-label">Bizning hamyon:</span>
+            <span class="detail-value" style="font-size:0.82rem">${curOrder.receiverWallet}
+                <button class="copy-btn" onclick="copyText('${curOrder.receiverWallet}')">Nusxa</button>
+            </span>
+        </div>
+        <div class="timer-box">
+            <div class="timer-label">⏱ To'lov vaqti:</div>
+            <div class="timer-display" id="payTimerDisp">15:00</div>
+        </div>
+        <div class="upload-area" id="uploadArea" onclick="document.getElementById('rFile').click()">
+            📁 Kvitansiya / screenshot yuklang
+            <input type="file" id="rFile" accept="image/*,.pdf" style="display:none" onchange="handleFile(this)">
+        </div>
+        <div class="progress-container" id="progCont"><div class="progress-bar" id="progBar"></div></div>
+        <div class="progress-pct" id="progPct"></div>
+        <div id="fileStatus" style="text-align:center;font-size:0.82rem;margin-top:4px;"></div>
+    `;
+    a.innerHTML = `
+        <button class="btn btn-success" id="confirmBtn" onclick="confirmPay()">✅ To'lov qildim</button>
+        <button class="btn btn-danger" onclick="cancelOrder()">❌ Bekor qilish</button>
+    `;
+    document.getElementById('paymentOverlay').classList.add('open');
+    startCountdown('payTimerDisp', 900, cancelOrder);
+}
+
+// ─── FIX 3: FILE UPLOAD — progress foiz ko'rinadi ────────────────────────────
+async function handleFile(inp) {
+    const f = inp.files[0]; if (!f) return;
+    const st = document.getElementById('fileStatus');
+    const ar = document.getElementById('uploadArea');
+
+    // Hajm tekshiruvi (10MB)
+    if (f.size > 10 * 1024 * 1024) {
+        toast('❌ Fayl 10MB dan katta', 'err'); return;
+    }
+
+    if (f.type.startsWith('image/')) {
+        st.innerText = "⏳ Siqilmoqda...";
+        ar.style.opacity = '0.6';
+        selectedFile = await compressImage(f);
+        st.innerText = `✅ Tayyor (${(selectedFile.size/1024).toFixed(0)} KB)`;
+    } else {
+        selectedFile = f;
+        st.innerText = `✅ Tanlandi (${(f.size/1024).toFixed(0)} KB)`;
+    }
+    ar.style.opacity = '1';
+    ar.classList.add('has-file');
+    ar.innerHTML = `📎 ${f.name} <span style="font-size:0.8rem">(o'zgartirish uchun bosing)</span>
+        <input type="file" id="rFile" accept="image/*,.pdf" style="display:none" onchange="handleFile(this)">`;
+}
+window.handleFile = handleFile;
+
+// Rasm siqish — sifat 0.7 → fayl 3-5x kichrayadi
+function compressImage(f) {
+    return new Promise(res => {
+        const reader = new FileReader();
+        reader.readAsDataURL(f);
+        reader.onload = e => {
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = () => {
+                const MAX = 1200;
+                let w = img.width, h = img.height;
+                if (w > h && w > MAX) { h = h * MAX / w; w = MAX; }
+                else if (h > MAX)     { w = w * MAX / h; h = MAX; }
+                const c = document.createElement('canvas');
+                c.width = w; c.height = h;
+                c.getContext('2d').drawImage(img, 0, 0, w, h);
+                c.toBlob(b => res(new File([b], f.name, { type: 'image/jpeg' })), 'image/jpeg', 0.75);
+            };
+        };
+    });
+}
+
+async function confirmPay() {
+    if (!selectedFile) { toast('❌ Kvitansiyani yuklang', 'err'); return; }
+    const btn   = document.getElementById('confirmBtn');
+    const pc    = document.getElementById('progCont');
+    const pb    = document.getElementById('progBar');
+    const pPct  = document.getElementById('progPct');
+    btn.disabled = true; btn.textContent = '⏳ Yuklanmoqda...';
+    pc.style.display = 'block'; pPct.style.display = 'block';
+
+    const path = `receipts/${curOrder.id}_${Date.now()}`;
+    const task = uploadBytesResumable(sRef(storage, path), selectedFile);
+
+    task.on('state_changed',
+        snap => {
+            const pct = Math.round(snap.bytesTransferred / snap.totalBytes * 100);
+            pb.style.width  = pct + '%';
+            pPct.textContent = `${pct}% yuklandi...`;
+        },
+        err => {
+            toast('❌ Yuklashda xato: ' + err.message, 'err');
+            btn.disabled = false; btn.textContent = '✅ To\'lov qildim';
+        },
+        async () => {
+            try {
+                curOrder.receiptData = await getDownloadURL(task.snapshot.ref);
+                curOrder.status  = 'paid';
+                curOrder.paidAt  = new Date().toISOString();
+                const k = push(ref(db, 'orders'));
+                await set(k, curOrder);
+                curOrder._fbKey = k.key;
+                localStorage.setItem('ce_active_order', JSON.stringify(curOrder));
+                document.getElementById('paymentOverlay').classList.remove('open');
+                showWaitingModal();
+                listenOrder(k.key);
+            } catch(e) {
+                toast('❌ Saqlashda xato', 'err');
+                btn.disabled = false; btn.textContent = '✅ To\'lov qildim';
+            }
+        }
+    );
+}
+window.confirmPay = confirmPay;
+
+// ─── ORDER LISTENER — memory leak tuzatildi ──────────────────────────────────
+function listenOrder(k) {
+    // Oldingi listener'ni o'chiramiz
+    if (orderUnsubscribe) { orderUnsubscribe(); orderUnsubscribe = null; }
+
+    orderUnsubscribe = onValue(ref(db, 'orders/' + k), snap => {
+        if (!snap.exists()) return;
+        const d = snap.val();
+        if (d.status === 'sent' || d.status === 'rejected') {
+            const m = document.getElementById('orderStatusMsg');
+            if (m) {
+                m.className = d.status === 'sent' ? 'status-box success' : 'status-box rejected';
+                m.innerText  = d.status === 'sent' ? '✅ Tugatildi! Pul tez orada kelib tushadi.' : '❌ Rad etildi. Admin bilan bog\'laning.';
+            }
+            curOrder.status = d.status;
+            localStorage.setItem('ce_active_order', JSON.stringify(curOrder));
+            // Tugagan zakaz uchun listener kerak emas
+            if (orderUnsubscribe) { orderUnsubscribe(); orderUnsubscribe = null; }
+        }
+    });
+}
+
+function showWaitingModal() {
+    document.getElementById('waitingBody').innerHTML = `
+        <div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">${curOrder.id}</span></div>
+        <div class="detail-row"><span class="detail-label">Berildi:</span><span class="detail-value">${curOrder.giveAmt} ${curOrder.giveCurr}</span></div>
+        <div class="detail-row"><span class="detail-label">Olinadi:</span><span class="detail-value">${curOrder.getAmt?.toFixed(4)} ${curOrder.getCurr}</span></div>
+        <div id="orderStatusMsg" class="status-box waiting">⏳ Admin tekshirmoqda... Biroz kuting.</div>
+    `;
+    document.getElementById('waitingOverlay').classList.add('open');
+}
+
+function cancelOrder() {
+    clearInterval(timerInt);
+    localStorage.removeItem('ce_active_order');
+    document.getElementById('paymentOverlay').classList.remove('open');
+    selectedFile = null; curOrder = null;
+}
+window.cancelOrder = cancelOrder;
+
+function checkActiveOrder() {
+    const s = localStorage.getItem('ce_active_order');
+    if (!s) return;
+    try {
+        curOrder = JSON.parse(s);
+        if (curOrder.status === 'pending') showPaymentModal();
+        else if (curOrder.status === 'paid' && curOrder._fbKey) {
+            showWaitingModal();
+            listenOrder(curOrder._fbKey);
+        } else {
+            // Tugatilgan zakaz — tozalaymiz
+            localStorage.removeItem('ce_active_order');
+        }
+    } catch(e) { localStorage.removeItem('ce_active_order'); }
+}
+
+function startCountdown(id, seconds, cb) {
+    clearInterval(timerInt);
+    let s = seconds;
+    timerInt = setInterval(() => {
+        s--;
+        const m   = Math.floor(s / 60);
+        const sec = s % 60;
+        const el  = document.getElementById(id);
+        if (!el) { clearInterval(timerInt); return; }
+        el.textContent = `${m}:${sec < 10 ? '0' : ''}${sec}`;
+        if (s <= 60) el.classList.add('urgent');
+        if (s <= 0)  { clearInterval(timerInt); cb(); }
+    }, 1000);
+}
+
+// ─── FIX 4: TARIX — faqat clientId bo'yicha query ────────────────────────────
+// Muammo: avval BARCHA zakazlar yuklanib, browserda filter qilinardi
+// Yechim: Firebase query — serverda filterlash
+function openHistory() {
+    document.getElementById('historyOverlay').classList.add('open');
+    const histBody = document.getElementById('historyBody');
+    histBody.innerHTML = '<div class="h-loading">⏳ Yuklanmoqda...</div>';
+
+    // Faqat shu clientId'ga tegishli zakazlarni serverdan so'raymiz
+    const q = query(ref(db, 'orders'), orderByChild('clientId'), equalTo(clientId));
+    get(q).then(snap => {
+        if (!snap.exists()) { histBody.innerHTML = '<div class="empty-msg">📭 Hech qanday almashtirish yo\'q</div>'; return; }
+        const items = [];
+        snap.forEach(c => items.unshift({ key: c.key, ...c.val() })); // yangilar yuqorida
+
+        const STATUS_LABEL = {
+            pending:   '🆕 Kutilmoqda',
+            paid:      '🔍 Tekshirilmoqda',
+            sent:      '✅ Tugatilgan',
+            rejected:  '❌ Rad etildi',
+            cancelled: '🚫 Bekor qilindi',
+        };
+        histBody.innerHTML = items.map(d => `
+            <div class="h-item ${d.status}">
+                <div class="h-item-top">
+                    <span class="h-item-id">${d.id}</span>
+                    <span class="h-status">${STATUS_LABEL[d.status] || d.status}</span>
+                </div>
+                <div class="h-detail">${d.giveAmt} ${d.giveCurr} → ${d.getAmt?.toFixed(4)||'?'} ${d.getCurr}</div>
+                <div class="h-detail" style="font-size:0.78rem">${new Date(d.createdAt).toLocaleString('uz-UZ')}</div>
+            </div>
+        `).join('');
+    }).catch(e => {
+        histBody.innerHTML = `<div class="empty-msg">❌ Yuklab bo'lmadi</div>`;
+    });
+}
+window.openHistory = openHistory;
+
+function closeHistory() { document.getElementById('historyOverlay').classList.remove('open'); }
+window.closeHistory = closeHistory;
+
+function closeWaiting() { document.getElementById('waitingOverlay').classList.remove('open'); }
+window.closeWaiting = closeWaiting;
+
+function copyText(t) {
+    navigator.clipboard.writeText(t).then(() => toast('✅ Nusxalandi')).catch(() => toast('❌ Nusxalab bo\'lmadi', 'err'));
+}
+window.copyText = copyText;
+
+function toast(m, t = '') {
+    const e = document.getElementById('toast');
+    e.innerText = m;
+    e.className = 'toast show ' + t;
+    clearTimeout(e._t);
+    e._t = setTimeout(() => e.classList.remove('show'), 3000);
+}
+
+// ─── START ───────────────────────────────────────────────────────────────────
+loadData();
+</script>
+</body>
+</html>
