@@ -176,28 +176,12 @@
         .timer-display { font-size: 2.4rem; font-family: monospace; font-weight: 700; color: var(--warning); }
         .timer-display.urgent { color: var(--danger); }
 
-        /* UPLOAD & PROGRESS */
-        .upload-area {
-            border: 2px dashed rgba(99,102,241,0.4); border-radius: 12px; padding: 22px;
-            text-align: center; cursor: pointer; margin: 16px 0;
-            transition: all 0.3s; color: var(--text-secondary);
-            position: relative; overflow: hidden;
-        }
-        .upload-area:hover { border-color: var(--primary); background: rgba(99,102,241,0.08); }
-        .upload-area.has-file { border-color: var(--success); background: rgba(16,185,129,0.08); color: var(--success); }
-
-        .progress-container {
-            width: 100%; height: 8px; background: rgba(255,255,255,0.1);
-            border-radius: 10px; margin: 10px 0; display: none; overflow: hidden;
-        }
-        .progress-bar { height: 100%; width: 0%; background: var(--success); transition: width 0.3s; }
-        .progress-pct { text-align:center; font-size:0.82rem; color:var(--text-secondary); margin-top:4px; display:none; }
-
-        .contact-box {
+        /* TO'LOV TASDIQLASH TUGMASI */
+        .confirm-info {
             background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.3);
-            border-radius: 12px; padding: 14px; margin-top: 14px; font-size: 0.9rem;
+            border-radius: 12px; padding: 14px; margin: 16px 0;
+            font-size: 0.88rem; color: var(--text-secondary); text-align: center;
         }
-        .contact-box h4 { margin-bottom: 8px; font-size: 0.95rem; }
 
         .modal-actions { display: flex; gap: 12px; margin-top: 18px; }
         .btn { padding: 12px 18px; border: none; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.95rem; transition: all 0.3s; flex: 1; }
@@ -229,8 +213,7 @@
         .toast.warn { border-left-color: var(--warning); }
 
         /* HISTORY */
-        .h-item { background: rgba(255,255,255,0.05); border-radius: 14px; padding: 16px; margin-bottom: 12px; border-left: 4px solid transparent; cursor: pointer; transition: background 0.2s; }
-        .h-item:hover { background: rgba(255,255,255,0.08); }
+        .h-item { background: rgba(255,255,255,0.05); border-radius: 14px; padding: 16px; margin-bottom: 12px; border-left: 4px solid transparent; transition: background 0.2s; }
         .h-item.pending  { border-left-color: var(--warning); }
         .h-item.paid     { border-left-color: var(--primary); }
         .h-item.sent     { border-left-color: var(--success); }
@@ -308,7 +291,6 @@
 
     <div class="panel">
         <h2>💰 Joriy Kurslar</h2>
-        <!-- Skeleton loader — kurslar yuklanguncha ko'rinadi -->
         <div id="ratesList">
             <div class="skeleton"></div>
             <div class="skeleton"></div>
@@ -354,10 +336,9 @@
 
 <script type="module">
 import { initializeApp }    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getDatabase, ref, push, set, onValue, get, query, orderByChild, equalTo }
+import { getDatabase, ref, push, set, onValue, update, query, orderByChild, equalTo }
     from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
-import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL }
-    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
+
 const firebaseConfig = {
     apiKey: "AIzaSyC5JMD4_rmYSLbFFYwKY3D6EZYxWtpfi0k",
     authDomain: "cryptoexchangepro110921.firebaseapp.com",
@@ -368,40 +349,57 @@ const firebaseConfig = {
     appId: "1:848073389707:web:d3c40dbd3f88766d7a068e"
 };
 
-
-const app     = initializeApp(firebaseConfig);
-const db      = getDatabase(app);
-const storage = getStorage(app);
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
 
 // ─── CONSTANTS ──────────────────────────────────────────────────────────────
-const BASE_URL = 'https://balenciaga110921-creator.github.io/meningsaytim';
-// GitHub Pages CDN keshini 5 daqiqaga qo'lda saqlaymiz — har yuklanishda cache buzilmaydi
+const BASE_URL  = 'https://balenciaga110921-creator.github.io/meningsaytim';
 const CACHE_TTL = 5 * 60 * 1000;
 const CURR_ICONS = { BTC:'₿', ETH:'Ξ', USDT:'₮', TON:'🌐', TRX:'📱', DOGE:'🐕', USDC:'💰', UZS:'🇺🇿', USD:'🇺🇸', RUB:'🇷🇺' };
 const CURR_NAMES = { BTC:'Bitcoin', ETH:'Ethereum', USDT:'Tether', TON:'TON', TRX:'Tron', DOGE:'Dogecoin', USDC:'USD Coin', UZS:"So'm", USD:'Dollar', RUB:'Rubl' };
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
 let rates = {}, wallets = {}, contacts = {};
-let curOrder = null, timerInt = null, selectedFile = null;
-let orderUnsubscribe = null; // memory leak oldini olish uchun
+let curOrder = null, timerInt = null;
+let orderUnsubscribe = null;
 
+// ─── CLIENT ID ───────────────────────────────────────────────────────────────
 const clientId = localStorage.getItem('ce_client_id')
     || 'C' + Math.random().toString(36).slice(2,9).toUpperCase();
 localStorage.setItem('ce_client_id', clientId);
 
-// ─── FIX 1: TEZLASHTIRILGAN YUKLANISH ────────────────────────────────────────
-// Muammo: 3 ta fetch ketma-ket kutib qolar edi
-// Yechim: Promise.all + localStorage cache (5 daqiqa)
+// ─── TARIX UCHUN REAL-TIME LISTENER (bir marta ulashiladi) ───────────────────
+// Sahifa ochilganda darhol listener qo'yiladi → tarixga kirganda kechikish yo'q
+let myOrders = [];           // xotirada saqlanadi
+let historyUnsubscribe = null;
+
+function startHistoryListener() {
+    if (historyUnsubscribe) return; // allaqachon ulangan
+    const q = query(ref(db, 'orders'), orderByChild('clientId'), equalTo(clientId));
+    historyUnsubscribe = onValue(q, snap => {
+        myOrders = [];
+        if (snap.exists()) {
+            snap.forEach(ch => myOrders.push({ key: ch.key, ...ch.val() }));
+            // Yangilar yuqorida
+            myOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        }
+        // Tarix modali ochiq bo'lsa — darhol yangilaymiz
+        if (document.getElementById('historyOverlay').classList.contains('open')) {
+            renderHistoryList();
+        }
+    });
+}
+
+// ─── CACHE FETCH ─────────────────────────────────────────────────────────────
 async function fetchWithCache(key, url) {
     const cached = localStorage.getItem('cache_' + key);
     if (cached) {
         try {
             const { ts, data } = JSON.parse(cached);
-            if (Date.now() - ts < CACHE_TTL) return data; // Cache'dan ol
-        } catch(e) { /* buzilgan cache — o'chiramiz */ localStorage.removeItem('cache_' + key); }
+            if (Date.now() - ts < CACHE_TTL) return data;
+        } catch(e) { localStorage.removeItem('cache_' + key); }
     }
-    // Cache yo'q yoki eskirgan — tarmoqdan ol
-    const res  = await fetch(url + '?t=' + Math.floor(Date.now() / CACHE_TTL)); // 5 daqiqada bir yangi URL
+    const res  = await fetch(url + '?t=' + Math.floor(Date.now() / CACHE_TTL));
     const data = await res.json();
     localStorage.setItem('cache_' + key, JSON.stringify({ ts: Date.now(), data }));
     return data;
@@ -409,7 +407,6 @@ async function fetchWithCache(key, url) {
 
 async function loadData() {
     try {
-        // Uchala faylni PARALLEL yuklaymiz + cache ishlatamiz
         const [r, w, c] = await Promise.all([
             fetchWithCache('rates',    BASE_URL + '/rates.json'),
             fetchWithCache('wallets',  BASE_URL + '/wallets.json'),
@@ -418,13 +415,13 @@ async function loadData() {
         rates = r; wallets = w; contacts = c;
         renderRates();
         calc();
-        // Exchange tugmasini yoqamiz
         const btn = document.getElementById('exchangeBtn');
         btn.disabled = false;
         btn.textContent = '🚀 Almashtirishni boshlash';
         checkActiveOrder();
+        // Tarix listener'ni darhol ishga tushiramiz
+        startHistoryListener();
     } catch(e) {
-        // Cache'da eski ma'lumot bormi? Ishlatamiz
         const cached = localStorage.getItem('cache_rates');
         if (cached) {
             try {
@@ -433,6 +430,7 @@ async function loadData() {
                 toast('⚠️ Eski kurslar ishlatilmoqda', 'warn');
                 const btn = document.getElementById('exchangeBtn');
                 btn.disabled = false; btn.textContent = '🚀 Almashtirishni boshlash';
+                startHistoryListener();
                 return;
             } catch(e2) {}
         }
@@ -441,10 +439,8 @@ async function loadData() {
     }
 }
 
-// ─── FIX 2: RENDER RATES — icon va nom bilan ────────────────────────────────
+// ─── RENDER RATES ─────────────────────────────────────────────────────────────
 function renderRates() {
-    const el = document.getElementById('ratesList');
-    // Ticker ham yangilaylik
     renderTicker();
     let h = '';
     Object.keys(rates).forEach(c => {
@@ -463,7 +459,7 @@ function renderRates() {
             </div>
         </div>`;
     });
-    el.innerHTML = h || '<div class="empty-msg">📭 Kurslar yo\'q</div>';
+    document.getElementById('ratesList').innerHTML = h || '<div class="empty-msg">📭 Kurslar yo\'q</div>';
 }
 
 function renderTicker() {
@@ -471,18 +467,15 @@ function renderTicker() {
         .filter(c => c !== 'UZS')
         .map(c => `<span class="ticker-item"><span class="ticker-coin">${CURR_ICONS[c]||c} ${c}</span><span class="ticker-price">${rates[c].toLocaleString()} UZS</span></span>`)
         .join('');
-    // Animatsiya uchun 2x takrorlaymiz
     document.getElementById('tickerWrap').innerHTML = items + items;
 }
 
-// ─── CALC ────────────────────────────────────────────────────────────────────
+// ─── CALC ─────────────────────────────────────────────────────────────────────
 function calc() {
     const gc = document.getElementById('giveCurr').value;
     const rc = document.getElementById('getCurr').value;
     const ga = parseFloat(document.getElementById('giveAmt').value) || 0;
     document.getElementById('giveSym').textContent = gc;
-
-    // Kurslar yuklanmagan yoki nol bo'lsa
     if (!rates[gc] || !rates[rc]) {
         document.getElementById('resultAmt').textContent = '—';
         document.getElementById('resultRate').textContent = 'Kurslar yuklanmoqda...';
@@ -499,29 +492,25 @@ function swapCurr() {
     const gc = document.getElementById('giveCurr');
     const rc = document.getElementById('getCurr');
     const tmp = gc.value;
-    // getCurr optionlarida gc.value bormi tekshiramiz
     const opt = [...rc.options].map(o => o.value);
     if (opt.includes(tmp)) {
-        const tmpR = rc.value;
-        rc.value = tmp;
-        gc.value = tmpR;
-        calc();
+        const tmpR = rc.value; rc.value = tmp; gc.value = tmpR; calc();
     } else {
         toast('⚠️ Bu juftlik almashtirib bo\'lmaydi', 'warn');
     }
 }
 window.swapCurr = swapCurr;
 
-// ─── EXCHANGE ────────────────────────────────────────────────────────────────
+// ─── EXCHANGE ─────────────────────────────────────────────────────────────────
 function startExchange() {
     const gc = document.getElementById('giveCurr').value;
     const rc = document.getElementById('getCurr').value;
     const ga = parseFloat(document.getElementById('giveAmt').value);
     const uw = document.getElementById('userWallet').value.trim();
 
-    if (gc === rc)  { toast('❌ Bir xil valyutani almashtirib bo\'lmaydi', 'err'); return; }
-    if (!ga || ga <= 0) { toast('❌ Miqdorni kiriting', 'err'); return; }
-    if (!uw)        { toast('❌ Hamyon / karta raqamini kiriting', 'err'); return; }
+    if (gc === rc)    { toast('❌ Bir xil valyutani almashtirib bo\'lmaydi', 'err'); return; }
+    if (!ga || ga<=0) { toast('❌ Miqdorni kiriting', 'err'); return; }
+    if (!uw)          { toast('❌ Hamyon / karta raqamini kiriting', 'err'); return; }
 
     curOrder = {
         id:             'TX' + Date.now(),
@@ -540,16 +529,27 @@ function startExchange() {
 }
 window.startExchange = startExchange;
 
-// ─── PAYMENT MODAL ────────────────────────────────────────────────────────────
+// ─── TO'LOV MODALI (rasmsiz) ──────────────────────────────────────────────────
 function showPaymentModal() {
     const b = document.getElementById('paymentBody');
     const a = document.getElementById('paymentActions');
     b.innerHTML = `
-        <div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">${curOrder.id}</span></div>
-        <div class="detail-row"><span class="detail-label">Siz berasiz:</span><span class="detail-value">${curOrder.giveAmt} ${curOrder.giveCurr}</span></div>
+        <div class="detail-row">
+            <span class="detail-label">ID:</span>
+            <span class="detail-value">${curOrder.id}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Siz berasiz:</span>
+            <span class="detail-value">${curOrder.giveAmt} ${curOrder.giveCurr}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Siz olasiz:</span>
+            <span class="detail-value">${curOrder.getAmt.toFixed(4)} ${curOrder.getCurr}</span>
+        </div>
         <div class="detail-row">
             <span class="detail-label">Bizning hamyon:</span>
-            <span class="detail-value" style="font-size:0.82rem">${curOrder.receiverWallet}
+            <span class="detail-value" style="font-size:0.82rem">
+                ${curOrder.receiverWallet}
                 <button class="copy-btn" onclick="copyText('${curOrder.receiverWallet}')">Nusxa</button>
             </span>
         </div>
@@ -557,119 +557,44 @@ function showPaymentModal() {
             <div class="timer-label">⏱ To'lov vaqti:</div>
             <div class="timer-display" id="payTimerDisp">15:00</div>
         </div>
-        <div class="upload-area" id="uploadArea" onclick="document.getElementById('rFile').click()">
-            📁 Kvitansiya / screenshot yuklang
-            <input type="file" id="rFile" accept="image/*,.pdf" style="display:none" onchange="handleFile(this)">
+        <div class="confirm-info">
+            💡 Yuqoridagi hamyonga to'lovni amalga oshiring va "To'lov qildim" tugmasini bosing.
+            Admin to'lovingizni tekshirib, tasdiqlaydi.
         </div>
-        <div class="progress-container" id="progCont"><div class="progress-bar" id="progBar"></div></div>
-        <div class="progress-pct" id="progPct"></div>
-        <div id="fileStatus" style="text-align:center;font-size:0.82rem;margin-top:4px;"></div>
     `;
     a.innerHTML = `
         <button class="btn btn-success" id="confirmBtn" onclick="confirmPay()">✅ To'lov qildim</button>
-        <button class="btn btn-danger" onclick="cancelOrder()">❌ Bekor qilish</button>
+        <button class="btn btn-danger"  onclick="cancelOrder()">❌ Bekor qilish</button>
     `;
     document.getElementById('paymentOverlay').classList.add('open');
     startCountdown('payTimerDisp', 900, cancelOrder);
 }
 
-// ─── FIX 3: FILE UPLOAD — progress foiz ko'rinadi ────────────────────────────
-async function handleFile(inp) {
-    const f = inp.files[0]; if (!f) return;
-    const st = document.getElementById('fileStatus');
-    const ar = document.getElementById('uploadArea');
-
-    // Hajm tekshiruvi (10MB)
-    if (f.size > 10 * 1024 * 1024) {
-        toast('❌ Fayl 10MB dan katta', 'err'); return;
-    }
-
-    if (f.type.startsWith('image/')) {
-        st.innerText = "⏳ Siqilmoqda...";
-        ar.style.opacity = '0.6';
-        selectedFile = await compressImage(f);
-        st.innerText = `✅ Tayyor (${(selectedFile.size/1024).toFixed(0)} KB)`;
-    } else {
-        selectedFile = f;
-        st.innerText = `✅ Tanlandi (${(f.size/1024).toFixed(0)} KB)`;
-    }
-    ar.style.opacity = '1';
-    ar.classList.add('has-file');
-    ar.innerHTML = `📎 ${f.name} <span style="font-size:0.8rem">(o'zgartirish uchun bosing)</span>
-        <input type="file" id="rFile" accept="image/*,.pdf" style="display:none" onchange="handleFile(this)">`;
-}
-window.handleFile = handleFile;
-
-// Rasm siqish — sifat 0.7 → fayl 3-5x kichrayadi
-function compressImage(f) {
-    return new Promise(res => {
-        const reader = new FileReader();
-        reader.readAsDataURL(f);
-        reader.onload = e => {
-            const img = new Image();
-            img.src = e.target.result;
-            img.onload = () => {
-                const MAX = 1200;
-                let w = img.width, h = img.height;
-                if (w > h && w > MAX) { h = h * MAX / w; w = MAX; }
-                else if (h > MAX)     { w = w * MAX / h; h = MAX; }
-                const c = document.createElement('canvas');
-                c.width = w; c.height = h;
-                c.getContext('2d').drawImage(img, 0, 0, w, h);
-                c.toBlob(b => res(new File([b], f.name, { type: 'image/jpeg' })), 'image/jpeg', 0.75);
-            };
-        };
-    });
-}
-
+// ─── TO'LOVNI TASDIQLASH (rasm yuklamasdan) ───────────────────────────────────
 async function confirmPay() {
-    if (!selectedFile) { toast('❌ Kvitansiyani yuklang', 'err'); return; }
-    const btn   = document.getElementById('confirmBtn');
-    const pc    = document.getElementById('progCont');
-    const pb    = document.getElementById('progBar');
-    const pPct  = document.getElementById('progPct');
-    btn.disabled = true; btn.textContent = '⏳ Yuklanmoqda...';
-    pc.style.display = 'block'; pPct.style.display = 'block';
-
-    const path = `receipts/${curOrder.id}_${Date.now()}`;
-    const task = uploadBytesResumable(sRef(storage, path), selectedFile);
-
-    task.on('state_changed',
-        snap => {
-            const pct = Math.round(snap.bytesTransferred / snap.totalBytes * 100);
-            pb.style.width  = pct + '%';
-            pPct.textContent = `${pct}% yuklandi...`;
-        },
-        err => {
-            toast('❌ Yuklashda xato: ' + err.message, 'err');
-            btn.disabled = false; btn.textContent = '✅ To\'lov qildim';
-        },
-        async () => {
-            try {
-                curOrder.receiptData = await getDownloadURL(task.snapshot.ref);
-                curOrder.status  = 'paid';
-                curOrder.paidAt  = new Date().toISOString();
-                const k = push(ref(db, 'orders'));
-                await set(k, curOrder);
-                curOrder._fbKey = k.key;
-                localStorage.setItem('ce_active_order', JSON.stringify(curOrder));
-                document.getElementById('paymentOverlay').classList.remove('open');
-                showWaitingModal();
-                listenOrder(k.key);
-            } catch(e) {
-                toast('❌ Saqlashda xato', 'err');
-                btn.disabled = false; btn.textContent = '✅ To\'lov qildim';
-            }
-        }
-    );
+    const btn = document.getElementById('confirmBtn');
+    btn.disabled = true; btn.textContent = '⏳ Saqlanmoqda...';
+    try {
+        curOrder.status  = 'paid';
+        curOrder.paidAt  = new Date().toISOString();
+        const k = push(ref(db, 'orders'));
+        await set(k, curOrder);
+        curOrder._fbKey = k.key;
+        localStorage.setItem('ce_active_order', JSON.stringify(curOrder));
+        clearInterval(timerInt);
+        document.getElementById('paymentOverlay').classList.remove('open');
+        showWaitingModal();
+        listenOrder(k.key);
+    } catch(e) {
+        toast('❌ Saqlashda xato: ' + e.message, 'err');
+        btn.disabled = false; btn.textContent = '✅ To\'lov qildim';
+    }
 }
 window.confirmPay = confirmPay;
 
-// ─── ORDER LISTENER — memory leak tuzatildi ──────────────────────────────────
+// ─── ORDER LISTENER ───────────────────────────────────────────────────────────
 function listenOrder(k) {
-    // Oldingi listener'ni o'chiramiz
     if (orderUnsubscribe) { orderUnsubscribe(); orderUnsubscribe = null; }
-
     orderUnsubscribe = onValue(ref(db, 'orders/' + k), snap => {
         if (!snap.exists()) return;
         const d = snap.val();
@@ -677,11 +602,12 @@ function listenOrder(k) {
             const m = document.getElementById('orderStatusMsg');
             if (m) {
                 m.className = d.status === 'sent' ? 'status-box success' : 'status-box rejected';
-                m.innerText  = d.status === 'sent' ? '✅ Tugatildi! Pul tez orada kelib tushadi.' : '❌ Rad etildi. Admin bilan bog\'laning.';
+                m.innerText  = d.status === 'sent'
+                    ? '✅ Tugatildi! Pul tez orada kelib tushadi.'
+                    : '❌ Rad etildi. Admin bilan bog\'laning.';
             }
             curOrder.status = d.status;
             localStorage.setItem('ce_active_order', JSON.stringify(curOrder));
-            // Tugagan zakaz uchun listener kerak emas
             if (orderUnsubscribe) { orderUnsubscribe(); orderUnsubscribe = null; }
         }
     });
@@ -701,7 +627,7 @@ function cancelOrder() {
     clearInterval(timerInt);
     localStorage.removeItem('ce_active_order');
     document.getElementById('paymentOverlay').classList.remove('open');
-    selectedFile = null; curOrder = null;
+    curOrder = null;
 }
 window.cancelOrder = cancelOrder;
 
@@ -712,10 +638,8 @@ function checkActiveOrder() {
         curOrder = JSON.parse(s);
         if (curOrder.status === 'pending') showPaymentModal();
         else if (curOrder.status === 'paid' && curOrder._fbKey) {
-            showWaitingModal();
-            listenOrder(curOrder._fbKey);
+            showWaitingModal(); listenOrder(curOrder._fbKey);
         } else {
-            // Tugatilgan zakaz — tozalaymiz
             localStorage.removeItem('ce_active_order');
         }
     } catch(e) { localStorage.removeItem('ce_active_order'); }
@@ -736,43 +660,38 @@ function startCountdown(id, seconds, cb) {
     }, 1000);
 }
 
-// ─── FIX 4: TARIX — faqat clientId bo'yicha query ────────────────────────────
-// Muammo: avval BARCHA zakazlar yuklanib, browserda filter qilinardi
-// Yechim: Firebase query — serverda filterlash
+// ─── TARIX — xotiradan darhol ko'rsatadi ──────────────────────────────────────
 function openHistory() {
     document.getElementById('historyOverlay').classList.add('open');
-    const histBody = document.getElementById('historyBody');
-    histBody.innerHTML = '<div class="h-loading">⏳ Yuklanmoqda...</div>';
-
-    // Faqat shu clientId'ga tegishli zakazlarni serverdan so'raymiz
-    const q = query(ref(db, 'orders'), orderByChild('clientId'), equalTo(clientId));
-    get(q).then(snap => {
-        if (!snap.exists()) { histBody.innerHTML = '<div class="empty-msg">📭 Hech qanday almashtirish yo\'q</div>'; return; }
-        const items = [];
-        snap.forEach(c => items.unshift({ key: c.key, ...c.val() })); // yangilar yuqorida
-
-        const STATUS_LABEL = {
-            pending:   '🆕 Kutilmoqda',
-            paid:      '🔍 Tekshirilmoqda',
-            sent:      '✅ Tugatilgan',
-            rejected:  '❌ Rad etildi',
-            cancelled: '🚫 Bekor qilindi',
-        };
-        histBody.innerHTML = items.map(d => `
-            <div class="h-item ${d.status}">
-                <div class="h-item-top">
-                    <span class="h-item-id">${d.id}</span>
-                    <span class="h-status">${STATUS_LABEL[d.status] || d.status}</span>
-                </div>
-                <div class="h-detail">${d.giveAmt} ${d.giveCurr} → ${d.getAmt?.toFixed(4)||'?'} ${d.getCurr}</div>
-                <div class="h-detail" style="font-size:0.78rem">${new Date(d.createdAt).toLocaleString('uz-UZ')}</div>
-            </div>
-        `).join('');
-    }).catch(e => {
-        histBody.innerHTML = `<div class="empty-msg">❌ Yuklab bo'lmadi</div>`;
-    });
+    // myOrders allaqachon xotirada — darhol render
+    renderHistoryList();
 }
 window.openHistory = openHistory;
+
+function renderHistoryList() {
+    const histBody = document.getElementById('historyBody');
+    if (myOrders.length === 0) {
+        histBody.innerHTML = '<div class="empty-msg">📭 Hech qanday almashtirish yo\'q</div>';
+        return;
+    }
+    const STATUS_LABEL = {
+        pending:   '🆕 Kutilmoqda',
+        paid:      '🔍 Tekshirilmoqda',
+        sent:      '✅ Tugatilgan',
+        rejected:  '❌ Rad etildi',
+        cancelled: '🚫 Bekor qilindi',
+    };
+    histBody.innerHTML = myOrders.map(d => `
+        <div class="h-item ${d.status}">
+            <div class="h-item-top">
+                <span class="h-item-id">${d.id}</span>
+                <span class="h-status">${STATUS_LABEL[d.status] || d.status}</span>
+            </div>
+            <div class="h-detail">${d.giveAmt} ${d.giveCurr} → ${d.getAmt?.toFixed(4)||'?'} ${d.getCurr}</div>
+            <div class="h-detail" style="font-size:0.78rem">${new Date(d.createdAt).toLocaleString('uz-UZ')}</div>
+        </div>
+    `).join('');
+}
 
 function closeHistory() { document.getElementById('historyOverlay').classList.remove('open'); }
 window.closeHistory = closeHistory;
@@ -793,7 +712,7 @@ function toast(m, t = '') {
     e._t = setTimeout(() => e.classList.remove('show'), 3000);
 }
 
-// ─── START ───────────────────────────────────────────────────────────────────
+// ─── START ────────────────────────────────────────────────────────────────────
 loadData();
 </script>
 </body>
