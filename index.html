@@ -1,1 +1,1342 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoExchange Pro</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-light: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-dark); color: var(--text-primary); min-height: 100vh; }
 
+        /* ── TICKER ── */
+        .ticker-container {
+            background: rgba(15,23,42,0.97);
+            border-bottom: 1px solid rgba(99,102,241,0.3);
+            padding: 11px 0; overflow: hidden;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .ticker-wrap { display: flex; animation: ticker 50s linear infinite; white-space: nowrap; }
+        .ticker-item {
+            display: inline-flex; align-items: center; padding: 0 18px;
+            font-size: 13px; font-weight: 600; gap: 5px;
+            border-right: 1px solid rgba(99,102,241,0.2);
+        }
+        .ticker-coin { color: var(--primary); }
+        .ticker-buy  { color: var(--success); }
+        .ticker-sell { color: #f87171; }
+        .ticker-sep  { color: var(--bg-light); margin: 0 4px; }
+        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        /* ── TOP BAR ── */
+        .top-bar { display: flex; justify-content: flex-end; align-items: center; gap: 10px; padding: 12px 20px; }
+        .lang-switcher { display: flex; gap: 4px; background: var(--bg-card); border: 1px solid rgba(99,102,241,0.3); border-radius: 25px; padding: 4px; }
+        .lang-btn { padding: 6px 14px; border-radius: 20px; border: none; background: transparent; color: var(--text-secondary); cursor: pointer; font-size: 0.82rem; font-weight: 600; transition: all 0.25s; }
+        .lang-btn.active { background: var(--primary); color: white; }
+        .history-btn { background: var(--bg-card); border: 1px solid var(--primary); color: var(--primary); padding: 9px 16px; border-radius: 25px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.3s; }
+        .history-btn:hover { background: var(--primary); color: white; }
+
+        /* ── HEADER ── */
+        .header { text-align: center; padding: 10px 20px 16px; }
+        .header h1 { font-size: 2rem; background: var(--gradient-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header p { color: var(--text-secondary); margin-top: 5px; }
+
+        /* ── MAIN GRID ── */
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+        @media (max-width: 968px) { .container { grid-template-columns: 1fr; } }
+        .panel { background: var(--bg-card); border-radius: 20px; padding: 28px; border: 1px solid rgba(99,102,241,0.2); box-shadow: var(--shadow); }
+        .panel h2 { font-size: 1.2rem; margin-bottom: 20px; color: var(--primary); }
+
+        /* ── FORM ── */
+        .field { margin-bottom: 18px; }
+        .field label { display: block; margin-bottom: 7px; color: var(--text-secondary); font-size: 0.88rem; }
+        .select-wrap, .input-wrap { background: var(--bg-light); border-radius: 12px; border: 2px solid transparent; transition: border-color 0.3s; }
+        .select-wrap:focus-within, .input-wrap:focus-within { border-color: var(--primary); }
+        .select-wrap select { width: 100%; padding: 14px; background: transparent; border: none; color: var(--text-primary); font-size: 1rem; cursor: pointer; outline: none; }
+        .input-wrap { display: flex; align-items: center; }
+        .input-wrap input { flex: 1; padding: 14px; background: transparent; border: none; color: var(--text-primary); font-size: 1.1rem; font-weight: 600; outline: none; }
+        .input-sym { padding: 8px 12px; background: rgba(99,102,241,0.2); border-radius: 8px; margin-right: 10px; font-weight: 700; min-width: 52px; text-align: center; }
+        .wallet-input { width: 100%; padding: 14px; background: var(--bg-light); border-radius: 12px; color: var(--text-primary); outline: none; border: 2px solid transparent; font-size: 0.95rem; transition: border-color 0.3s; }
+        .wallet-input:focus { border-color: var(--primary); }
+        .swap-row { display: flex; justify-content: center; margin: 14px 0; }
+        .swap-btn { width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--primary); background: var(--bg-card); color: var(--primary); font-size: 1.4rem; cursor: pointer; transition: all 0.3s; }
+        .swap-btn:hover { background: var(--primary); color: white; transform: rotate(180deg); }
+        .result-box { background: var(--gradient-1); border-radius: 16px; padding: 22px; margin: 18px 0; text-align: center; }
+        .result-amount { font-size: 2rem; font-weight: 700; }
+        .result-rate { font-size: 0.82rem; opacity: 0.85; margin-top: 4px; }
+        .exchange-btn { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--gradient-1); color: white; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: opacity 0.3s; margin-top: 8px; }
+        .exchange-btn:hover { opacity: 0.9; }
+        .exchange-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* ── BUY/SELL TABS ── */
+        .bs-tabs {
+            display: flex; gap: 0; margin-bottom: 16px;
+            background: var(--bg-dark); border-radius: 14px; padding: 4px;
+            border: 1px solid rgba(99,102,241,0.2);
+        }
+        .bs-tab {
+            flex: 1; padding: 10px 8px; border: none; border-radius: 10px;
+            background: transparent; cursor: pointer; font-size: 0.88rem;
+            font-weight: 700; transition: all 0.25s; text-align: center;
+        }
+        .bs-tab.buy-tab  { color: var(--success); }
+        .bs-tab.sell-tab { color: #f87171; }
+        .bs-tab.buy-tab.active  { background: rgba(16,185,129,0.18); box-shadow: 0 0 0 1.5px var(--success); }
+        .bs-tab.sell-tab.active { background: rgba(239,68,68,0.15);  box-shadow: 0 0 0 1.5px #ef4444; }
+        .bs-tab-sep { width: 1px; background: rgba(99,102,241,0.2); margin: 6px 0; }
+
+        /* ── RATE TABLE ── */
+        .rate-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+        .rate-table thead tr { background: rgba(99,102,241,0.12); }
+        .rate-table thead th { padding: 10px 12px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); text-align: left; }
+        .rate-table thead th:last-child { text-align: right; }
+        .rate-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s; cursor: default; }
+        .rate-table tbody tr:hover { background: rgba(99,102,241,0.1); }
+        .rate-table tbody tr:last-child { border-bottom: none; }
+        .rate-table td { padding: 12px; vertical-align: middle; }
+        .rt-coin { display: flex; align-items: center; gap: 10px; }
+        .rt-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; flex-shrink: 0; }
+        .icon-btc  { background: linear-gradient(135deg,#f7931a,#e08010); }
+        .icon-eth  { background: linear-gradient(135deg,#627eea,#4a6de5); }
+        .icon-usdt { background: linear-gradient(135deg,#26a17b,#1c8060); }
+        .icon-ton  { background: linear-gradient(135deg,#0088cc,#006fa8); }
+        .icon-trx  { background: linear-gradient(135deg,#ff060a,#d00408); }
+        .icon-doge { background: linear-gradient(135deg,#c2a633,#a8902a); }
+        .icon-usdc { background: linear-gradient(135deg,#2775ca,#1f5fa8); }
+        .icon-uzs  { background: linear-gradient(135deg,#1eb53a,#179a30); }
+        .icon-usd  { background: linear-gradient(135deg,#85bb65,#6da350); }
+        .icon-rub  { background: linear-gradient(135deg,#0033a0,#002880); }
+        .rt-name   { font-weight: 700; font-size: 0.92rem; }
+        .rt-sub    { font-size: 0.7rem; color: var(--text-secondary); margin-top: 1px; }
+        .rt-buy-col  { text-align: right; }
+        .rt-sell-col { text-align: right; }
+        .price-buy  { font-weight: 700; font-size: 0.92rem; color: var(--success); }
+        .price-sell { font-weight: 700; font-size: 0.92rem; color: #f87171; }
+        .price-dir-buy  { font-size: 0.7rem; color: var(--success); opacity: 0.75; margin-top: 1px; }
+        .price-dir-sell { font-size: 0.7rem; color: #f87171; opacity: 0.75; margin-top: 1px; }
+        .rates-panel.show-buy  .rt-sell-col { display: none; }
+        .rates-panel.show-sell .rt-buy-col  { display: none; }
+
+        /* skeleton */
+        .skeleton { background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 12px; height: 56px; margin-bottom: 8px; }
+        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+        /* ── MODALS ── */
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.82); backdrop-filter: blur(6px); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .overlay.open { display: flex; }
+        .modal { background: var(--bg-card); border-radius: 22px; padding: 28px; width: 100%; max-width: 540px; max-height: 92vh; overflow-y: auto; border: 1px solid rgba(99,102,241,0.25); }
+        .modal h3 { font-size: 1.2rem; margin-bottom: 18px; }
+        .detail-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,0.07); gap: 10px; flex-wrap: wrap; }
+        .detail-label { color: var(--text-secondary); font-size: 0.88rem; flex-shrink: 0; }
+        .detail-value { font-weight: 600; text-align: right; word-break: break-all; }
+        .copy-btn { background: rgba(99,102,241,0.2); border: none; color: var(--primary); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.78rem; margin-left: 6px; }
+        .copy-btn:hover { background: var(--primary); color: white; }
+
+        /* timer */
+        .timer-box { text-align: center; margin: 18px 0; background: rgba(245,158,11,0.1); border-radius: 14px; padding: 16px; border: 1px solid rgba(245,158,11,0.3); }
+        .timer-label { font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 4px; }
+        .timer-display { font-size: 2.4rem; font-family: monospace; font-weight: 700; color: var(--warning); }
+        .timer-display.urgent { color: var(--danger); animation: pulse 1s ease-in-out infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+        .confirm-info { background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.3); border-radius: 12px; padding: 14px; margin: 16px 0; font-size: 0.88rem; color: var(--text-secondary); text-align: center; }
+
+        /* waiting modal timer */
+        .waiting-timer-box {
+            text-align: center; margin: 16px 0;
+            background: rgba(99,102,241,0.08);
+            border-radius: 14px; padding: 16px;
+            border: 1px solid rgba(99,102,241,0.25);
+        }
+        .waiting-timer-label { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px; }
+        .waiting-timer-val { font-size: 2rem; font-family: monospace; font-weight: 700; color: var(--primary); }
+        .waiting-timer-val.urgent { color: var(--danger); animation: pulse 1s ease-in-out infinite; }
+
+        /* contact box */
+        .contact-box {
+            background: rgba(245,158,11,0.08);
+            border: 1px solid rgba(245,158,11,0.25);
+            border-radius: 14px; padding: 16px; margin-top: 16px;
+        }
+        .contact-box-title {
+            font-size: 0.8rem; font-weight: 700;
+            color: var(--warning); margin-bottom: 10px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .contact-link {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+            text-decoration: none;
+        }
+        .contact-link:last-child { border-bottom: none; }
+        .contact-icon { font-size: 1.1rem; flex-shrink: 0; }
+        .contact-name { font-size: 0.82rem; color: var(--text-secondary); }
+        .contact-val  { font-size: 0.9rem; font-weight: 600; color: var(--primary); }
+
+        .modal-actions { display: flex; gap: 12px; margin-top: 18px; }
+        .btn { padding: 12px 18px; border: none; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.95rem; transition: all 0.3s; flex: 1; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover:not(:disabled) { background: #059669; }
+        .btn-danger  { background: var(--danger);  color: white; }
+        .btn-danger:hover:not(:disabled)  { background: #dc2626; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+        .btn-gray    { background: var(--bg-light); color: var(--text-primary); }
+
+        /* status box */
+        .status-box { text-align:center; padding:18px; border-radius:12px; margin-top:14px; font-size:1.1rem; font-weight:600; }
+        .status-box.waiting  { background:rgba(99,102,241,0.12); color:var(--primary); }
+        .status-box.success  { background:rgba(16,185,129,0.15); color:var(--success); }
+        .status-box.rejected { background:rgba(239,68,68,0.15);  color:var(--danger); }
+
+        /* toast */
+        .toast { position: fixed; bottom: 28px; right: 28px; background: var(--bg-card); border-radius: 12px; padding: 14px 22px; transform: translateX(420px); transition: all 0.35s; z-index: 3000; border-left: 4px solid var(--success); box-shadow: var(--shadow); max-width: 320px; }
+        .toast.show { transform: translateX(0); }
+        .toast.err  { border-left-color: var(--danger); }
+        .toast.warn { border-left-color: var(--warning); }
+
+        /* ── HISTORY MODAL ── */
+        .h-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 18px;
+            background: var(--bg-dark);
+            border-radius: 16px;
+            padding: 6px;
+            border: 1px solid rgba(99,102,241,0.2);
+            width: 100%;
+        }
+        .h-tab {
+            flex: 1;
+            padding: 10px 4px;
+            border: none;
+            border-radius: 10px;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: all 0.25s;
+            text-align: center;
+            white-space: nowrap;
+            min-width: 0;
+        }
+        .h-tab.active { background: var(--primary); color: white; }
+        .h-tab:hover:not(.active) { background: rgba(99,102,241,0.15); color: var(--text-primary); }
+
+        .h-item { background: rgba(255,255,255,0.05); border-radius: 14px; padding: 16px; margin-bottom: 10px; border-left: 4px solid transparent; cursor: pointer; transition: all 0.25s; }
+        .h-item:hover { background: rgba(99,102,241,0.12); transform: translateX(3px); }
+        .h-item.pending  { border-left-color: var(--warning); }
+        .h-item.paid     { border-left-color: var(--primary); }
+        .h-item.sent     { border-left-color: var(--success); }
+        .h-item.rejected { border-left-color: var(--danger); }
+        .h-item.cancelled{ border-left-color: var(--bg-light); }
+        .h-item-top { display: flex; justify-content: space-between; margin-bottom: 4px; align-items: center; }
+        .h-item-id  { font-weight: 700; color: var(--primary); font-family: monospace; font-size:0.9rem; }
+        .h-status   { font-size:0.78rem; color:var(--text-secondary); }
+        .h-detail   { font-size:0.82rem; color:var(--text-secondary); margin-top:4px; }
+        .h-arrow    { color: var(--text-secondary); font-size: 0.75rem; margin-top: 2px; }
+
+        /* order detail banner */
+        .od-status-banner { border-radius: 14px; padding: 18px; text-align: center; margin-bottom: 18px; font-size: 1rem; font-weight: 700; }
+        .od-status-banner.checking  { background: rgba(99,102,241,0.15); color: var(--primary); border: 1px solid rgba(99,102,241,0.3); }
+        .od-status-banner.done      { background: rgba(16,185,129,0.15); color: var(--success); border: 1px solid rgba(16,185,129,0.3); }
+        .od-status-banner.cancelled { background: rgba(239,68,68,0.12);  color: var(--danger);  border: 1px solid rgba(239,68,68,0.3); }
+        .od-status-banner.pending   { background: rgba(245,158,11,0.12); color: var(--warning); border: 1px solid rgba(245,158,11,0.3); }
+
+        .od-timer-mini { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); border-radius: 12px; padding: 14px; text-align: center; margin: 14px 0; }
+        .od-timer-label { font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 4px; }
+        .od-timer-val   { font-size: 2rem; font-family: monospace; font-weight: 700; color: var(--warning); }
+        .od-timer-val.urgent { color: var(--danger); animation: pulse 1s ease-in-out infinite; }
+
+        .empty-msg { text-align:center; padding:30px; color:var(--text-secondary); }
+        .h-loading  { text-align:center; padding:20px; color:var(--text-secondary); font-size:0.9rem; }
+
+        /* scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--bg-light); border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker-container">
+    <div class="ticker-wrap" id="tickerWrap">
+        <div class="ticker-item"><span class="ticker-coin">⏳</span><span class="ticker-buy">Yuklanmoqda...</span></div>
+    </div>
+</div>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+    <div class="lang-switcher">
+        <button class="lang-btn active" onclick="setLang('uz')">🇺🇿 UZ</button>
+        <button class="lang-btn" onclick="setLang('ru')">🇷🇺 RU</button>
+        <button class="lang-btn" onclick="setLang('en')">🇬🇧 EN</button>
+    </div>
+    <button class="history-btn" onclick="openHistory()">📜 <span data-t="histBtn">Tarixim</span></button>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+    <h1>💱 CryptoExchange Pro</h1>
+    <p data-t="subtitle">Valyuta va kripto almashtirish</p>
+</div>
+
+<!-- MAIN GRID -->
+<div class="container">
+    <!-- LEFT: Exchange form -->
+    <div class="panel">
+        <h2>💱 <span data-t="exchTitle">Almashtirish</span></h2>
+        <div class="field">
+            <label data-t="youGive">Siz berasiz:</label>
+            <div class="select-wrap">
+                <select id="giveCurr" onchange="calc()">
+                    <option value="USDT">USDT (TRC20)</option>
+                    <option value="BTC">Bitcoin (BTC)</option>
+                    <option value="ETH">Ethereum (ETH)</option>
+                    <option value="TON">TON Coin</option>
+                    <option value="TRX">TRON (TRX)</option>
+                    <option value="UZS">UZS (Karta/Humo)</option>
+                </select>
+            </div>
+        </div>
+        <div class="field">
+            <div class="input-wrap">
+                <input type="number" id="giveAmt" placeholder="0.00" oninput="calc()" min="0">
+                <div class="input-sym" id="giveSym">USDT</div>
+            </div>
+        </div>
+        <div class="swap-row"><button class="swap-btn" onclick="swapCurr()">⇄</button></div>
+        <div class="field">
+            <label data-t="youGet">Siz olasiz:</label>
+            <div class="select-wrap">
+                <select id="getCurr" onchange="calc()">
+                    <option value="UZS">UZS (Karta/Humo)</option>
+                    <option value="USDT">USDT (TRC20)</option>
+                    <option value="BTC">Bitcoin (BTC)</option>
+                    <option value="ETH">Ethereum (ETH)</option>
+                    <option value="TON">TON Coin</option>
+                    <option value="TRX">TRON (TRX)</option>
+                </select>
+            </div>
+        </div>
+        <div class="result-box">
+            <div class="result-amount" id="resultAmt">—</div>
+            <div class="result-rate" id="resultRate" data-t="ratesLoading">Kurslar yuklanmoqda...</div>
+        </div>
+        <div class="field">
+            <label data-t="walletLabel">Qabul qiluvchi hamyon / Karta raqami:</label>
+            <input type="text" id="userWallet" class="wallet-input" data-t-ph="walletPh" placeholder="8600... yoki TRC20 manzili">
+        </div>
+        <button class="exchange-btn" id="exchangeBtn" onclick="startExchange()" disabled data-t="btnLoading">⏳ Yuklanmoqda...</button>
+    </div>
+
+    <!-- RIGHT: Buy/Sell rates -->
+    <div class="panel rates-panel show-buy" id="ratesPanel">
+        <h2>💰 <span data-t="ratesTitle">Joriy Kurslar</span></h2>
+        <div class="bs-tabs">
+            <button class="bs-tab buy-tab active" id="bsTabBuy" onclick="switchBsTab('buy')">
+                ▼ <span data-t="tabBuy">Olish (Buy)</span>
+            </button>
+            <div class="bs-tab-sep"></div>
+            <button class="bs-tab sell-tab" id="bsTabSell" onclick="switchBsTab('sell')">
+                ▲ <span data-t="tabSell">Sotish (Sell)</span>
+            </button>
+        </div>
+        <div id="ratesList">
+            <div class="skeleton"></div><div class="skeleton"></div>
+            <div class="skeleton"></div><div class="skeleton"></div>
+            <div class="skeleton"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TO'LOV MODALI -->
+<div class="overlay" id="paymentOverlay">
+    <div class="modal">
+        <h3>💳 <span data-t="payTitle">To'lov Ma'lumotlari</span></h3>
+        <div id="paymentBody"></div>
+        <div class="modal-actions" id="paymentActions"></div>
+    </div>
+</div>
+
+<!-- KUTISH MODALI -->
+<div class="overlay" id="waitingOverlay">
+    <div class="modal">
+        <h3>⏳ <span data-t="waitTitle">Tasdiqlash kutilmoqda</span></h3>
+        <div id="waitingBody"></div>
+        <div class="modal-actions">
+            <button class="btn btn-gray" onclick="closeWaiting()" data-t="closeBtn">Yopish</button>
+        </div>
+    </div>
+</div>
+
+<!-- TARIX MODALI -->
+<div class="overlay" id="historyOverlay">
+    <div class="modal">
+        <h3>📜 <span data-t="histTitle">Mening Almashtirishlarim</span></h3>
+        <div class="h-tabs">
+            <button class="h-tab active" id="tab-checking" onclick="switchTab('checking')">🔍 Tekshirilayotgan</button>
+            <button class="h-tab" id="tab-done" onclick="switchTab('done')">✅ Tugatilgan</button>
+            <button class="h-tab" id="tab-cancelled" onclick="switchTab('cancelled')">❌ Bekor qilingan</button>
+        </div>
+        <div id="historyBody"><div class="h-loading">⏳ Yuklanmoqda...</div></div>
+        <div class="modal-actions">
+            <button class="btn btn-primary" onclick="closeHistory()" data-t="closeBtn">Yopish</button>
+        </div>
+    </div>
+</div>
+
+<!-- BUYURTMA DETAIL MODALI -->
+<div class="overlay" id="orderDetailOverlay">
+    <div class="modal">
+        <h3>📋 <span data-t="orderDetailTitle">Buyurtma Ma'lumotlari</span></h3>
+        <div id="orderDetailBody"></div>
+        <div class="modal-actions">
+            <button class="btn btn-gray" onclick="closeOrderDetail()" data-t="closeBtn">Yopish</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp }    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getDatabase, ref, push, set, onValue, update, query, orderByChild, equalTo, get }
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyC5JMD4_rmYSLbFFYwKY3D6EZYxWtpfi0k",
+    authDomain: "cryptoexchangepro110921.firebaseapp.com",
+    databaseURL: "https://cryptoexchangepro110921-default-rtdb.firebaseio.com",
+    projectId: "cryptoexchangepro110921",
+    storageBucket: "cryptoexchangepro110921.firebasestorage.app",
+    messagingSenderId: "848073389707",
+    appId: "1:848073389707:web:d3c40dbd3f88766d7a068e"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+// ─── TRANSLATIONS ─────────────────────────────────────────────────────────────
+const T = {
+    uz: {
+        loading:          'Yuklanmoqda...',
+        histBtn:          'Tarixim',
+        subtitle:         'Valyuta va kripto almashtirish',
+        exchTitle:        'Almashtirish',
+        youGive:          'Siz berasiz:',
+        youGet:           'Siz olasiz:',
+        ratesLoading:     'Kurslar yuklanmoqda...',
+        walletLabel:      'Qabul qiluvchi hamyon / Karta raqami:',
+        walletPh:         '8600... yoki TRC20 manzili',
+        btnLoading:       '⏳ Yuklanmoqda...',
+        btnReady:         '🚀 Almashtirish Boshlash',
+        ratesTitle:       'Joriy Kurslar',
+        tabBuy:           'Olish (Buy)',
+        tabSell:          'Sotish (Sell)',
+        thCoin:           'Valyuta',
+        thBuy:            '▼ Olish',
+        thSell:           '▲ Sotish',
+        payTitle:         "To'lov Ma'lumotlari",
+        waitTitle:        'Tasdiqlash kutilmoqda',
+        histTitle:        'Mening Almashtirishlarim',
+        orderDetailTitle: "Buyurtma Ma'lumotlari",
+        closeBtn:         'Yopish',
+        tabChecking:      '🔍 Tekshirilayotgan',
+        tabDone:          '✅ Tugatilgan',
+        tabCancelled:     '❌ Bekor qilingan',
+        noOrders:         "Buyurtmalar yo'q",
+        youGiveLbl:       'Siz berasiz:',
+        youGetLbl:        'Siz olasiz:',
+        ourWallet:        'Bizning hamyon:',
+        timerLabel:       "⏱ To'lov vaqti:",
+        waitTimerLabel:   "⏱ Muddat tugashiga:",
+        confirmInfo:      "💡 Yuqoridagi hamyonga to'lovni amalga oshiring va \"To'lov qildim\" tugmasini bosing. Admin to'lovingizni tekshirib, tasdiqlaydi.",
+        confirmBtn:       "✅ To'lov qildim",
+        cancelBtn:        '❌ Bekor qilish',
+        statusChecking:   '🔍 Admin tekshirmoqda... Biroz kuting.',
+        statusDone:       "✅ Mablag' yuborildi! Tez orada kelib tushadi.",
+        statusRejected:   "❌ Rad etildi. Admin bilan bog'laning.",
+        statusPending:    "⏳ To'lov kutilmoqda",
+        contactDelayNote: "⚠️ To'lov kechikayotgan bo'lsa yoki savol bo'lsa:",
+        noContactInfo:    "Admin aloqa ma'lumotlari mavjud emas.",
+        rateFor:          'uchun',
+        noComm:           'Komissiyasiz',
+        errSameCurr:      "❌ Bir xil valyutani almashtirib bo'lmaydi",
+        errNoAmt:         '❌ Miqdorni kiriting',
+        errNoWallet:      '❌ Hamyon / karta raqamini kiriting',
+        errSwap:          "⚠️ Bu juftlik almashtirib bo'lmaydi",
+        errSave:          '❌ Saqlashda xato: ',
+        errLoad:          '❌ Yuklashda xato',
+        warnOldRates:     '⚠️ Eski kurslar ishlatilmoqda',
+        errNoRates:       "❌ Kurslarni yuklab bo'lmadi. Internet aloqasini tekshiring.",
+        copied:           '✅ Nusxalandi',
+        copyErr:          "❌ Nusxalab bo'lmadi",
+        saving:           '⏳ Saqlanmoqda...',
+        idLabel:          'ID:',
+        dateLabel:        'Sana:',
+        walletSentTo:     "Qabul qiluvchi:",
+        timeLeft:         '⏱ Qolgan vaqt:',
+        expired:          '⌛ Vaqt tugadi',
+        statusLabel:      'Holat:',
+        viewDetail:       '👉 Batafsil ko\'rish',
+        statuses: {
+            pending:   "⏳ To'lov kutilmoqda",
+            paid:      '🔍 Tekshirilmoqda',
+            sent:      '✅ Tugatilgan',
+            rejected:  '❌ Rad etildi',
+            cancelled: '🚫 Bekor qilindi',
+        }
+    },
+    ru: {
+        loading:          'Загрузка...',
+        histBtn:          'История',
+        subtitle:         'Обмен валют и криптовалюты',
+        exchTitle:        'Обмен',
+        youGive:          'Вы отдаёте:',
+        youGet:           'Вы получаете:',
+        ratesLoading:     'Загрузка курсов...',
+        walletLabel:      'Кошелёк / Номер карты получателя:',
+        walletPh:         '8600... или TRC20 адрес',
+        btnLoading:       '⏳ Загрузка...',
+        btnReady:         '🚀 Начать обмен',
+        ratesTitle:       'Текущие Курсы',
+        tabBuy:           'Покупка (Buy)',
+        tabSell:          'Продажа (Sell)',
+        thCoin:           'Валюта',
+        thBuy:            '▼ Покупка',
+        thSell:           '▲ Продажа',
+        payTitle:         'Реквизиты Оплаты',
+        waitTitle:        'Ожидание подтверждения',
+        histTitle:        'Мои Обмены',
+        orderDetailTitle: 'Детали Заявки',
+        closeBtn:         'Закрыть',
+        tabChecking:      '🔍 На проверке',
+        tabDone:          '✅ Завершённые',
+        tabCancelled:     '❌ Отменённые',
+        noOrders:         'Заявок нет',
+        youGiveLbl:       'Вы отдаёте:',
+        youGetLbl:        'Вы получаете:',
+        ourWallet:        'Наш кошелёк:',
+        timerLabel:       '⏱ Время оплаты:',
+        waitTimerLabel:   '⏱ До истечения:',
+        confirmInfo:      '💡 Переведите на указанный кошелёк и нажмите "Оплатил". Администратор проверит и подтвердит платёж.',
+        confirmBtn:       '✅ Оплатил',
+        cancelBtn:        '❌ Отмена',
+        statusChecking:   '🔍 Администратор проверяет... Подождите.',
+        statusDone:       '✅ Средства отправлены! Скоро поступят.',
+        statusRejected:   '❌ Отклонено. Свяжитесь с администратором.',
+        statusPending:    '⏳ Ожидание оплаты',
+        contactDelayNote: '⚠️ Если есть вопросы или задержка:',
+        noContactInfo:    'Контактные данные администратора недоступны.',
+        rateFor:          'за 1',
+        noComm:           'Без комиссии',
+        errSameCurr:      '❌ Нельзя обменять одну валюту на ту же',
+        errNoAmt:         '❌ Введите сумму',
+        errNoWallet:      '❌ Введите кошелёк / номер карты',
+        errSwap:          '⚠️ Эту пару нельзя поменять местами',
+        errSave:          '❌ Ошибка сохранения: ',
+        errLoad:          '❌ Ошибка загрузки',
+        warnOldRates:     '⚠️ Используются устаревшие курсы',
+        errNoRates:       '❌ Не удалось загрузить курсы. Проверьте интернет.',
+        copied:           '✅ Скопировано',
+        copyErr:          '❌ Не удалось скопировать',
+        saving:           '⏳ Сохранение...',
+        idLabel:          'ID:',
+        dateLabel:        'Дата:',
+        walletSentTo:     'Кошелёк получателя:',
+        timeLeft:         '⏱ Осталось:',
+        expired:          '⌛ Время вышло',
+        statusLabel:      'Статус:',
+        viewDetail:       '👉 Подробнее',
+        statuses: {
+            pending:   '⏳ Ожидание оплаты',
+            paid:      '🔍 На проверке',
+            sent:      '✅ Завершён',
+            rejected:  '❌ Отклонён',
+            cancelled: '🚫 Отменён',
+        }
+    },
+    en: {
+        loading:          'Loading...',
+        histBtn:          'History',
+        subtitle:         'Currency & Crypto Exchange',
+        exchTitle:        'Exchange',
+        youGive:          'You send:',
+        youGet:           'You receive:',
+        ratesLoading:     'Loading rates...',
+        walletLabel:      'Recipient wallet / Card number:',
+        walletPh:         '8600... or TRC20 address',
+        btnLoading:       '⏳ Loading...',
+        btnReady:         '🚀 Start Exchange',
+        ratesTitle:       'Live Rates',
+        tabBuy:           'Buy',
+        tabSell:          'Sell',
+        thCoin:           'Coin',
+        thBuy:            '▼ Buy',
+        thSell:           '▲ Sell',
+        payTitle:         'Payment Details',
+        waitTitle:        'Awaiting Confirmation',
+        histTitle:        'My Exchanges',
+        orderDetailTitle: 'Order Details',
+        closeBtn:         'Close',
+        tabChecking:      '🔍 Under Review',
+        tabDone:          '✅ Completed',
+        tabCancelled:     '❌ Cancelled',
+        noOrders:         'No orders found',
+        youGiveLbl:       'You send:',
+        youGetLbl:        'You receive:',
+        ourWallet:        'Our wallet:',
+        timerLabel:       '⏱ Payment timer:',
+        waitTimerLabel:   '⏱ Time remaining:',
+        confirmInfo:      '💡 Send to the wallet above and click "I Paid". Admin will verify and confirm.',
+        confirmBtn:       '✅ I Paid',
+        cancelBtn:        '❌ Cancel',
+        statusChecking:   '🔍 Admin is reviewing... Please wait.',
+        statusDone:       '✅ Funds sent! Should arrive shortly.',
+        statusRejected:   '❌ Rejected. Please contact admin.',
+        statusPending:    '⏳ Awaiting payment',
+        contactDelayNote: '⚠️ Questions or delays? Contact admin:',
+        noContactInfo:    'Admin contact info not available.',
+        rateFor:          'per 1',
+        noComm:           'Zero commission',
+        errSameCurr:      '❌ Cannot exchange same currency',
+        errNoAmt:         '❌ Enter an amount',
+        errNoWallet:      '❌ Enter wallet / card number',
+        errSwap:          '⚠️ Cannot swap this pair',
+        errSave:          '❌ Save error: ',
+        errLoad:          '❌ Load error',
+        warnOldRates:     '⚠️ Using cached rates',
+        errNoRates:       '❌ Could not load rates. Check your internet.',
+        copied:           '✅ Copied',
+        copyErr:          '❌ Copy failed',
+        saving:           '⏳ Saving...',
+        idLabel:          'ID:',
+        dateLabel:        'Date:',
+        walletSentTo:     'Your receive wallet:',
+        timeLeft:         '⏱ Time left:',
+        expired:          '⌛ Expired',
+        statusLabel:      'Status:',
+        viewDetail:       '👉 View Details',
+        statuses: {
+            pending:   '⏳ Awaiting payment',
+            paid:      '🔍 Under review',
+            sent:      '✅ Completed',
+            rejected:  '❌ Rejected',
+            cancelled: '🚫 Cancelled',
+        }
+    }
+};
+
+let lang = localStorage.getItem('ce_lang') || 'uz';
+function t(key) {
+    return (T[lang] && T[lang][key] !== undefined) ? T[lang][key] : (T['uz'][key] || key);
+}
+window.setLang = function(l) {
+    lang = l;
+    localStorage.setItem('ce_lang', l);
+    document.querySelectorAll('.lang-btn').forEach(b => {
+        b.classList.toggle('active', b.textContent.trim().toLowerCase().includes(l));
+    });
+    applyTranslations();
+    calc();
+    renderRates();
+};
+function applyTranslations() {
+    document.querySelectorAll('[data-t]').forEach(el => {
+        const key = el.getAttribute('data-t');
+        if (T[lang][key] !== undefined) el.textContent = T[lang][key];
+    });
+    document.querySelectorAll('[data-t-ph]').forEach(el => {
+        const key = el.getAttribute('data-t-ph');
+        if (T[lang][key] !== undefined) el.placeholder = T[lang][key];
+    });
+    // Update h-tabs text
+    const tabMap = { checking: 'tabChecking', done: 'tabDone', cancelled: 'tabCancelled' };
+    Object.entries(tabMap).forEach(([id, key]) => {
+        const el = document.getElementById('tab-' + id);
+        if (el) el.textContent = t(key);
+    });
+}
+
+// ─── CONSTANTS ────────────────────────────────────────────────────────────────
+const BASE_URL  = 'https://balenciaga110921-creator.github.io/meningsaytim';
+const CACHE_TTL = 5 * 60 * 1000;
+const CURR_ICONS = { BTC:'₿', ETH:'Ξ', USDT:'₮', TON:'🌐', TRX:'📱', DOGE:'🐕', USDC:'💰', UZS:'🇺🇿', USD:'🇺🇸', RUB:'🇷🇺' };
+const CURR_NAMES = { BTC:'Bitcoin', ETH:'Ethereum', USDT:'Tether', TON:'TON', TRX:'Tron', DOGE:'Dogecoin', USDC:'USD Coin', UZS:"So'm", USD:'Dollar', RUB:'Rubl' };
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let rates = {}, wallets = {}, contacts = {};
+let curOrder = null, timerInt = null, waitTimerInt = null, detailTimerInt = null;
+let orderUnsubscribe = null;
+let myOrders = [];
+let historyUnsubscribe = null;
+let activeTab = 'checking';
+let activeBsTab = 'buy';
+
+// ─── CLIENT ID ────────────────────────────────────────────────────────────────
+const clientId = localStorage.getItem('ce_client_id')
+    || 'C' + Math.random().toString(36).slice(2,9).toUpperCase();
+localStorage.setItem('ce_client_id', clientId);
+
+// ─── BUY/SELL TAB ─────────────────────────────────────────────────────────────
+window.switchBsTab = function(tab) {
+    activeBsTab = tab;
+    document.getElementById('bsTabBuy') .classList.toggle('active', tab === 'buy');
+    document.getElementById('bsTabSell').classList.toggle('active', tab === 'sell');
+    const panel = document.getElementById('ratesPanel');
+    panel.classList.toggle('show-buy',  tab === 'buy');
+    panel.classList.toggle('show-sell', tab === 'sell');
+    const thBuy  = document.getElementById('thBuyCol');
+    const thSell = document.getElementById('thSellCol');
+    if (thBuy)  thBuy.style.color  = tab === 'buy'  ? 'var(--success)' : 'var(--text-secondary)';
+    if (thSell) thSell.style.color = tab === 'sell' ? '#f87171'         : 'var(--text-secondary)';
+};
+
+// ─── RATE HELPERS ─────────────────────────────────────────────────────────────
+function getBuy(coin)  {
+    const r = rates[coin];
+    if (!r) return null;
+    return (typeof r === 'object') ? r.buy  : r;
+}
+function getSell(coin) {
+    const r = rates[coin];
+    if (!r) return null;
+    return (typeof r === 'object') ? r.sell : r;
+}
+function getEffectiveRate(fromCoin, toCoin) {
+    const fromUzs = fromCoin === 'UZS' ? 1 : (getSell(fromCoin) || getBuy(fromCoin) || 1);
+    const toUzs   = toCoin   === 'UZS' ? 1 : (getBuy(toCoin)   || getSell(toCoin)  || 1);
+    return fromUzs / toUzs;
+}
+
+// ─── HISTORY LISTENER ─────────────────────────────────────────────────────────
+// FIX: clientId bo'yicha filter qilish - Firebase index muammosi uchun manual filter
+function startHistoryListener() {
+    if (historyUnsubscribe) return;
+
+    // Barcha buyurtmalarni olib, clientId bo'yicha filter qilamiz
+    // (Index bo'lmasa ham ishlaydi)
+    historyUnsubscribe = onValue(ref(db, 'orders'), snap => {
+        myOrders = [];
+        if (snap.exists()) {
+            snap.forEach(ch => {
+                const val = ch.val();
+                // Faqat shu client ning buyurtmalari
+                if (val.clientId === clientId) {
+                    myOrders.push({ key: ch.key, ...val });
+                }
+            });
+            myOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        }
+        if (document.getElementById('historyOverlay').classList.contains('open')) {
+            renderHistoryList();
+        }
+    }, (error) => {
+        // Index yo'q xatosi bo'lsa, get() bilan ham urinib ko'ramiz
+        console.warn('History listener error:', error);
+        loadHistoryManually();
+    });
+}
+
+async function loadHistoryManually() {
+    try {
+        const snap = await get(ref(db, 'orders'));
+        myOrders = [];
+        if (snap.exists()) {
+            snap.forEach(ch => {
+                const val = ch.val();
+                if (val.clientId === clientId) {
+                    myOrders.push({ key: ch.key, ...val });
+                }
+            });
+            myOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        }
+        if (document.getElementById('historyOverlay').classList.contains('open')) {
+            renderHistoryList();
+        }
+    } catch(e) {
+        console.error('Manual history load error:', e);
+    }
+}
+
+// ─── CACHE FETCH ──────────────────────────────────────────────────────────────
+async function fetchWithCache(key, url) {
+    const cached = localStorage.getItem('cache_' + key);
+    if (cached) {
+        try {
+            const { ts, data } = JSON.parse(cached);
+            if (Date.now() - ts < CACHE_TTL) return data;
+        } catch(e) { localStorage.removeItem('cache_' + key); }
+    }
+    const res  = await fetch(url + '?t=' + Math.floor(Date.now() / CACHE_TTL));
+    const data = await res.json();
+    localStorage.setItem('cache_' + key, JSON.stringify({ ts: Date.now(), data }));
+    return data;
+}
+
+async function loadData() {
+    try {
+        const [r, w, c] = await Promise.all([
+            fetchWithCache('rates',    BASE_URL + '/rates.json'),
+            fetchWithCache('wallets',  BASE_URL + '/wallets.json'),
+            fetchWithCache('contacts', BASE_URL + '/contacts.json'),
+        ]);
+        rates = r; wallets = w; contacts = c;
+        renderRates(); calc();
+        const btn = document.getElementById('exchangeBtn');
+        btn.disabled = false;
+        btn.textContent = t('btnReady');
+        checkActiveOrder();
+        startHistoryListener();
+        applyTranslations();
+    } catch(e) {
+        // contacts yuklanmasa ham davom et
+        try {
+            const r = await fetchWithCache('rates', BASE_URL + '/rates.json');
+            rates = r;
+        } catch(e2) {}
+
+        const cached = localStorage.getItem('cache_rates');
+        if (cached) {
+            try {
+                rates = JSON.parse(cached).data;
+                renderRates(); calc();
+                toast(t('warnOldRates'), 'warn');
+                const btn = document.getElementById('exchangeBtn');
+                btn.disabled = false; btn.textContent = t('btnReady');
+                startHistoryListener();
+                return;
+            } catch(e2) {}
+        }
+        document.getElementById('ratesList').innerHTML = `<div class="empty-msg">${t('errNoRates')}</div>`;
+        toast(t('errLoad'), 'err');
+    }
+}
+
+// ─── RENDER RATES ─────────────────────────────────────────────────────────────
+function renderRates() {
+    renderTicker();
+    const coins = Object.keys(rates).filter(c => c !== 'UZS');
+    if (!coins.length) {
+        document.getElementById('ratesList').innerHTML = `<div class="empty-msg">📭 ${t('noOrders')}</div>`;
+        return;
+    }
+
+    const rows = coins.map(c => {
+        const icon    = CURR_ICONS[c] || c[0];
+        const name    = CURR_NAMES[c] || c;
+        const buy     = getBuy(c);
+        const sell    = getSell(c);
+        const buyFmt  = buy  ? buy.toLocaleString('uz-UZ')  : '—';
+        const sellFmt = sell ? sell.toLocaleString('uz-UZ') : '—';
+        return `
+        <tr>
+          <td>
+            <div class="rt-coin">
+              <div class="rt-icon icon-${c.toLowerCase()}">${icon}</div>
+              <div>
+                <div class="rt-name">${c}</div>
+                <div class="rt-sub">${name}</div>
+              </div>
+            </div>
+          </td>
+          <td class="rt-buy-col" style="text-align:right">
+            <div class="price-buy">${buyFmt} UZS</div>
+            <div class="price-dir-buy">▼ ${t('tabBuy')}</div>
+          </td>
+          <td class="rt-sell-col" style="text-align:right">
+            <div class="price-sell">${sellFmt} UZS</div>
+            <div class="price-dir-sell">▲ ${t('tabSell')}</div>
+          </td>
+        </tr>`;
+    }).join('');
+
+    document.getElementById('ratesList').innerHTML = `
+        <table class="rate-table">
+          <thead>
+            <tr>
+              <th>${t('thCoin')}</th>
+              <th id="thBuyCol"  class="rt-buy-col"  style="text-align:right;color:var(--success)">${t('thBuy')}</th>
+              <th id="thSellCol" class="rt-sell-col" style="text-align:right;color:var(--text-secondary)">${t('thSell')}</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+}
+
+// ─── TICKER ───────────────────────────────────────────────────────────────────
+function renderTicker() {
+    const coins = Object.keys(rates).filter(c => c !== 'UZS');
+    const items = coins.map(c => {
+        const buy  = getBuy(c);
+        const sell = getSell(c);
+        const icon = CURR_ICONS[c] || c;
+        return `<span class="ticker-item">
+            <span class="ticker-coin">${icon} ${c}</span>
+            <span class="ticker-buy">▼ ${buy  ? buy.toLocaleString()  : '—'}</span>
+            <span class="ticker-sep">|</span>
+            <span class="ticker-sell">▲ ${sell ? sell.toLocaleString() : '—'}</span>
+            <span style="color:var(--text-secondary);font-size:11px;margin-left:2px">UZS</span>
+        </span>`;
+    }).join('');
+    document.getElementById('tickerWrap').innerHTML = items + items;
+}
+
+// ─── CALC ─────────────────────────────────────────────────────────────────────
+function calc() {
+    const gc = document.getElementById('giveCurr').value;
+    const rc = document.getElementById('getCurr').value;
+    const ga = parseFloat(document.getElementById('giveAmt').value) || 0;
+    document.getElementById('giveSym').textContent = gc;
+
+    const buy  = getBuy(gc)  || getBuy(rc)  || null;
+    const sell = getSell(gc) || getSell(rc) || null;
+    if (!buy && !sell) {
+        document.getElementById('resultAmt').textContent  = '—';
+        document.getElementById('resultRate').textContent = t('ratesLoading');
+        return;
+    }
+
+    const rate = getEffectiveRate(gc, rc);
+    const res  = ga * rate;
+    document.getElementById('resultAmt').textContent  = ga > 0
+        ? res.toLocaleString('uz-UZ', {maximumFractionDigits:6}) + ' ' + rc
+        : '—';
+    document.getElementById('resultRate').textContent =
+        `1 ${gc} = ${rate.toLocaleString('uz-UZ', {maximumFractionDigits:4})} ${rc} · ${t('noComm')}`;
+}
+window.calc = calc;
+
+function swapCurr() {
+    const gc = document.getElementById('giveCurr');
+    const rc = document.getElementById('getCurr');
+    const tmp = gc.value;
+    const opt = [...rc.options].map(o => o.value);
+    if (opt.includes(tmp)) {
+        const tmpR = rc.value; rc.value = tmp; gc.value = tmpR; calc();
+    } else {
+        toast(t('errSwap'), 'warn');
+    }
+}
+window.swapCurr = swapCurr;
+
+// ─── EXCHANGE ─────────────────────────────────────────────────────────────────
+function startExchange() {
+    const gc = document.getElementById('giveCurr').value;
+    const rc = document.getElementById('getCurr').value;
+    const ga = parseFloat(document.getElementById('giveAmt').value);
+    const uw = document.getElementById('userWallet').value.trim();
+
+    if (gc === rc)    { toast(t('errSameCurr'), 'err'); return; }
+    if (!ga || ga<=0) { toast(t('errNoAmt'), 'err'); return; }
+    if (!uw)          { toast(t('errNoWallet'), 'err'); return; }
+
+    const rate = getEffectiveRate(gc, rc);
+    curOrder = {
+        id:             'TX' + Date.now(),
+        clientId,
+        giveCurr:       gc,
+        getCurr:        rc,
+        giveAmt:        ga,
+        getAmt:         ga * rate,
+        userWallet:     uw,
+        receiverWallet: wallets[gc] || "Admin bilan bog'laning",
+        status:         'pending',
+        createdAt:      new Date().toISOString(),
+        deadline:       Date.now() + 15 * 60 * 1000,
+    };
+    localStorage.setItem('ce_active_order', JSON.stringify(curOrder));
+    showPaymentModal();
+}
+window.startExchange = startExchange;
+
+// ─── TO'LOV MODALI ────────────────────────────────────────────────────────────
+function showPaymentModal() {
+    const b = document.getElementById('paymentBody');
+    const a = document.getElementById('paymentActions');
+    const walletEsc = (curOrder.receiverWallet || '').replace(/'/g, "\\'");
+    b.innerHTML = `
+        <div class="detail-row">
+            <span class="detail-label">${t('idLabel')}</span>
+            <span class="detail-value" style="font-family:monospace">${curOrder.id}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">${t('youGiveLbl')}</span>
+            <span class="detail-value">${curOrder.giveAmt} ${curOrder.giveCurr}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">${t('youGetLbl')}</span>
+            <span class="detail-value">${curOrder.getAmt.toFixed(6)} ${curOrder.getCurr}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">${t('ourWallet')}</span>
+            <span class="detail-value" style="font-size:0.82rem">
+                ${curOrder.receiverWallet}
+                <button class="copy-btn" onclick="copyText('${walletEsc}')">📋 Nusxa</button>
+            </span>
+        </div>
+        <div class="timer-box">
+            <div class="timer-label">${t('timerLabel')}</div>
+            <div class="timer-display" id="payTimerDisp">15:00</div>
+        </div>
+        <div class="confirm-info">${t('confirmInfo')}</div>
+    `;
+    a.innerHTML = `
+        <button class="btn btn-success" id="confirmBtn" onclick="confirmPay()">${t('confirmBtn')}</button>
+        <button class="btn btn-danger" onclick="cancelOrder()">${t('cancelBtn')}</button>
+    `;
+    document.getElementById('paymentOverlay').classList.add('open');
+    const remaining = curOrder.deadline ? Math.max(0, Math.floor((curOrder.deadline - Date.now()) / 1000)) : 900;
+    startCountdown('payTimerDisp', remaining, cancelOrder, 'timerInt');
+}
+
+// ─── TO'LOV TASDIQLASH ────────────────────────────────────────────────────────
+async function confirmPay() {
+    const btn = document.getElementById('confirmBtn');
+    btn.disabled = true; btn.textContent = t('saving');
+    try {
+        curOrder.status  = 'paid';
+        curOrder.paidAt  = new Date().toISOString();
+        const k = push(ref(db, 'orders'));
+        await set(k, curOrder);
+        curOrder._fbKey = k.key;
+        localStorage.setItem('ce_active_order', JSON.stringify(curOrder));
+        clearInterval(timerInt);
+        document.getElementById('paymentOverlay').classList.remove('open');
+        showWaitingModal();
+        listenOrder(k.key);
+    } catch(e) {
+        toast(t('errSave') + e.message, 'err');
+        btn.disabled = false; btn.textContent = t('confirmBtn');
+    }
+}
+window.confirmPay = confirmPay;
+
+// ─── ORDER LISTENER ───────────────────────────────────────────────────────────
+function listenOrder(k) {
+    if (orderUnsubscribe) { orderUnsubscribe(); orderUnsubscribe = null; }
+    orderUnsubscribe = onValue(ref(db, 'orders/' + k), snap => {
+        if (!snap.exists()) return;
+        const d = snap.val();
+        if (d.status === 'sent' || d.status === 'rejected') {
+            const m = document.getElementById('orderStatusMsg');
+            if (m) {
+                m.className = d.status === 'sent' ? 'status-box success' : 'status-box rejected';
+                m.innerText  = d.status === 'sent' ? t('statusDone') : t('statusRejected');
+            }
+            // Waiting modal timer ni to'xtatish
+            clearInterval(waitTimerInt);
+            // Timer qutisini yashirish
+            const wtBox = document.getElementById('waitTimerBox');
+            if (wtBox) wtBox.style.display = 'none';
+
+            curOrder.status = d.status;
+            localStorage.setItem('ce_active_order', JSON.stringify(curOrder));
+            if (orderUnsubscribe) { orderUnsubscribe(); orderUnsubscribe = null; }
+        }
+    });
+}
+
+// ─── CONTACT BOX ─────────────────────────────────────────────────────────────
+function buildContactBox() {
+    if (!contacts || Object.keys(contacts).length === 0) {
+        return `<div class="contact-box">
+            <div class="contact-box-title">📞 Admin</div>
+            <p style="font-size:0.82rem;color:var(--text-secondary);padding:4px 0">${t('noContactInfo')}</p>
+        </div>`;
+    }
+    const links = Object.entries(contacts).map(([key, info]) => {
+        if (typeof info === 'object' && info.url) {
+            return `<a class="contact-link" href="${info.url}" target="_blank" rel="noopener">
+                <span class="contact-icon">${getContactIcon(key)}</span>
+                <div>
+                    <div class="contact-name">${info.name || key}</div>
+                    <div class="contact-val">${info.url}</div>
+                </div>
+            </a>`;
+        }
+        return `<div class="contact-link">
+            <span class="contact-icon">${getContactIcon(key)}</span>
+            <div>
+                <div class="contact-name">${key}</div>
+                <div class="contact-val">${info}</div>
+            </div>
+        </div>`;
+    }).join('');
+    return `
+        <div class="contact-box">
+            <div class="contact-box-title">📞 ${t('contactDelayNote')}</div>
+            ${links}
+        </div>`;
+}
+
+function getContactIcon(key) {
+    const k = key.toLowerCase();
+    if (k.includes('telegram') || k.includes('tg')) return '✈️';
+    if (k.includes('phone') || k.includes('tel') || k.includes('number')) return '📱';
+    if (k.includes('whatsapp') || k.includes('wa'))  return '💬';
+    if (k.includes('email') || k.includes('mail'))   return '📧';
+    if (k.includes('instagram') || k.includes('ig')) return '📸';
+    return '🔗';
+}
+
+// ─── KUTISH MODALI (timer + contacts bilan) ───────────────────────────────────
+function showWaitingModal() {
+    // Deadline hali o'tmagan bo'lsa timer ko'rsat
+    const remaining = curOrder.deadline ? Math.max(0, Math.floor((curOrder.deadline - Date.now()) / 1000)) : 0;
+    const timerHtml = remaining > 0
+        ? `<div class="waiting-timer-box" id="waitTimerBox">
+            <div class="waiting-timer-label">${t('waitTimerLabel')}</div>
+            <div class="waiting-timer-val" id="waitTimerDisp">--:--</div>
+           </div>`
+        : '';
+
+    document.getElementById('waitingBody').innerHTML = `
+        <div class="detail-row">
+            <span class="detail-label">${t('idLabel')}</span>
+            <span class="detail-value" style="font-family:monospace">${curOrder.id}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">${t('youGiveLbl')}</span>
+            <span class="detail-value">${curOrder.giveAmt} ${curOrder.giveCurr}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">${t('youGetLbl')}</span>
+            <span class="detail-value">${(curOrder.getAmt || 0).toFixed(6)} ${curOrder.getCurr}</span>
+        </div>
+        ${timerHtml}
+        <div id="orderStatusMsg" class="status-box waiting">${t('statusChecking')}</div>
+        ${buildContactBox()}
+    `;
+    document.getElementById('waitingOverlay').classList.add('open');
+
+    // Timer ishga tushirish
+    if (remaining > 0) {
+        startCountdown('waitTimerDisp', remaining, null, 'waitTimerInt');
+    }
+}
+
+function cancelOrder() {
+    clearInterval(timerInt);
+    localStorage.removeItem('ce_active_order');
+    document.getElementById('paymentOverlay').classList.remove('open');
+    curOrder = null;
+}
+window.cancelOrder = cancelOrder;
+
+function checkActiveOrder() {
+    const s = localStorage.getItem('ce_active_order');
+    if (!s) return;
+    try {
+        curOrder = JSON.parse(s);
+        if (curOrder.status === 'pending') showPaymentModal();
+        else if (curOrder.status === 'paid' && curOrder._fbKey) {
+            showWaitingModal(); listenOrder(curOrder._fbKey);
+        } else {
+            localStorage.removeItem('ce_active_order');
+        }
+    } catch(e) { localStorage.removeItem('ce_active_order'); }
+}
+
+// ─── COUNTDOWN (universal) ────────────────────────────────────────────────────
+// intKey: 'timerInt' | 'waitTimerInt' | 'detailTimerInt'
+const timers = {};
+function startCountdown(elId, seconds, cb, intKey) {
+    if (timers[intKey]) clearInterval(timers[intKey]);
+    let s = seconds;
+    function tick() {
+        s--;
+        const m   = Math.floor(s / 60);
+        const sec = s % 60;
+        const el  = document.getElementById(elId);
+        if (!el) { clearInterval(timers[intKey]); return; }
+        el.textContent = `${m}:${sec < 10 ? '0' : ''}${sec}`;
+        if (s <= 60) el.classList.add('urgent');
+        if (s <= 0)  { clearInterval(timers[intKey]); cb && cb(); }
+    }
+    timers[intKey] = setInterval(tick, 1000);
+    tick();
+}
+// eski global lar bilan mos bo'lishi uchun
+Object.defineProperty(window, 'timerInt',      { get: () => timers['timerInt'],      set: v => timers['timerInt']      = v });
+Object.defineProperty(window, 'waitTimerInt',  { get: () => timers['waitTimerInt'],  set: v => timers['waitTimerInt']  = v });
+Object.defineProperty(window, 'detailTimerInt',{ get: () => timers['detailTimerInt'],set: v => timers['detailTimerInt']= v });
+
+// ─── TARIX TABS ───────────────────────────────────────────────────────────────
+window.switchTab = function(tab) {
+    activeTab = tab;
+    ['checking','done','cancelled'].forEach(t => {
+        document.getElementById('tab-' + t)?.classList.toggle('active', t === tab);
+    });
+    renderHistoryList();
+};
+
+function openHistory() {
+    document.getElementById('historyOverlay').classList.add('open');
+    // Agar hali listener ishga tushmagan bo'lsa, manual yuklash
+    if (!historyUnsubscribe) {
+        loadHistoryManually();
+    } else {
+        renderHistoryList();
+    }
+}
+window.openHistory = openHistory;
+
+function renderHistoryList() {
+    const histBody = document.getElementById('historyBody');
+    const filtered = myOrders.filter(d => {
+        if (activeTab === 'checking')  return d.status === 'pending' || d.status === 'paid';
+        if (activeTab === 'done')      return d.status === 'sent';
+        if (activeTab === 'cancelled') return d.status === 'rejected' || d.status === 'cancelled';
+        return false;
+    });
+    if (filtered.length === 0) {
+        histBody.innerHTML = `<div class="empty-msg">📭 ${t('noOrders')}</div>`;
+        return;
+    }
+    const statuses = T[lang].statuses || T['uz'].statuses;
+    const localeStr = lang === 'uz' ? 'uz-UZ' : lang === 'ru' ? 'ru-RU' : 'en-GB';
+    histBody.innerHTML = filtered.map(d => {
+        const statusLabel = statuses[d.status] || d.status;
+        return `
+        <div class="h-item ${d.status}" onclick="openOrderDetail('${d.key}')">
+            <div class="h-item-top">
+                <span class="h-item-id">${d.id}</span>
+                <span class="h-status">${statusLabel}</span>
+            </div>
+            <div class="h-detail">${d.giveAmt} ${d.giveCurr} → ${(d.getAmt||0).toFixed(4)} ${d.getCurr}</div>
+            <div class="h-detail" style="font-size:0.78rem">${new Date(d.createdAt).toLocaleString(localeStr)}</div>
+            <div class="h-arrow">${t('viewDetail')}</div>
+        </div>`;
+    }).join('');
+}
+
+// ─── BUYURTMA DETAIL ──────────────────────────────────────────────────────────
+window.openOrderDetail = function(key) {
+    const d = myOrders.find(o => o.key === key);
+    if (!d) return;
+    clearInterval(timers['detailTimerInt']);
+
+    const statuses = T[lang].statuses || T['uz'].statuses;
+    const statusLabel = statuses[d.status] || d.status;
+    const localeStr = lang === 'uz' ? 'uz-UZ' : lang === 'ru' ? 'ru-RU' : 'en-GB';
+
+    let bannerClass = 'pending';
+    if (d.status === 'paid')      bannerClass = 'checking';
+    if (d.status === 'sent')      bannerClass = 'done';
+    if (d.status === 'rejected' || d.status === 'cancelled') bannerClass = 'cancelled';
+
+    let statusText = statusLabel;
+    if (d.status === 'sent')      statusText = t('statusDone');
+    if (d.status === 'rejected')  statusText = t('statusRejected');
+    if (d.status === 'paid')      statusText = t('statusChecking');
+    if (d.status === 'pending')   statusText = t('statusPending');
+
+    // Timer: faqat pending holat uchun va deadline o'tmagan bo'lsa
+    let timerHtml = '';
+    let showTimer = false;
+    if (d.status === 'pending' && d.deadline) {
+        const rem = Math.max(0, Math.floor((d.deadline - Date.now()) / 1000));
+        if (rem > 0) {
+            showTimer = true;
+            timerHtml = `<div class="od-timer-mini">
+                <div class="od-timer-label">${t('timeLeft')}</div>
+                <div class="od-timer-val" id="detailTimerEl">--:--</div>
+            </div>`;
+        } else {
+            timerHtml = `<div class="od-timer-mini">
+                <div class="od-timer-label" style="color:var(--danger)">${t('expired')}</div>
+            </div>`;
+        }
+    }
+
+    // Contact box: pending yoki paid holat uchun
+    const showContact = d.status === 'pending' || d.status === 'paid';
+
+    document.getElementById('orderDetailBody').innerHTML = `
+        <div class="od-status-banner ${bannerClass}">${statusText}</div>
+        <div class="detail-row">
+            <span class="detail-label">${t('idLabel')}</span>
+            <span class="detail-value" style="font-family:monospace">${d.id}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">${t('dateLabel')}</span>
+            <span class="detail-value">${new Date(d.createdAt).toLocaleString(localeStr)}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">${t('youGiveLbl')}</span>
+            <span class="detail-value">${d.giveAmt} ${d.giveCurr}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">${t('youGetLbl')}</span>
+            <span class="detail-value">${(d.getAmt||0).toFixed(6)} ${d.getCurr}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">${t('walletSentTo')}</span>
+            <span class="detail-value" style="font-size:0.82rem;word-break:break-all">${d.userWallet || '—'}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">${t('statusLabel')}</span>
+            <span class="detail-value">${statusLabel}</span>
+        </div>
+        ${timerHtml}
+        ${showContact ? buildContactBox() : ''}
+    `;
+    document.getElementById('orderDetailOverlay').classList.add('open');
+
+    // Timer ishga tushirish
+    if (showTimer) {
+        const rem = Math.max(0, Math.floor((d.deadline - Date.now()) / 1000));
+        startCountdown('detailTimerEl', rem, null, 'detailTimerInt');
+    }
+};
+
+window.closeOrderDetail = function() {
+    clearInterval(timers['detailTimerInt']);
+    document.getElementById('orderDetailOverlay').classList.remove('open');
+};
+function closeHistory() { document.getElementById('historyOverlay').classList.remove('open'); }
+window.closeHistory = closeHistory;
+function closeWaiting() {
+    clearInterval(timers['waitTimerInt']);
+    document.getElementById('waitingOverlay').classList.remove('open');
+}
+window.closeWaiting = closeWaiting;
+
+function copyText(text) {
+    navigator.clipboard.writeText(text)
+        .then(() => toast(t('copied')))
+        .catch(() => toast(t('copyErr'), 'err'));
+}
+window.copyText = copyText;
+
+function toast(m, type = '') {
+    const e = document.getElementById('toast');
+    e.innerText = m;
+    e.className = 'toast show ' + type;
+    clearTimeout(e._t);
+    e._t = setTimeout(() => e.classList.remove('show'), 3000);
+}
+
+// ─── START ────────────────────────────────────────────────────────────────────
+setLang(lang);
+loadData();
+</script>
+</body>
+</html>
