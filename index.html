@@ -69,6 +69,47 @@
         .input-wrap { display: flex; align-items: center; }
         .input-wrap input { flex: 1; padding: 14px; background: transparent; border: none; color: var(--text-primary); font-size: 1.1rem; font-weight: 600; outline: none; }
         .input-sym { padding: 8px 12px; background: rgba(99,102,241,0.2); border-radius: 8px; margin-right: 10px; font-weight: 700; min-width: 52px; text-align: center; }
+
+        /* ── NETWORK / BANK SELECT ── */
+        .net-select-wrap {
+            background: var(--bg-light);
+            border-radius: 12px;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+            margin-top: 8px;
+        }
+        .net-select-wrap:focus-within { border-color: var(--primary); }
+        .net-select-wrap select {
+            width: 100%; padding: 12px 14px;
+            background: transparent; border: none;
+            color: var(--text-primary); font-size: 0.92rem;
+            cursor: pointer; outline: none;
+        }
+        .net-label {
+            display: block; margin-top: 8px; margin-bottom: 5px;
+            color: var(--text-secondary); font-size: 0.8rem;
+            font-weight: 600; letter-spacing: 0.03em;
+        }
+        .net-badge {
+            display: inline-block; padding: 3px 10px;
+            border-radius: 20px; font-size: 0.74rem; font-weight: 700;
+            margin-left: 6px; vertical-align: middle;
+        }
+        .net-badge.trc20  { background: rgba(239,68,68,0.18);   color: #f87171; }
+        .net-badge.bep20  { background: rgba(245,158,11,0.18);  color: #fbbf24; }
+        .net-badge.erc20  { background: rgba(99,102,241,0.22);  color: #a5b4fc; }
+        .net-badge.native { background: rgba(16,185,129,0.18);  color: #34d399; }
+        .net-badge.ton    { background: rgba(0,136,204,0.22);   color: #38bdf8; }
+
+        /* Wallet warning */
+        .wallet-warn {
+            background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
+            border-radius: 10px; padding: 9px 13px; margin-top: 7px;
+            font-size: 0.78rem; color: #fca5a5; display: none;
+            line-height: 1.5;
+        }
+        .wallet-warn.show { display: block; }
+
         .wallet-input { width: 100%; padding: 14px; background: var(--bg-light); border-radius: 12px; color: var(--text-primary); outline: none; border: 2px solid transparent; font-size: 0.95rem; transition: border-color 0.3s; }
         .wallet-input:focus { border-color: var(--primary); }
         .swap-row { display: flex; justify-content: center; margin: 14px 0; }
@@ -77,9 +118,26 @@
         .result-box { background: var(--gradient-1); border-radius: 16px; padding: 22px; margin: 18px 0; text-align: center; }
         .result-amount { font-size: 2rem; font-weight: 700; }
         .result-rate { font-size: 0.82rem; opacity: 0.85; margin-top: 4px; }
-        .exchange-btn { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--gradient-1); color: white; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: opacity 0.3s; margin-top: 8px; }
-        .exchange-btn:hover { opacity: 0.9; }
+
+        /* ── EXCHANGE BUTTON STATES ── */
+        .exchange-btn {
+            width: 100%; padding: 15px; border-radius: 12px; border: none;
+            background: var(--gradient-1); color: white; font-size: 1.1rem;
+            font-weight: 700; cursor: pointer; transition: opacity 0.3s; margin-top: 8px;
+        }
+        .exchange-btn:hover:not(:disabled) { opacity: 0.9; }
         .exchange-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .exchange-btn.offline {
+            background: linear-gradient(135deg, #475569, #334155);
+            color: #94a3b8; cursor: not-allowed; opacity: 1;
+        }
+        /* Offline indicator dot */
+        .offline-dot {
+            display: inline-block; width: 8px; height: 8px;
+            background: var(--danger); border-radius: 50%;
+            margin-right: 6px; animation: blink 1.2s ease-in-out infinite;
+        }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
         /* ── BUY/SELL TABS ── */
         .bs-tabs {
@@ -210,29 +268,16 @@
 
         /* ── HISTORY MODAL ── */
         .h-tabs {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 18px;
-            background: var(--bg-dark);
-            border-radius: 16px;
-            padding: 6px;
-            border: 1px solid rgba(99,102,241,0.2);
+            display: flex; gap: 6px; margin-bottom: 18px;
+            background: var(--bg-dark); border-radius: 16px;
+            padding: 6px; border: 1px solid rgba(99,102,241,0.2);
             width: 100%;
         }
         .h-tab {
-            flex: 1;
-            padding: 10px 4px;
-            border: none;
-            border-radius: 10px;
-            background: transparent;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 0.75rem;
-            font-weight: 600;
-            transition: all 0.25s;
-            text-align: center;
-            white-space: nowrap;
-            min-width: 0;
+            flex: 1; padding: 10px 4px; border: none; border-radius: 10px;
+            background: transparent; color: var(--text-secondary);
+            cursor: pointer; font-size: 0.75rem; font-weight: 600;
+            transition: all 0.25s; text-align: center; white-space: nowrap; min-width: 0;
         }
         .h-tab.active { background: var(--primary); color: white; }
         .h-tab:hover:not(.active) { background: rgba(99,102,241,0.15); color: var(--text-primary); }
@@ -301,48 +346,75 @@
     <!-- LEFT: Exchange form -->
     <div class="panel">
         <h2>💱 <span data-t="exchTitle">Almashtirish</span></h2>
+
+        <!-- GIVE CURRENCY -->
         <div class="field">
             <label data-t="youGive">Siz berasiz:</label>
             <div class="select-wrap">
-                <select id="giveCurr" onchange="calc()">
-                    <option value="USDT">USDT (TRC20)</option>
+                <select id="giveCurr" onchange="onCurrChange()">
+                    <option value="USDT">USDT</option>
                     <option value="BTC">Bitcoin (BTC)</option>
                     <option value="ETH">Ethereum (ETH)</option>
                     <option value="TON">TON Coin</option>
                     <option value="TRX">TRON (TRX)</option>
-                    <option value="UZS">UZS (Karta/Humo)</option>
+                    <option value="UZS">UZS (Karta)</option>
                 </select>
             </div>
+            <!-- Give Network / Bank sub-select -->
+            <div id="giveNetWrap" style="display:none">
+                <span class="net-label" id="giveNetLabel">Tarmoq:</span>
+                <div class="net-select-wrap">
+                    <select id="giveNet" onchange="onCurrChange()"></select>
+                </div>
+            </div>
         </div>
+
         <div class="field">
             <div class="input-wrap">
                 <input type="number" id="giveAmt" placeholder="0.00" oninput="calc()" min="0">
                 <div class="input-sym" id="giveSym">USDT</div>
             </div>
         </div>
+
         <div class="swap-row"><button class="swap-btn" onclick="swapCurr()">⇄</button></div>
+
+        <!-- GET CURRENCY -->
         <div class="field">
             <label data-t="youGet">Siz olasiz:</label>
             <div class="select-wrap">
-                <select id="getCurr" onchange="calc()">
-                    <option value="UZS">UZS (Karta/Humo)</option>
-                    <option value="USDT">USDT (TRC20)</option>
+                <select id="getCurr" onchange="onCurrChange()">
+                    <option value="UZS">UZS (Karta)</option>
+                    <option value="USDT">USDT</option>
                     <option value="BTC">Bitcoin (BTC)</option>
                     <option value="ETH">Ethereum (ETH)</option>
                     <option value="TON">TON Coin</option>
                     <option value="TRX">TRON (TRX)</option>
                 </select>
             </div>
+            <!-- Get Network / Bank sub-select -->
+            <div id="getNetWrap" style="display:none">
+                <span class="net-label" id="getNetLabel">Tarmoq:</span>
+                <div class="net-select-wrap">
+                    <select id="getNet" onchange="onCurrChange()"></select>
+                </div>
+            </div>
         </div>
+
         <div class="result-box">
             <div class="result-amount" id="resultAmt">—</div>
             <div class="result-rate" id="resultRate" data-t="ratesLoading">Kurslar yuklanmoqda...</div>
         </div>
+
+        <!-- WALLET INPUT -->
         <div class="field">
-            <label data-t="walletLabel">Qabul qiluvchi hamyon / Karta raqami:</label>
-            <input type="text" id="userWallet" class="wallet-input" data-t-ph="walletPh" placeholder="8600... yoki TRC20 manzili">
+            <label id="walletLabel" data-t="walletLabel">Qabul qiluvchi hamyon / Karta raqami:</label>
+            <input type="text" id="userWallet" class="wallet-input" placeholder="..." oninput="onCurrChange()">
+            <div class="wallet-warn" id="walletWarn"></div>
         </div>
-        <button class="exchange-btn" id="exchangeBtn" onclick="startExchange()" disabled data-t="btnLoading">⏳ Yuklanmoqda...</button>
+
+        <button class="exchange-btn" id="exchangeBtn" onclick="startExchange()" disabled>
+            ⏳ <span data-t="btnLoading">Yuklanmoqda...</span>
+        </button>
     </div>
 
     <!-- RIGHT: Buy/Sell rates -->
@@ -416,7 +488,7 @@
 
 <script type="module">
 import { initializeApp }    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getDatabase, ref, push, set, onValue, update, query, orderByChild, equalTo, get }
+import { getDatabase, ref, push, set, onValue, get }
     from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 const firebaseConfig = {
@@ -432,6 +504,83 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db  = getDatabase(app);
 
+// ─── NETWORK DEFINITIONS ──────────────────────────────────────────────────────
+// Her bir valyuta uchun mavjud tarmoqlar / bank kartalar
+const NETWORKS = {
+    USDT: [
+        { id: 'trc20',  label: 'TRC20 (Tron)',       badge: 'trc20'  },
+        { id: 'bep20',  label: 'BEP20 (BNB Chain)',  badge: 'bep20'  },
+        { id: 'erc20',  label: 'ERC20 (Ethereum)',   badge: 'erc20'  },
+    ],
+    USDC: [
+        { id: 'erc20',  label: 'ERC20 (Ethereum)',   badge: 'erc20'  },
+        { id: 'bep20',  label: 'BEP20 (BNB Chain)',  badge: 'bep20'  },
+        { id: 'trc20',  label: 'TRC20 (Tron)',       badge: 'trc20'  },
+    ],
+    BTC: [
+        { id: 'btc',    label: 'Bitcoin (BTC)',       badge: 'native' },
+        { id: 'bep20',  label: 'BEP20 (BNB Chain)',  badge: 'bep20'  },
+    ],
+    ETH: [
+        { id: 'erc20',  label: 'ERC20 (Ethereum)',   badge: 'erc20'  },
+        { id: 'bep20',  label: 'BEP20 (BNB Chain)',  badge: 'bep20'  },
+    ],
+    TON: [
+        { id: 'ton',    label: 'TON Blockchain',     badge: 'ton'    },
+    ],
+    TRX: [
+        { id: 'trc20',  label: 'TRC20 (Tron)',       badge: 'trc20'  },
+    ],
+    DOGE: [
+        { id: 'doge',   label: 'DOGE Network',       badge: 'native' },
+        { id: 'bep20',  label: 'BEP20 (BNB Chain)',  badge: 'bep20'  },
+    ],
+    UZS: [
+        { id: 'humo',      label: '🟢 Humo',          badge: 'native' },
+        { id: 'uzcard',    label: '🔵 UzCard',        badge: 'native' },
+        { id: 'hamkorbank',label: '🟠 Hamkorbank',    badge: 'native' },
+        { id: 'xalqbank',  label: '🔴 Xalq Bank',    badge: 'native' },
+    ],
+};
+
+// Placeholder texts for wallet input based on selected currency+network
+const WALLET_PLACEHOLDERS = {
+    USDT: {
+        trc20: 'USDT TRC20: T... manzilingizni kiriting',
+        bep20: 'USDT BEP20: 0x... manzilingizni kiriting',
+        erc20: 'USDT ERC20: 0x... manzilingizni kiriting',
+    },
+    BTC: {
+        btc:   'BTC: bc1... yoki 1... manzilingizni kiriting',
+        bep20: 'BTC BEP20: 0x... manzilingizni kiriting',
+    },
+    ETH: {
+        erc20: 'ETH ERC20: 0x... manzilingizni kiriting',
+        bep20: 'ETH BEP20: 0x... manzilingizni kiriting',
+    },
+    TON: {
+        ton:   'TON: UQ... manzilingizni kiriting',
+    },
+    TRX: {
+        trc20: 'TRX: T... manzilingizni kiriting',
+    },
+    DOGE: {
+        doge:  'DOGE: D... manzilingizni kiriting',
+        bep20: 'DOGE BEP20: 0x... manzilingizni kiriting',
+    },
+    UZS: {
+        humo:       'Humo karta raqami: 9860...',
+        uzcard:     'UzCard karta raqami: 8600...',
+        hamkorbank: 'Hamkorbank karta raqami: kiriting',
+        xalqbank:   'Xalq Bank karta raqami: kiriting',
+    },
+    USDC: {
+        erc20: 'USDC ERC20: 0x... manzilingizni kiriting',
+        bep20: 'USDC BEP20: 0x... manzilingizni kiriting',
+        trc20: 'USDC TRC20: T... manzilingizni kiriting',
+    },
+};
+
 // ─── TRANSLATIONS ─────────────────────────────────────────────────────────────
 const T = {
     uz: {
@@ -443,9 +592,10 @@ const T = {
         youGet:           'Siz olasiz:',
         ratesLoading:     'Kurslar yuklanmoqda...',
         walletLabel:      'Qabul qiluvchi hamyon / Karta raqami:',
-        walletPh:         '8600... yoki TRC20 manzili',
+        walletPh:         'Hamyon yoki karta raqami',
         btnLoading:       '⏳ Yuklanmoqda...',
         btnReady:         '🚀 Almashtirish Boshlash',
+        btnOffline:       '📡 Internet yo\'q — kutilmoqda...',
         ratesTitle:       'Joriy Kurslar',
         tabBuy:           'Olish (Buy)',
         tabSell:          'Sotish (Sell)',
@@ -464,6 +614,8 @@ const T = {
         youGiveLbl:       'Siz berasiz:',
         youGetLbl:        'Siz olasiz:',
         ourWallet:        'Bizning hamyon:',
+        networkLbl:       'Tarmoq:',
+        bankLbl:          'Karta turi:',
         timerLabel:       "⏱ To'lov vaqti:",
         waitTimerLabel:   "⏱ Muddat tugashiga:",
         confirmInfo:      "💡 Yuqoridagi hamyonga to'lovni amalga oshiring va \"To'lov qildim\" tugmasini bosing. Admin to'lovingizni tekshirib, tasdiqlaydi.",
@@ -495,6 +647,7 @@ const T = {
         expired:          '⌛ Vaqt tugadi',
         statusLabel:      'Holat:',
         viewDetail:       '👉 Batafsil ko\'rish',
+        walletWarnMsg:    '⚠️ Diqqat! Siz {currency} ({network}) qabul qilishni tanladingiz. Iltimos, faqat {currency} {network} manzilingizni kiriting. Boshqa tarmoq manziliga yuborilsa, aktivlar yo\'qoladi va javobgarlik qabul qilmaymiz.',
         statuses: {
             pending:   "⏳ To'lov kutilmoqda",
             paid:      '🔍 Tekshirilmoqda',
@@ -512,9 +665,10 @@ const T = {
         youGet:           'Вы получаете:',
         ratesLoading:     'Загрузка курсов...',
         walletLabel:      'Кошелёк / Номер карты получателя:',
-        walletPh:         '8600... или TRC20 адрес',
+        walletPh:         'Кошелёк или номер карты',
         btnLoading:       '⏳ Загрузка...',
         btnReady:         '🚀 Начать обмен',
+        btnOffline:       '📡 Нет интернета — ожидание...',
         ratesTitle:       'Текущие Курсы',
         tabBuy:           'Покупка (Buy)',
         tabSell:          'Продажа (Sell)',
@@ -533,6 +687,8 @@ const T = {
         youGiveLbl:       'Вы отдаёте:',
         youGetLbl:        'Вы получаете:',
         ourWallet:        'Наш кошелёк:',
+        networkLbl:       'Сеть:',
+        bankLbl:          'Тип карты:',
         timerLabel:       '⏱ Время оплаты:',
         waitTimerLabel:   '⏱ До истечения:',
         confirmInfo:      '💡 Переведите на указанный кошелёк и нажмите "Оплатил". Администратор проверит и подтвердит платёж.',
@@ -564,6 +720,7 @@ const T = {
         expired:          '⌛ Время вышло',
         statusLabel:      'Статус:',
         viewDetail:       '👉 Подробнее',
+        walletWarnMsg:    '⚠️ Внимание! Вы выбрали получение {currency} ({network}). Укажите только адрес {currency} {network}. При отправке на другую сеть активы будут потеряны.',
         statuses: {
             pending:   '⏳ Ожидание оплаты',
             paid:      '🔍 На проверке',
@@ -581,9 +738,10 @@ const T = {
         youGet:           'You receive:',
         ratesLoading:     'Loading rates...',
         walletLabel:      'Recipient wallet / Card number:',
-        walletPh:         '8600... or TRC20 address',
+        walletPh:         'Wallet or card number',
         btnLoading:       '⏳ Loading...',
         btnReady:         '🚀 Start Exchange',
+        btnOffline:       '📡 No internet — waiting...',
         ratesTitle:       'Live Rates',
         tabBuy:           'Buy',
         tabSell:          'Sell',
@@ -602,6 +760,8 @@ const T = {
         youGiveLbl:       'You send:',
         youGetLbl:        'You receive:',
         ourWallet:        'Our wallet:',
+        networkLbl:       'Network:',
+        bankLbl:          'Card type:',
         timerLabel:       '⏱ Payment timer:',
         waitTimerLabel:   '⏱ Time remaining:',
         confirmInfo:      '💡 Send to the wallet above and click "I Paid". Admin will verify and confirm.',
@@ -633,6 +793,7 @@ const T = {
         expired:          '⌛ Expired',
         statusLabel:      'Status:',
         viewDetail:       '👉 View Details',
+        walletWarnMsg:    '⚠️ Warning! You selected {currency} ({network}). Enter only your {currency} {network} address. Sending to a different network will result in permanent loss of funds.',
         statuses: {
             pending:   '⏳ Awaiting payment',
             paid:      '🔍 Under review',
@@ -654,24 +815,33 @@ window.setLang = function(l) {
         b.classList.toggle('active', b.textContent.trim().toLowerCase().includes(l));
     });
     applyTranslations();
+    updateNetworkSelects();
     calc();
     renderRates();
 };
 function applyTranslations() {
     document.querySelectorAll('[data-t]').forEach(el => {
         const key = el.getAttribute('data-t');
-        if (T[lang][key] !== undefined) el.textContent = T[lang][key];
+        if (T[lang] && T[lang][key] !== undefined) el.textContent = T[lang][key];
     });
     document.querySelectorAll('[data-t-ph]').forEach(el => {
         const key = el.getAttribute('data-t-ph');
-        if (T[lang][key] !== undefined) el.placeholder = T[lang][key];
+        if (T[lang] && T[lang][key] !== undefined) el.placeholder = T[lang][key];
     });
-    // Update h-tabs text
     const tabMap = { checking: 'tabChecking', done: 'tabDone', cancelled: 'tabCancelled' };
     Object.entries(tabMap).forEach(([id, key]) => {
         const el = document.getElementById('tab-' + id);
         if (el) el.textContent = t(key);
     });
+    // Update network label texts
+    document.getElementById('giveNetLabel').textContent = getNetLabelText(document.getElementById('giveCurr').value);
+    document.getElementById('getNetLabel').textContent  = getNetLabelText(document.getElementById('getCurr').value);
+    updateExchangeButton();
+    updateWalletHint();
+}
+
+function getNetLabelText(curr) {
+    return curr === 'UZS' ? t('bankLbl') : t('networkLbl');
 }
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
@@ -682,17 +852,128 @@ const CURR_NAMES = { BTC:'Bitcoin', ETH:'Ethereum', USDT:'Tether', TON:'TON', TR
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
 let rates = {}, wallets = {}, contacts = {};
-let curOrder = null, timerInt = null, waitTimerInt = null, detailTimerInt = null;
+let curOrder = null;
 let orderUnsubscribe = null;
 let myOrders = [];
 let historyUnsubscribe = null;
 let activeTab = 'checking';
 let activeBsTab = 'buy';
+let isOnline = navigator.onLine;
+let ratesLoaded = false;
 
 // ─── CLIENT ID ────────────────────────────────────────────────────────────────
 const clientId = localStorage.getItem('ce_client_id')
     || 'C' + Math.random().toString(36).slice(2,9).toUpperCase();
 localStorage.setItem('ce_client_id', clientId);
+
+// ─── ONLINE / OFFLINE HANDLING ────────────────────────────────────────────────
+window.addEventListener('online',  () => { isOnline = true;  updateExchangeButton(); if (!ratesLoaded) loadData(); });
+window.addEventListener('offline', () => { isOnline = false; updateExchangeButton(); });
+
+function updateExchangeButton() {
+    const btn = document.getElementById('exchangeBtn');
+    if (!ratesLoaded) {
+        // Still loading data
+        if (!isOnline) {
+            btn.disabled = true;
+            btn.className = 'exchange-btn offline';
+            btn.innerHTML = `<span class="offline-dot"></span>${t('btnOffline')}`;
+        } else {
+            btn.disabled = true;
+            btn.className = 'exchange-btn';
+            btn.textContent = t('btnLoading');
+        }
+    } else {
+        // Rates are loaded
+        if (!isOnline) {
+            btn.disabled = true;
+            btn.className = 'exchange-btn offline';
+            btn.innerHTML = `<span class="offline-dot"></span>${t('btnOffline')}`;
+        } else {
+            btn.disabled = false;
+            btn.className = 'exchange-btn';
+            btn.textContent = t('btnReady');
+        }
+    }
+}
+
+// ─── NETWORK SELECT HELPERS ───────────────────────────────────────────────────
+function updateNetworkSelects() {
+    updateOneNetSelect('give');
+    updateOneNetSelect('get');
+    updateWalletHint();
+}
+
+function updateOneNetSelect(side) {
+    const curr    = document.getElementById(side + 'Curr').value;
+    const wrap    = document.getElementById(side + 'NetWrap');
+    const select  = document.getElementById(side + 'Net');
+    const label   = document.getElementById(side + 'NetLabel');
+    const nets    = NETWORKS[curr];
+
+    label.textContent = getNetLabelText(curr);
+
+    if (!nets || nets.length === 0) {
+        wrap.style.display = 'none';
+        return;
+    }
+    // Always show if networks exist
+    wrap.style.display = 'block';
+
+    // Preserve current selection if still valid
+    const prev = select.value;
+    select.innerHTML = nets.map(n =>
+        `<option value="${n.id}">${n.label}</option>`
+    ).join('');
+    if (prev && nets.find(n => n.id === prev)) select.value = prev;
+}
+
+function getSelectedNet(side) {
+    const select = document.getElementById(side + 'Net');
+    return select.value || '';
+}
+
+function getNetDisplayLabel(curr, netId) {
+    const nets = NETWORKS[curr];
+    if (!nets) return '';
+    const found = nets.find(n => n.id === netId);
+    return found ? found.label : netId;
+}
+
+// ─── WALLET PLACEHOLDER & WARNING ────────────────────────────────────────────
+function updateWalletHint() {
+    const getCurr = document.getElementById('getCurr').value;
+    const getNet  = getSelectedNet('get');
+    const warnEl  = document.getElementById('walletWarn');
+    const walletInput = document.getElementById('userWallet');
+
+    // Dynamic placeholder
+    let ph = t('walletPh');
+    if (WALLET_PLACEHOLDERS[getCurr] && WALLET_PLACEHOLDERS[getCurr][getNet]) {
+        ph = WALLET_PLACEHOLDERS[getCurr][getNet];
+    }
+    walletInput.placeholder = ph;
+
+    // Warning for crypto (not UZS) — remind user not to send to wrong network
+    if (getCurr !== 'UZS' && getNet) {
+        const netLabel = getNetDisplayLabel(getCurr, getNet);
+        const msg = t('walletWarnMsg')
+            .replace(/{currency}/g, getCurr)
+            .replace(/{network}/g,  netLabel);
+        warnEl.textContent = msg;
+        warnEl.classList.add('show');
+    } else {
+        warnEl.classList.remove('show');
+    }
+}
+
+// ─── MAIN CHANGE HANDLER ─────────────────────────────────────────────────────
+window.onCurrChange = function() {
+    document.getElementById('giveSym').textContent = document.getElementById('giveCurr').value;
+    updateNetworkSelects();
+    updateWalletHint();
+    calc();
+};
 
 // ─── BUY/SELL TAB ─────────────────────────────────────────────────────────────
 window.switchBsTab = function(tab) {
@@ -726,18 +1007,13 @@ function getEffectiveRate(fromCoin, toCoin) {
 }
 
 // ─── HISTORY LISTENER ─────────────────────────────────────────────────────────
-// FIX: clientId bo'yicha filter qilish - Firebase index muammosi uchun manual filter
 function startHistoryListener() {
     if (historyUnsubscribe) return;
-
-    // Barcha buyurtmalarni olib, clientId bo'yicha filter qilamiz
-    // (Index bo'lmasa ham ishlaydi)
     historyUnsubscribe = onValue(ref(db, 'orders'), snap => {
         myOrders = [];
         if (snap.exists()) {
             snap.forEach(ch => {
                 const val = ch.val();
-                // Faqat shu client ning buyurtmalari
                 if (val.clientId === clientId) {
                     myOrders.push({ key: ch.key, ...val });
                 }
@@ -747,11 +1023,7 @@ function startHistoryListener() {
         if (document.getElementById('historyOverlay').classList.contains('open')) {
             renderHistoryList();
         }
-    }, (error) => {
-        // Index yo'q xatosi bo'lsa, get() bilan ham urinib ko'ramiz
-        console.warn('History listener error:', error);
-        loadHistoryManually();
-    });
+    }, () => { loadHistoryManually(); });
 }
 
 async function loadHistoryManually() {
@@ -761,18 +1033,12 @@ async function loadHistoryManually() {
         if (snap.exists()) {
             snap.forEach(ch => {
                 const val = ch.val();
-                if (val.clientId === clientId) {
-                    myOrders.push({ key: ch.key, ...val });
-                }
+                if (val.clientId === clientId) myOrders.push({ key: ch.key, ...val });
             });
             myOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         }
-        if (document.getElementById('historyOverlay').classList.contains('open')) {
-            renderHistoryList();
-        }
-    } catch(e) {
-        console.error('Manual history load error:', e);
-    }
+        if (document.getElementById('historyOverlay').classList.contains('open')) renderHistoryList();
+    } catch(e) { console.error('Manual history load error:', e); }
 }
 
 // ─── CACHE FETCH ──────────────────────────────────────────────────────────────
@@ -798,34 +1064,32 @@ async function loadData() {
             fetchWithCache('contacts', BASE_URL + '/contacts.json'),
         ]);
         rates = r; wallets = w; contacts = c;
+        ratesLoaded = true;
         renderRates(); calc();
-        const btn = document.getElementById('exchangeBtn');
-        btn.disabled = false;
-        btn.textContent = t('btnReady');
+        updateExchangeButton();
         checkActiveOrder();
         startHistoryListener();
         applyTranslations();
     } catch(e) {
-        // contacts yuklanmasa ham davom et
         try {
             const r = await fetchWithCache('rates', BASE_URL + '/rates.json');
             rates = r;
         } catch(e2) {}
-
         const cached = localStorage.getItem('cache_rates');
         if (cached) {
             try {
                 rates = JSON.parse(cached).data;
+                ratesLoaded = true;
                 renderRates(); calc();
                 toast(t('warnOldRates'), 'warn');
-                const btn = document.getElementById('exchangeBtn');
-                btn.disabled = false; btn.textContent = t('btnReady');
+                updateExchangeButton();
                 startHistoryListener();
                 return;
             } catch(e2) {}
         }
         document.getElementById('ratesList').innerHTML = `<div class="empty-msg">${t('errNoRates')}</div>`;
         toast(t('errLoad'), 'err');
+        updateExchangeButton();
     }
 }
 
@@ -837,7 +1101,6 @@ function renderRates() {
         document.getElementById('ratesList').innerHTML = `<div class="empty-msg">📭 ${t('noOrders')}</div>`;
         return;
     }
-
     const rows = coins.map(c => {
         const icon    = CURR_ICONS[c] || c[0];
         const name    = CURR_NAMES[c] || c;
@@ -866,7 +1129,6 @@ function renderRates() {
           </td>
         </tr>`;
     }).join('');
-
     document.getElementById('ratesList').innerHTML = `
         <table class="rate-table">
           <thead>
@@ -912,7 +1174,6 @@ function calc() {
         document.getElementById('resultRate').textContent = t('ratesLoading');
         return;
     }
-
     const rate = getEffectiveRate(gc, rc);
     const res  = ga * rate;
     document.getElementById('resultAmt').textContent  = ga > 0
@@ -924,42 +1185,65 @@ function calc() {
 window.calc = calc;
 
 function swapCurr() {
-    const gc = document.getElementById('giveCurr');
-    const rc = document.getElementById('getCurr');
+    const gc  = document.getElementById('giveCurr');
+    const rc  = document.getElementById('getCurr');
     const tmp = gc.value;
     const opt = [...rc.options].map(o => o.value);
     if (opt.includes(tmp)) {
-        const tmpR = rc.value; rc.value = tmp; gc.value = tmpR; calc();
+        const tmpR = rc.value;
+        rc.value = tmp;
+        gc.value = tmpR;
+        onCurrChange();
     } else {
         toast(t('errSwap'), 'warn');
     }
 }
 window.swapCurr = swapCurr;
 
+// ─── RESET FORM ──────────────────────────────────────────────────────────────
+function resetForm() {
+    document.getElementById('giveCurr').value = 'USDT';
+    document.getElementById('getCurr').value  = 'UZS';
+    document.getElementById('giveAmt').value  = '';
+    document.getElementById('userWallet').value = '';
+    document.getElementById('walletWarn').classList.remove('show');
+    onCurrChange();
+}
+
 // ─── EXCHANGE ─────────────────────────────────────────────────────────────────
 function startExchange() {
-    const gc = document.getElementById('giveCurr').value;
-    const rc = document.getElementById('getCurr').value;
-    const ga = parseFloat(document.getElementById('giveAmt').value);
-    const uw = document.getElementById('userWallet').value.trim();
+    if (!isOnline) { toast(t('btnOffline'), 'warn'); return; }
 
-    if (gc === rc)    { toast(t('errSameCurr'), 'err'); return; }
-    if (!ga || ga<=0) { toast(t('errNoAmt'), 'err'); return; }
-    if (!uw)          { toast(t('errNoWallet'), 'err'); return; }
+    const gc      = document.getElementById('giveCurr').value;
+    const rc      = document.getElementById('getCurr').value;
+    const giveNet = getSelectedNet('give');
+    const getNet  = getSelectedNet('get');
+    const ga      = parseFloat(document.getElementById('giveAmt').value);
+    const uw      = document.getElementById('userWallet').value.trim();
+
+    if (gc === rc && giveNet === getNet) { toast(t('errSameCurr'), 'err'); return; }
+    if (!ga || ga <= 0) { toast(t('errNoAmt'), 'err'); return; }
+    if (!uw) { toast(t('errNoWallet'), 'err'); return; }
 
     const rate = getEffectiveRate(gc, rc);
+
+    // Wallet key for admin panel: prefer network-specific, fallback to coin
+    const walletKey = wallets[gc + '_' + giveNet] || wallets[gc] || "Admin bilan bog'laning";
+
     curOrder = {
-        id:             'TX' + Date.now(),
+        id:              'TX' + Date.now(),
         clientId,
-        giveCurr:       gc,
-        getCurr:        rc,
-        giveAmt:        ga,
-        getAmt:         ga * rate,
-        userWallet:     uw,
-        receiverWallet: wallets[gc] || "Admin bilan bog'laning",
-        status:         'pending',
-        createdAt:      new Date().toISOString(),
-        deadline:       Date.now() + 15 * 60 * 1000,
+        giveCurr:        gc,
+        giveNetwork:     giveNet,
+        getCurr:         rc,
+        getNetwork:      getNet,
+        giveAmt:         ga,
+        getAmt:          ga * rate,
+        userWallet:      uw,
+        receiverWallet:  walletKey,
+        status:          'pending',
+        createdAt:       new Date().toISOString(),
+        deadline:        Date.now() + 15 * 60 * 1000,
     };
     localStorage.setItem('ce_active_order', JSON.stringify(curOrder));
     showPaymentModal();
@@ -971,6 +1255,9 @@ function showPaymentModal() {
     const b = document.getElementById('paymentBody');
     const a = document.getElementById('paymentActions');
     const walletEsc = (curOrder.receiverWallet || '').replace(/'/g, "\\'");
+    const giveNetLabel = getNetDisplayLabel(curOrder.giveCurr, curOrder.giveNetwork);
+    const getNetLabel  = getNetDisplayLabel(curOrder.getCurr,  curOrder.getNetwork);
+
     b.innerHTML = `
         <div class="detail-row">
             <span class="detail-label">${t('idLabel')}</span>
@@ -978,11 +1265,11 @@ function showPaymentModal() {
         </div>
         <div class="detail-row">
             <span class="detail-label">${t('youGiveLbl')}</span>
-            <span class="detail-value">${curOrder.giveAmt} ${curOrder.giveCurr}</span>
+            <span class="detail-value">${curOrder.giveAmt} ${curOrder.giveCurr} <small style="color:var(--text-secondary);font-size:0.75rem">(${giveNetLabel})</small></span>
         </div>
         <div class="detail-row">
             <span class="detail-label">${t('youGetLbl')}</span>
-            <span class="detail-value">${curOrder.getAmt.toFixed(6)} ${curOrder.getCurr}</span>
+            <span class="detail-value">${curOrder.getAmt.toFixed(6)} ${curOrder.getCurr} <small style="color:var(--text-secondary);font-size:0.75rem">(${getNetLabel})</small></span>
         </div>
         <div class="detail-row">
             <span class="detail-label">${t('ourWallet')}</span>
@@ -1017,7 +1304,7 @@ async function confirmPay() {
         await set(k, curOrder);
         curOrder._fbKey = k.key;
         localStorage.setItem('ce_active_order', JSON.stringify(curOrder));
-        clearInterval(timerInt);
+        clearInterval(timers['timerInt']);
         document.getElementById('paymentOverlay').classList.remove('open');
         showWaitingModal();
         listenOrder(k.key);
@@ -1038,14 +1325,11 @@ function listenOrder(k) {
             const m = document.getElementById('orderStatusMsg');
             if (m) {
                 m.className = d.status === 'sent' ? 'status-box success' : 'status-box rejected';
-                m.innerText  = d.status === 'sent' ? t('statusDone') : t('statusRejected');
+                m.innerText = d.status === 'sent' ? t('statusDone') : t('statusRejected');
             }
-            // Waiting modal timer ni to'xtatish
-            clearInterval(waitTimerInt);
-            // Timer qutisini yashirish
+            clearInterval(timers['waitTimerInt']);
             const wtBox = document.getElementById('waitTimerBox');
             if (wtBox) wtBox.style.display = 'none';
-
             curOrder.status = d.status;
             localStorage.setItem('ce_active_order', JSON.stringify(curOrder));
             if (orderUnsubscribe) { orderUnsubscribe(); orderUnsubscribe = null; }
@@ -1096,9 +1380,8 @@ function getContactIcon(key) {
     return '🔗';
 }
 
-// ─── KUTISH MODALI (timer + contacts bilan) ───────────────────────────────────
+// ─── KUTISH MODALI ────────────────────────────────────────────────────────────
 function showWaitingModal() {
-    // Deadline hali o'tmagan bo'lsa timer ko'rsat
     const remaining = curOrder.deadline ? Math.max(0, Math.floor((curOrder.deadline - Date.now()) / 1000)) : 0;
     const timerHtml = remaining > 0
         ? `<div class="waiting-timer-box" id="waitTimerBox">
@@ -1107,6 +1390,9 @@ function showWaitingModal() {
            </div>`
         : '';
 
+    const giveNetLabel = getNetDisplayLabel(curOrder.giveCurr, curOrder.giveNetwork);
+    const getNetLabel  = getNetDisplayLabel(curOrder.getCurr,  curOrder.getNetwork);
+
     document.getElementById('waitingBody').innerHTML = `
         <div class="detail-row">
             <span class="detail-label">${t('idLabel')}</span>
@@ -1114,26 +1400,24 @@ function showWaitingModal() {
         </div>
         <div class="detail-row">
             <span class="detail-label">${t('youGiveLbl')}</span>
-            <span class="detail-value">${curOrder.giveAmt} ${curOrder.giveCurr}</span>
+            <span class="detail-value">${curOrder.giveAmt} ${curOrder.giveCurr} <small style="color:var(--text-secondary);font-size:0.75rem">(${giveNetLabel})</small></span>
         </div>
         <div class="detail-row">
             <span class="detail-label">${t('youGetLbl')}</span>
-            <span class="detail-value">${(curOrder.getAmt || 0).toFixed(6)} ${curOrder.getCurr}</span>
+            <span class="detail-value">${(curOrder.getAmt || 0).toFixed(6)} ${curOrder.getCurr} <small style="color:var(--text-secondary);font-size:0.75rem">(${getNetLabel})</small></span>
         </div>
         ${timerHtml}
         <div id="orderStatusMsg" class="status-box waiting">${t('statusChecking')}</div>
         ${buildContactBox()}
     `;
     document.getElementById('waitingOverlay').classList.add('open');
-
-    // Timer ishga tushirish
     if (remaining > 0) {
         startCountdown('waitTimerDisp', remaining, null, 'waitTimerInt');
     }
 }
 
 function cancelOrder() {
-    clearInterval(timerInt);
+    clearInterval(timers['timerInt']);
     localStorage.removeItem('ce_active_order');
     document.getElementById('paymentOverlay').classList.remove('open');
     curOrder = null;
@@ -1154,8 +1438,7 @@ function checkActiveOrder() {
     } catch(e) { localStorage.removeItem('ce_active_order'); }
 }
 
-// ─── COUNTDOWN (universal) ────────────────────────────────────────────────────
-// intKey: 'timerInt' | 'waitTimerInt' | 'detailTimerInt'
+// ─── COUNTDOWN ────────────────────────────────────────────────────────────────
 const timers = {};
 function startCountdown(elId, seconds, cb, intKey) {
     if (timers[intKey]) clearInterval(timers[intKey]);
@@ -1173,28 +1456,23 @@ function startCountdown(elId, seconds, cb, intKey) {
     timers[intKey] = setInterval(tick, 1000);
     tick();
 }
-// eski global lar bilan mos bo'lishi uchun
-Object.defineProperty(window, 'timerInt',      { get: () => timers['timerInt'],      set: v => timers['timerInt']      = v });
-Object.defineProperty(window, 'waitTimerInt',  { get: () => timers['waitTimerInt'],  set: v => timers['waitTimerInt']  = v });
-Object.defineProperty(window, 'detailTimerInt',{ get: () => timers['detailTimerInt'],set: v => timers['detailTimerInt']= v });
+Object.defineProperty(window, 'timerInt',      { get: () => timers['timerInt'],       set: v => timers['timerInt']       = v });
+Object.defineProperty(window, 'waitTimerInt',  { get: () => timers['waitTimerInt'],   set: v => timers['waitTimerInt']   = v });
+Object.defineProperty(window, 'detailTimerInt',{ get: () => timers['detailTimerInt'], set: v => timers['detailTimerInt'] = v });
 
-// ─── TARIX TABS ───────────────────────────────────────────────────────────────
+// ─── HISTORY TABS ─────────────────────────────────────────────────────────────
 window.switchTab = function(tab) {
     activeTab = tab;
-    ['checking','done','cancelled'].forEach(t => {
-        document.getElementById('tab-' + t)?.classList.toggle('active', t === tab);
+    ['checking','done','cancelled'].forEach(tId => {
+        document.getElementById('tab-' + tId)?.classList.toggle('active', tId === tab);
     });
     renderHistoryList();
 };
 
 function openHistory() {
     document.getElementById('historyOverlay').classList.add('open');
-    // Agar hali listener ishga tushmagan bo'lsa, manual yuklash
-    if (!historyUnsubscribe) {
-        loadHistoryManually();
-    } else {
-        renderHistoryList();
-    }
+    if (!historyUnsubscribe) loadHistoryManually();
+    else renderHistoryList();
 }
 window.openHistory = openHistory;
 
@@ -1210,7 +1488,7 @@ function renderHistoryList() {
         histBody.innerHTML = `<div class="empty-msg">📭 ${t('noOrders')}</div>`;
         return;
     }
-    const statuses = T[lang].statuses || T['uz'].statuses;
+    const statuses  = T[lang].statuses || T['uz'].statuses;
     const localeStr = lang === 'uz' ? 'uz-UZ' : lang === 'ru' ? 'ru-RU' : 'en-GB';
     histBody.innerHTML = filtered.map(d => {
         const statusLabel = statuses[d.status] || d.status;
@@ -1227,15 +1505,15 @@ function renderHistoryList() {
     }).join('');
 }
 
-// ─── BUYURTMA DETAIL ──────────────────────────────────────────────────────────
+// ─── ORDER DETAIL ─────────────────────────────────────────────────────────────
 window.openOrderDetail = function(key) {
     const d = myOrders.find(o => o.key === key);
     if (!d) return;
     clearInterval(timers['detailTimerInt']);
 
-    const statuses = T[lang].statuses || T['uz'].statuses;
+    const statuses    = T[lang].statuses || T['uz'].statuses;
     const statusLabel = statuses[d.status] || d.status;
-    const localeStr = lang === 'uz' ? 'uz-UZ' : lang === 'ru' ? 'ru-RU' : 'en-GB';
+    const localeStr   = lang === 'uz' ? 'uz-UZ' : lang === 'ru' ? 'ru-RU' : 'en-GB';
 
     let bannerClass = 'pending';
     if (d.status === 'paid')      bannerClass = 'checking';
@@ -1248,7 +1526,6 @@ window.openOrderDetail = function(key) {
     if (d.status === 'paid')      statusText = t('statusChecking');
     if (d.status === 'pending')   statusText = t('statusPending');
 
-    // Timer: faqat pending holat uchun va deadline o'tmagan bo'lsa
     let timerHtml = '';
     let showTimer = false;
     if (d.status === 'pending' && d.deadline) {
@@ -1266,8 +1543,9 @@ window.openOrderDetail = function(key) {
         }
     }
 
-    // Contact box: pending yoki paid holat uchun
-    const showContact = d.status === 'pending' || d.status === 'paid';
+    const giveNetLabel = d.giveNetwork ? getNetDisplayLabel(d.giveCurr, d.giveNetwork) : '';
+    const getNetLabel  = d.getNetwork  ? getNetDisplayLabel(d.getCurr,  d.getNetwork)  : '';
+    const showContact  = d.status === 'pending' || d.status === 'paid';
 
     document.getElementById('orderDetailBody').innerHTML = `
         <div class="od-status-banner ${bannerClass}">${statusText}</div>
@@ -1281,11 +1559,11 @@ window.openOrderDetail = function(key) {
         </div>
         <div class="detail-row">
             <span class="detail-label">${t('youGiveLbl')}</span>
-            <span class="detail-value">${d.giveAmt} ${d.giveCurr}</span>
+            <span class="detail-value">${d.giveAmt} ${d.giveCurr}${giveNetLabel ? ' <small style="color:var(--text-secondary);font-size:0.75rem">('+giveNetLabel+')</small>' : ''}</span>
         </div>
         <div class="detail-row">
             <span class="detail-label">${t('youGetLbl')}</span>
-            <span class="detail-value">${(d.getAmt||0).toFixed(6)} ${d.getCurr}</span>
+            <span class="detail-value">${(d.getAmt||0).toFixed(6)} ${d.getCurr}${getNetLabel ? ' <small style="color:var(--text-secondary);font-size:0.75rem">('+getNetLabel+')</small>' : ''}</span>
         </div>
         <div class="detail-row">
             <span class="detail-label">${t('walletSentTo')}</span>
@@ -1299,8 +1577,6 @@ window.openOrderDetail = function(key) {
         ${showContact ? buildContactBox() : ''}
     `;
     document.getElementById('orderDetailOverlay').classList.add('open');
-
-    // Timer ishga tushirish
     if (showTimer) {
         const rem = Math.max(0, Math.floor((d.deadline - Date.now()) / 1000));
         startCountdown('detailTimerEl', rem, null, 'detailTimerInt');
@@ -1311,11 +1587,21 @@ window.closeOrderDetail = function() {
     clearInterval(timers['detailTimerInt']);
     document.getElementById('orderDetailOverlay').classList.remove('open');
 };
-function closeHistory() { document.getElementById('historyOverlay').classList.remove('open'); }
+
+function closeHistory() {
+    document.getElementById('historyOverlay').classList.remove('open');
+}
 window.closeHistory = closeHistory;
+
 function closeWaiting() {
     clearInterval(timers['waitTimerInt']);
+    if (orderUnsubscribe) { orderUnsubscribe(); orderUnsubscribe = null; }
+    // Clear active order from storage so form starts fresh
+    localStorage.removeItem('ce_active_order');
+    curOrder = null;
     document.getElementById('waitingOverlay').classList.remove('open');
+    // Full form reset
+    resetForm();
 }
 window.closeWaiting = closeWaiting;
 
@@ -1328,7 +1614,7 @@ window.copyText = copyText;
 
 function toast(m, type = '') {
     const e = document.getElementById('toast');
-    e.innerText = m;
+    e.innerHTML = m;
     e.className = 'toast show ' + type;
     clearTimeout(e._t);
     e._t = setTimeout(() => e.classList.remove('show'), 3000);
@@ -1336,6 +1622,8 @@ function toast(m, type = '') {
 
 // ─── START ────────────────────────────────────────────────────────────────────
 setLang(lang);
+updateNetworkSelects();
+updateExchangeButton();
 loadData();
 </script>
 </body>
