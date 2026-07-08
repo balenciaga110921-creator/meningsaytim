@@ -355,9 +355,12 @@
                     <option value="USDT">USDT</option>
                     <option value="BTC">Bitcoin (BTC)</option>
                     <option value="ETH">Ethereum (ETH)</option>
-                    <option value="TON">TON Coin</option>
+                    <option value="GRAM">TON Coin</option>
                     <option value="TRX">TRON (TRX)</option>
-                    <option value="UZS">UZS (Karta)</option>
+                    <option value="UZS">SO'M (Karta)</option>
+               <option value="USDC">USDC Coin</option>
+               <option value="BNB">BNB Coin</option>
+              <option value="RUB">RUBL</option>
                 </select>
             </div>
             <!-- Give Network / Bank sub-select -->
@@ -383,12 +386,14 @@
             <label data-t="youGet">Siz olasiz:</label>
             <div class="select-wrap">
                 <select id="getCurr" onchange="onCurrChange()">
-                    <option value="UZS">UZS (Karta)</option>
+                    <option value="UZS">SO'M (Karta)</option>
                     <option value="USDT">USDT</option>
                     <option value="BTC">Bitcoin (BTC)</option>
                     <option value="ETH">Ethereum (ETH)</option>
-                    <option value="TON">TON Coin</option>
+                    <option value="GRAM">TON Coin</option>
                     <option value="TRX">TRON (TRX)</option>
+              <option value="BNB">BNB Coin</option>
+               <option value="RUB">RUBL</option>
                 </select>
             </div>
             <!-- Get Network / Bank sub-select -->
@@ -413,7 +418,7 @@
         </div>
 
         <button class="exchange-btn" id="exchangeBtn" onclick="startExchange()" disabled>
-            ⏳ <span data-t="btnLoading">Yuklanmoqda...</span>
+            ⏳ <span data-t="btnLoading">Miqdor Kiriting...</span>
         </button>
     </div>
 
@@ -422,11 +427,11 @@
         <h2>💰 <span data-t="ratesTitle">Joriy Kurslar</span></h2>
         <div class="bs-tabs">
             <button class="bs-tab buy-tab active" id="bsTabBuy" onclick="switchBsTab('buy')">
-                ▼ <span data-t="tabBuy">Olish (Buy)</span>
+                ▼ <span data-t="tabBuy">Olasiz (Buy)</span>
             </button>
             <div class="bs-tab-sep"></div>
             <button class="bs-tab sell-tab" id="bsTabSell" onclick="switchBsTab('sell')">
-                ▲ <span data-t="tabSell">Sotish (Sell)</span>
+                ▲ <span data-t="tabSell">Sotasiz (Sell)</span>
             </button>
         </div>
         <div id="ratesList">
@@ -508,14 +513,14 @@ const db  = getDatabase(app);
 // Her bir valyuta uchun mavjud tarmoqlar / bank kartalar
 const NETWORKS = {
     USDT: [
-        { id: 'trc20',  label: 'TRC20 (Tron)',       badge: 'trc20'  },
-        { id: 'bep20',  label: 'BEP20 (BNB Chain)',  badge: 'bep20'  },
-        { id: 'erc20',  label: 'ERC20 (Ethereum)',   badge: 'erc20'  },
+        { id: 'trc-20',  label: 'TRC-20 (Tron)',       badge: 'trc-20'  },
+        { id: 'ton',  label: 'Toncoin (Gram)',  badge: 'ton'  },
+    
     ],
     USDC: [
-        { id: 'erc20',  label: 'ERC20 (Ethereum)',   badge: 'erc20'  },
-        { id: 'bep20',  label: 'BEP20 (BNB Chain)',  badge: 'bep20'  },
-        { id: 'trc20',  label: 'TRC20 (Tron)',       badge: 'trc20'  },
+        { id: 'ton',  label: 'Toncoin (Gram)',   badge: 'ton'  },
+        
+        { id: 'trc-20',  label: 'TRC-20 (Tron)',       badge: 'trc-20'  },
     ],
     BTC: [
         { id: 'btc',    label: 'Bitcoin (BTC)',       badge: 'native' },
@@ -540,16 +545,16 @@ const NETWORKS = {
         { id: 'uzcard',    label: '🔵 UzCard',        badge: 'native' },
         { id: 'hamkorbank',label: '🟠 Hamkorbank',    badge: 'native' },
         { id: 'xalqbank',  label: '🔴 Xalq Bank',    badge: 'native' },
-        { id: 'boshqa bank',label: ' boshqa bank',    badge: 'native' },
+        { id: 'boshqa bank',label: '🟢 Boshqa Bank',    badge: 'native' },
     ],
 };
 
 // Placeholder texts for wallet input based on selected currency+network
 const WALLET_PLACEHOLDERS = {
     USDT: {
-        trc20: 'USDT TRC20: T... manzilingizni kiriting',
-        bep20: 'USDT BEP20: 0x... manzilingizni kiriting',
-        erc20: 'USDT ERC20: 0x... manzilingizni kiriting',
+        trc-20: 'USDT TRC-20: T... manzilingizni kiriting',
+        trx: 'USDT tron: 0x... manzilingizni kiriting',
+        ton: 'USDT ton: UQ... manzilingizni kiriting',
     },
     BTC: {
         btc:   'BTC: bc1... yoki 1... manzilingizni kiriting',
@@ -574,6 +579,7 @@ const WALLET_PLACEHOLDERS = {
         uzcard:     'UzCard karta raqami: 8600...',
         hamkorbank: 'Hamkorbank karta raqami: kiriting',
         xalqbank:   'Xalq Bank karta raqami: kiriting',
+  boshqabank:   'Karta raqami: kiriting',
     },
     USDC: {
         erc20: 'USDC ERC20: 0x... manzilingizni kiriting',
@@ -594,7 +600,7 @@ const T = {
         ratesLoading:     'Kurslar yuklanmoqda...',
         walletLabel:      'Qabul qiluvchi hamyon / Karta raqami:',
         walletPh:         'Hamyon yoki karta raqami',
-        btnLoading:       '⏳ Yuklanmoqda...',
+        btnLoading:       ' Miqdor kiriting...',
         btnReady:         '🚀 Almashtirish Boshlash',
         btnOffline:       '📡 Internet yo\'q — kutilmoqda...',
         ratesTitle:       'Joriy Kurslar',
