@@ -174,6 +174,7 @@
         .icon-trx  { background: linear-gradient(135deg,#ff060a,#d00408); }
         .icon-doge { background: linear-gradient(135deg,#c2a633,#a8902a); }
         .icon-usdc { background: linear-gradient(135deg,#2775ca,#1f5fa8); }
+        .icon-bnb  { background: linear-gradient(135deg,#f0b90b,#d4a109); }
         .icon-uzs  { background: linear-gradient(135deg,#1eb53a,#179a30); }
         .icon-usd  { background: linear-gradient(135deg,#85bb65,#6da350); }
         .icon-rub  { background: linear-gradient(135deg,#0033a0,#002880); }
@@ -355,7 +356,7 @@
                     <option value="USDT">USDT</option>
                     <option value="BTC">Bitcoin (BTC)</option>
                     <option value="ETH">Ethereum (ETH)</option>
-                    <option value="GRAM">TON Coin</option>
+                    <option value="TON">TON Coin</option>
                     <option value="TRX">TRON (TRX)</option>
                     <option value="UZS">SO'M (Karta)</option>
                <option value="USDC">USDC Coin</option>
@@ -390,8 +391,9 @@
                     <option value="USDT">USDT</option>
                     <option value="BTC">Bitcoin (BTC)</option>
                     <option value="ETH">Ethereum (ETH)</option>
-                    <option value="GRAM">TON Coin</option>
+                    <option value="TON">TON Coin</option>
                     <option value="TRX">TRON (TRX)</option>
+               <option value="USDC">USDC Coin</option>
               <option value="BNB">BNB Coin</option>
                <option value="RUB">RUBL</option>
                 </select>
@@ -545,15 +547,17 @@ const NETWORKS = {
         { id: 'uzcard',    label: '🔵 UzCard',        badge: 'native' },
         { id: 'hamkorbank',label: '🟠 Hamkorbank',    badge: 'native' },
         { id: 'xalqbank',  label: '🔴 Xalq Bank',    badge: 'native' },
-        { id: 'boshqa bank',label: '🟢 Boshqa Bank',    badge: 'native' },
+        { id: 'boshqabank', label: '🟢 Boshqa Bank',    badge: 'native' },
+    ],
+    BNB: [
+        { id: 'bep20', label: 'BEP20 (BNB Chain)', badge: 'bep20' },
     ],
 };
 
 // Placeholder texts for wallet input based on selected currency+network
 const WALLET_PLACEHOLDERS = {
     USDT: {
-        trc-20: 'USDT TRC-20: T... manzilingizni kiriting',
-        trx: 'USDT tron: 0x... manzilingizni kiriting',
+        'trc-20': 'USDT TRC-20: T... manzilingizni kiriting',
         ton: 'USDT ton: UQ... manzilingizni kiriting',
     },
     BTC: {
@@ -582,16 +586,18 @@ const WALLET_PLACEHOLDERS = {
   boshqabank:   'Karta raqami: kiriting',
     },
     USDC: {
-        erc20: 'USDC ERC20: 0x... manzilingizni kiriting',
-        bep20: 'USDC BEP20: 0x... manzilingizni kiriting',
-        trc20: 'USDC TRC20: T... manzilingizni kiriting',
+        ton: 'USDC ton: UQ... manzilingizni kiriting',
+        'trc-20': 'USDC TRC-20: T... manzilingizni kiriting',
+    },
+    BNB: {
+        bep20: 'BNB BEP20: 0x... manzilingizni kiriting',
     },
 };
 
 // ─── TRANSLATIONS ─────────────────────────────────────────────────────────────
 const T = {
     uz: {
-        loading:          'Miqdor kiriting...',
+        loading:          'Yuklanmoqda...',
         histBtn:          'Tarixim',
         subtitle:         'Valyuta va kripto almashtirish',
         exchTitle:        'Almashtirish',
@@ -854,8 +860,8 @@ function getNetLabelText(curr) {
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
 const BASE_URL  = 'https://balenciaga110921-creator.github.io/meningsaytim';
 const CACHE_TTL = 5 * 60 * 1000;
-const CURR_ICONS = { BTC:'₿', ETH:'Ξ', USDT:'₮', TON:'🌐', TRX:'📱', DOGE:'🐕', USDC:'💰', UZS:'🇺🇿', USD:'🇺🇸', RUB:'🇷🇺' };
-const CURR_NAMES = { BTC:'Bitcoin', ETH:'Ethereum', USDT:'Tether', TON:'TON', TRX:'Tron', DOGE:'Dogecoin', USDC:'USD Coin', UZS:"So'm", USD:'Dollar', RUB:'Rubl' };
+const CURR_ICONS = { BTC:'₿', ETH:'Ξ', USDT:'₮', TON:'🌐', TRX:'📱', DOGE:'🐕', USDC:'💰', BNB:'🔶', UZS:'🇺🇿', USD:'🇺🇸', RUB:'🇷🇺' };
+const CURR_NAMES = { BTC:'Bitcoin', ETH:'Ethereum', USDT:'Tether', TON:'TON', TRX:'Tron', DOGE:'Dogecoin', USDC:'USD Coin', BNB:'BNB', UZS:"So'm", USD:'Dollar', RUB:'Rubl' };
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
 let rates = {}, wallets = {}, contacts = {};
