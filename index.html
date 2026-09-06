@@ -1,1 +1,368 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MONSTER - P2P Limits</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen p-4 sm:p-6 lg:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8 border-b border-slate-800/80 pb-5">
+            <div>
+                <h1 class="text-3xl sm:text-4xl font-black tracking-wider text-red-600 drop-shadow-[0_0_15px_rgba(239,68,68,0.4)]">
+                    MONSTER
+                </h1>
+            </div>
+            <button onclick="openCalcModal()" class="bg-slate-900 hover:bg-slate-800 text-slate-200 px-4 py-2.5 rounded-xl border border-slate-700/80 transition flex items-center gap-2.5 shadow-lg">
+                <i class="fa-solid fa-calculator text-emerald-400 text-lg"></i>
+                <span class="font-semibold text-sm">Kalkulyator</span>
+            </button>
+        </header>
+
+        <!-- Cards Grid -->
+        <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+            <!-- Kartalar shu yerga dinamik qo'shiladi -->
+        </div>
+
+        <!-- Karta qo'shish tugmasi pastda -->
+        <div class="flex justify-center">
+            <button onclick="openModal()" class="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-8 py-3.5 rounded-2xl font-semibold transition shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-plus-circle text-lg"></i> Karta qo'shish
+            </button>
+        </div>
+    </div>
+
+    <!-- Karta Qo'shish Modali -->
+    <div id="cardModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="text-xl font-semibold text-slate-200">Yangi karta qo'shish</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <form id="cardForm" onsubmit="saveCard(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-1">Karta Turi / Nomi</label>
+                    <select id="cardType" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500">
+                        <option value="Uzcard">Uzcard</option>
+                        <option value="Humo">Humo</option>
+                        <option value="Visa/Master">Visa / Mastercard</option>
+                        <option value="Boshqa">Ixtiyoriy nom</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-1">Karta Egasi / Izoh</label>
+                    <input type="text" id="cardName" placeholder="Masalan: Asosiy karta" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-1">Karta Raqami (16 xonali)</label>
+                    <input type="text" id="cardNumber" maxlength="19" placeholder="8600 0000 0000 0000" required oninput="formatCardInput(this)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white tracking-widest focus:outline-none focus:border-blue-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Kunlik Limit (UZS)</label>
+                        <input type="number" id="dailyLimit" placeholder="50000000" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">Oylik Limit (UZS)</label>
+                        <input type="number" id="monthlyLimit" placeholder="500000000" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Bekor qilish</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-500 transition font-medium">Saqlash</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Aylanmani Boshqarish Modali (Yonma-yon tugmalar bilan) -->
+    <div id="transactionModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-6 shadow-2xl">
+            <h3 class="text-xl font-semibold text-slate-200 mb-2">Aylanmani boshqarish</h3>
+            <p class="text-sm text-slate-400 mb-4">Summani kiriting va kerakli amalni tanlang:</p>
+            <form id="transactionForm" onsubmit="return false;" class="space-y-4">
+                <input type="hidden" id="transCardId">
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Summa (UZS)</label>
+                    <input type="number" id="transAmount" placeholder="Summani kiriting" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500 text-lg">
+                </div>
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                    <button type="button" onclick="executeTransaction('add')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-600/20">
+                        <i class="fa-solid fa-plus"></i> Qo'shish
+                    </button>
+                    <button type="button" onclick="executeTransaction('subtract')" class="w-full bg-red-600 hover:bg-red-500 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-1.5 shadow-lg shadow-red-600/20">
+                        <i class="fa-solid fa-minus"></i> Ayirish
+                    </button>
+                </div>
+                <div class="flex justify-center pt-2">
+                    <button type="button" onclick="closeTransModal()" class="text-slate-400 hover:text-slate-200 text-sm transition">Bekor qilish</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- P2P Kalkulyator Modali -->
+    <div id="calculatorModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold text-slate-200">P2P Foyda Kalkulyatori</h3>
+                <button onclick="closeCalcModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            
+            <!-- Foydani ko'rsatuvchi sariq maydon -->
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 mb-5 text-center shadow-inner">
+                <span class="block text-xs font-medium text-slate-400 mb-1">SOF FOYDA:</span>
+                <span id="calcProfitResult" class="text-2xl sm:text-3xl font-extrabold text-yellow-400 tracking-wider">0 UZS</span>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-red-400 mb-1">Olish narx (UZS)</label>
+                    <input type="number" id="calcBuy" placeholder="Olish narxini kiriting" oninput="calculateProfit()" class="w-full bg-slate-800 border border-red-500/50 rounded-xl px-4 py-3 text-red-300 font-semibold focus:outline-none focus:border-red-500 text-lg">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-emerald-400 mb-1">Sotish narx (UZS)</label>
+                    <input type="number" id="calcSell" placeholder="Sotish narxini kiriting" oninput="calculateProfit()" class="w-full bg-slate-800 border border-emerald-500/50 rounded-xl px-4 py-3 text-emerald-300 font-semibold focus:outline-none focus:border-emerald-500 text-lg">
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <button type="button" onclick="closeCalcModal()" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium transition">Yopish</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let cards = JSON.parse(localStorage.getItem('p2p_cards')) || [];
+
+        function openModal() { document.getElementById('cardModal').classList.remove('hidden'); document.getElementById('cardModal').classList.add('flex'); }
+        function closeModal() { document.getElementById('cardModal').classList.add('hidden'); document.getElementById('cardModal').classList.remove('flex'); document.getElementById('cardForm').reset(); }
+        
+        function openTransModal(id) {
+            document.getElementById('transCardId').value = id;
+            document.getElementById('transactionModal').classList.remove('hidden');
+            document.getElementById('transactionModal').classList.add('flex');
+        }
+        function closeTransModal() {
+            document.getElementById('transactionModal').classList.add('hidden');
+            document.getElementById('transactionModal').classList.remove('flex');
+            document.getElementById('transactionForm').reset();
+        }
+
+        function openCalcModal() {
+            document.getElementById('calculatorModal').classList.remove('hidden');
+            document.getElementById('calculatorModal').classList.add('flex');
+        }
+        function closeCalcModal() {
+            document.getElementById('calculatorModal').classList.add('hidden');
+            document.getElementById('calculatorModal').classList.remove('flex');
+            document.getElementById('calcBuy').value = '';
+            document.getElementById('calcSell').value = '';
+            document.getElementById('calcProfitResult').innerText = '0 UZS';
+        }
+
+        // Kalkulyator hisob-kitobi (Sotish narxidan 0.9% ayirib, keyin Olish narxidan ayirish)
+        function calculateProfit() {
+            let buyPrice = parseFloat(document.getElementById('calcBuy').value) || 0;
+            let sellPrice = parseFloat(document.getElementById('calcSell').value) || 0;
+
+            let sellFee = sellPrice * 0.009;
+            let netSell = sellPrice - sellFee;
+            let profit = netSell - buyPrice;
+
+            let resultElem = document.getElementById('calcProfitResult');
+            resultElem.innerText = formatMoney(profit);
+            if (profit < 0) {
+                resultElem.className = "text-2xl sm:text-3xl font-extrabold text-red-500 tracking-wider";
+            } else {
+                resultElem.className = "text-2xl sm:text-3xl font-extrabold text-yellow-400 tracking-wider";
+            }
+        }
+
+        // 16 talik raqamni formatlash (XXXX XXXX XXXX XXXX)
+        function formatCardInput(input) {
+            let value = input.value.replace(/\D/g, '').substring(0, 16);
+            let formatted = value.match(/.{1,4}/g)?.join(' ') || '';
+            input.value = formatted;
+        }
+
+        function saveCard(e) {
+            e.preventDefault();
+            const newCard = {
+                id: Date.now(),
+                type: document.getElementById('cardType').value,
+                name: document.getElementById('cardName').value,
+                number: document.getElementById('cardNumber').value,
+                dailyLimit: parseFloat(document.getElementById('dailyLimit').value),
+                monthlyLimit: parseFloat(document.getElementById('monthlyLimit').value),
+                spentDaily: 0,
+                spentMonthly: 0,
+                lastResetDate: new Date().toLocaleDateString()
+            };
+            cards.push(newCard);
+            syncStorage();
+            closeModal();
+            renderCards();
+        }
+
+        function executeTransaction(type) {
+            const id = Number(document.getElementById('transCardId').value);
+            const amountInput = document.getElementById('transAmount').value;
+            const amount = parseFloat(amountInput);
+
+            if (!amount || amount <= 0) {
+                alert("Iltimos, to'g'ri summa kiriting!");
+                return;
+            }
+            
+            cards = cards.map(card => {
+                if(card.id === id) {
+                    let currentDaily = Number(card.spentDaily) || 0;
+                    let currentMonthly = Number(card.spentMonthly) || 0;
+
+                    if (type === 'add') {
+                        card.spentDaily = currentDaily + amount;
+                        card.spentMonthly = currentMonthly + amount;
+                    } else if (type === 'subtract') {
+                        card.spentDaily = Math.max(0, currentDaily - amount);
+                        card.spentMonthly = Math.max(0, currentMonthly - amount);
+                    }
+                }
+                return card;
+            });
+            
+            syncStorage();
+            closeTransModal();
+            renderCards();
+        }
+
+        function deleteCard(id, event) {
+            event.stopPropagation();
+            if(confirm("Haqiqatan ham bu kartani o'chirmoqchimisiz?")) {
+                cards = cards.filter(c => c.id !== id);
+                syncStorage();
+                renderCards();
+            }
+        }
+
+        function copyNumber(number, event) {
+            event.stopPropagation();
+            navigator.clipboard.writeText(number.replace(/\s/g, ''));
+            alert("Karta raqami nusxalandi: " + number);
+        }
+
+        function syncStorage() {
+            localStorage.setItem('p2p_cards', JSON.stringify(cards));
+        }
+
+        function formatMoney(num) {
+            return num.toLocaleString('uz-UZ') + " UZS";
+        }
+
+        function renderCards() {
+            const grid = document.getElementById('cardsGrid');
+            grid.innerHTML = '';
+
+            if (cards.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-slate-500 bg-slate-900/40 rounded-2xl border border-slate-800">
+                        <i class="fa-solid fa-credit-card text-4xl mb-3"></i>
+                        <p class="text-lg">Hozircha kartalar qo'shilmagan.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            cards.forEach(card => {
+                let dailyLimit = Number(card.dailyLimit) || 1;
+                let monthlyLimit = Number(card.monthlyLimit) || 1;
+                let spentDaily = Number(card.spentDaily) || 0;
+                let spentMonthly = Number(card.spentMonthly) || 0;
+
+                let remainingDaily = Math.max(0, dailyLimit - spentDaily);
+                let remainingMonthly = Math.max(0, monthlyLimit - spentMonthly);
+
+                let dailyPercent = Math.min((spentDaily / dailyLimit) * 100, 100);
+                let monthlyPercent = Math.min((spentMonthly / monthlyLimit) * 100, 100);
+
+                let badgeColor = card.type === 'Humo' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 
+                                 card.type === 'Uzcard' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' : 'bg-purple-500/20 text-purple-400 border-purple-500/30';
+
+                grid.innerHTML += `
+                    <div onclick="openTransModal(${card.id})" class="cursor-pointer bg-gradient-to-br from-slate-900 via-slate-900 to-slate-850 border border-slate-800 hover:border-slate-700 rounded-2xl p-4 shadow-xl relative overflow-hidden flex flex-col justify-between transition-all hover:scale-[1.01]">
+                        <div>
+                            <!-- Karta Yuqori qismi: Chip va Turi -->
+                            <div class="flex justify-between items-center mb-3">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-9 h-7 bg-amber-400/20 border border-amber-400/40 rounded-md flex items-center justify-center">
+                                        <div class="w-5 h-3.5 border border-amber-400/60 rounded-xs grid grid-cols-2 grid-rows-2"></div>
+                                    </div>
+                                    <span class="text-xs px-2.5 py-0.5 rounded-full border font-semibold ${badgeColor}">${card.type}</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-bold text-slate-200">${card.name}</span>
+                                    <button onclick="deleteCard(${card.id}, event)" class="text-slate-500 hover:text-red-400 transition p-1"><i class="fa-solid fa-trash-can text-sm"></i></button>
+                                </div>
+                            </div>
+
+                            <!-- Karta Raqami (Kattaroq va to'liqroq) -->
+                            <div class="flex items-center justify-between mb-4 bg-slate-950/60 px-4 py-2.5 rounded-xl border border-slate-800/80">
+                                <span class="font-mono text-base sm:text-lg font-bold tracking-widest text-slate-100">${card.number}</span>
+                                <button onclick="copyNumber('${card.number}', event)" class="text-blue-400 hover:text-blue-300 bg-blue-500/10 p-2 rounded-lg transition" title="Nusxalash">
+                                    <i class="fa-regular fa-copy text-sm"></i>
+                                </button>
+                            </div>
+
+                            <!-- Limitlar bo'limi -->
+                            <div class="space-y-3 pt-1 border-t border-slate-800/60">
+                                <!-- Kunlik Limit -->
+                                <div>
+                                    <div class="flex justify-between text-[11px] mb-1">
+                                        <span class="text-slate-400">Kunlik:</span>
+                                        <span>
+                                            <span class="text-emerald-400 font-semibold">${formatMoney(spentDaily)}</span> 
+                                            <span class="text-slate-500">/</span> 
+                                            <span class="text-red-400 font-semibold">${formatMoney(remainingDaily)}</span>
+                                        </span>
+                                    </div>
+                                    <div class="w-full bg-slate-800/80 h-1.5 rounded-full overflow-hidden">
+                                        <div class="bg-blue-500 h-full rounded-full transition-all duration-500" style="width: ${dailyPercent}%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Oylik Limit -->
+                                <div>
+                                    <div class="flex justify-between text-[11px] mb-1">
+                                        <span class="text-slate-400">Oylik:</span>
+                                        <span>
+                                            <span class="text-emerald-400 font-semibold">${formatMoney(spentMonthly)}</span> 
+                                            <span class="text-slate-500">/</span> 
+                                            <span class="text-red-400 font-semibold">${formatMoney(remainingMonthly)}</span>
+                                        </span>
+                                    </div>
+                                    <div class="w-full bg-slate-800/80 h-1.5 rounded-full overflow-hidden">
+                                        <div class="bg-indigo-500 h-full rounded-full transition-all duration-500" style="width: ${monthlyPercent}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        renderCards();
+    </script>
+</body>
+</html>
 
