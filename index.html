@@ -74,16 +74,24 @@
 
     <div id="transactionModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-6 shadow-2xl">
-            <h3 class="text-xl font-semibold text-slate-200 mb-3">Aylanma kiritish</h3>
-            <p class="text-sm text-slate-400 mb-4">Kartaga kelib tushgan yoki o'tkazilgan summani kiriting:</p>
+            <h3 class="text-xl font-semibold text-slate-200 mb-2">Aylanmani boshqarish</h3>
+            <p class="text-sm text-slate-400 mb-4">Summani qo'shing yoki xato kiritilgan bo'lsa to'g'rilang:</p>
             <form id="transactionForm" onsubmit="addTransaction(event)" class="space-y-4">
                 <input type="hidden" id="transCardId">
                 <div>
-                    <input type="number" id="transAmount" placeholder="Summani kiriting (UZS)" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500">
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Amal turi</label>
+                    <select id="transType" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                        <option value="add">(+) Pul qo'shish (Aylanma)</option>
+                        <option value="subtract">(-) Xatolikni to'g'rilash (Ayirish)</option>
+                    </select>
                 </div>
-                <div class="flex justify-end gap-3">
-                    <button type="button" onclick="closeTransModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Bekor qilish</button>
-                    <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-500 transition font-medium">Qo'shish</button>
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Summa (UZS)</label>
+                    <input type="number" id="transAmount" placeholder="Summani kiriting" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500">
+                </div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeTransModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition text-sm">Bekor qilish</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-500 transition font-medium text-sm">Saqlash</button>
                 </div>
             </form>
         </div>
@@ -136,11 +144,20 @@
             e.preventDefault();
             const id = Number(document.getElementById('transCardId').value);
             const amount = parseFloat(document.getElementById('transAmount').value);
+            const type = document.getElementById('transType').value;
             
             cards = cards.map(card => {
                 if(card.id === id) {
-                    card.spentDaily += amount;
-                    card.spentMonthly += amount;
+                    let currentDaily = Number(card.spentDaily) || 0;
+                    let currentMonthly = Number(card.spentMonthly) || 0;
+
+                    if (type === 'add') {
+                        card.spentDaily = currentDaily + amount;
+                        card.spentMonthly = currentMonthly + amount;
+                    } else if (type === 'subtract') {
+                        card.spentDaily = Math.max(0, currentDaily - amount);
+                        card.spentMonthly = Math.max(0, currentMonthly - amount);
+                    }
                 }
                 return card;
             });
@@ -186,9 +203,13 @@
             }
 
             cards.forEach(card => {
-                // Kunlik va oylik foizlarni hisoblash
-                let dailyPercent = Math.min((card.spentDaily / card.dailyLimit) * 100, 100);
-                let monthlyPercent = Math.min((card.spentMonthly / card.monthlyLimit) * 100, 100);
+                let dailyLimit = Number(card.dailyLimit) || 1;
+                let monthlyLimit = Number(card.monthlyLimit) || 1;
+                let spentDaily = Number(card.spentDaily) || 0;
+                let spentMonthly = Number(card.spentMonthly) || 0;
+
+                let dailyPercent = Math.min((spentDaily / dailyLimit) * 100, 100);
+                let monthlyPercent = Math.min((spentMonthly / monthlyLimit) * 100, 100);
 
                 let badgeColor = card.type === 'Humo' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 
                                  card.type === 'Uzcard' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : 'bg-purple-500/10 text-purple-400 border-purple-500/20';
@@ -215,7 +236,7 @@
                                 <div>
                                     <div class="flex justify-between text-xs mb-1.5">
                                         <span class="text-slate-400">Kunlik limit:</span>
-                                        <span class="font-medium text-slate-200">${formatMoney(card.spentDaily)} / <span class="text-slate-400">${formatMoney(card.dailyLimit)}</span></span>
+                                        <span class="font-medium text-slate-200">${formatMoney(spentDaily)} / <span class="text-slate-400">${formatMoney(dailyLimit)}</span></span>
                                     </div>
                                     <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
                                         <div class="bg-blue-500 h-full rounded-full transition-all duration-500" style="width: ${dailyPercent}%"></div>
@@ -225,7 +246,7 @@
                                 <div>
                                     <div class="flex justify-between text-xs mb-1.5">
                                         <span class="text-slate-400">Oylik limit:</span>
-                                        <span class="font-medium text-slate-200">${formatMoney(card.spentMonthly)} / <span class="text-slate-400">${formatMoney(card.monthlyLimit)}</span></span>
+                                        <span class="font-medium text-slate-200">${formatMoney(spentMonthly)} / <span class="text-slate-400">${formatMoney(monthlyLimit)}</span></span>
                                     </div>
                                     <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
                                         <div class="bg-indigo-500 h-full rounded-full transition-all duration-500" style="width: ${monthlyPercent}%"></div>
@@ -236,7 +257,7 @@
 
                         <div class="mt-6 pt-4 border-t border-slate-800/85 flex gap-2">
                             <button onclick="openTransModal(${card.id})" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 py-2.5 rounded-xl text-sm font-medium transition flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-plus-circle text-emerald-400"></i> Aylanma qo'shish
+                                <i class="fa-solid fa-pen-to-square text-blue-400"></i> Aylanmani boshqarish
                             </button>
                         </div>
                     </div>
@@ -244,7 +265,6 @@
             });
         }
 
-        // Ilk yuklanganda kartalarni chiqarish
         renderCards();
     </script>
 </body>
